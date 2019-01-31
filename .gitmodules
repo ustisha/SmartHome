@@ -1,3 +1,21 @@
 [submodule "arduino-cmake"]
 	path = arduino-cmake
 	url = https://github.com/altexdim/arduino-cmake
+[submodule "libraries/BH1750"]
+	path = libraries/BH1750
+	url = https://github.com/claws/BH1750
+[submodule "libraries/BME280"]
+	path = libraries/BME280
+	url = https://github.com/shield-9/Arduino-BME280
+[submodule "libraries/DallasTemperature"]
+	path = libraries/DallasTemperature
+	url = https://github.com/milesburton/Arduino-Temperature-Control-Library
+[submodule "libraries/LoRa"]
+	path = libraries/LoRa
+	url = https://github.com/sandeepmistry/arduino-LoRa
+[submodule "libraries/OneWire"]
+	path = libraries/OneWire
+	url = https://github.com/PaulStoffregen/OneWire
+[submodule "libraries/Wire"]
+	path = libraries/Wire
+	url = https://github.com/PaulStoffregen/Wire
