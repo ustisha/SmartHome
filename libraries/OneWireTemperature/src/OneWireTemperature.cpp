@@ -12,8 +12,3 @@ void OneWireTemperature::read() {
 float OneWireTemperature::get() {
     return temp;
 }
-
-void OneWireTemperature::attachComponent(NetComponent *cmp) {
-    component = cmp;
-}
-

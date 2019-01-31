@@ -53,10 +53,11 @@ void setup(void) {
     tempNet = new TemperatureNet(OUTSIDE_TEMP_18B20, owTemp);
 
     LoraNet ln(LORA_SS, LORA_RESET, LORA_DIO0);
-    net = new SmartNet(SENDER_OUTSIDE_TEMP);
+    net = new SmartNet(OUTSIDE_TEMP);
     net->addRadioChannel(ln, 0);
     net->addNetComponent(tempNet);
-    tempNet->addNet(net);
+    tempNet->addNet(net, GATEWAY, GATEWAY_HTTP_HANDLER);
+//    tempNet->sendTimer(1000);
 
     task = new Task();
     task->each(OneWireUpdate, 10000);

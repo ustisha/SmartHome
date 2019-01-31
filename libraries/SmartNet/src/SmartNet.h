@@ -2,9 +2,11 @@
 #ifndef OUTSIDE_TEMP_SMARTNET_H
 #define OUTSIDE_TEMP_SMARTNET_H
 
+class NetComponent;
+
 #include <Arduino.h>
+#include "NetComponent.h"
 #include <Radio.h>
-#include <NetComponent.h>
 
 union Int {
     int i = 0;
@@ -21,9 +23,10 @@ union Byte {
     uint8_t b[sizeof(byte)];
 };
 
-const int SENDER_GATEWAY = 1;
-const int SENDER_OUTSIDE_TEMP = 2;
+const int GATEWAY = 1;
+const int GATEWAY_HTTP_HANDLER = 10001;
 
+const int OUTSIDE_TEMP = 2;
 const int OUTSIDE_TEMP_18B20 = 20001;
 
 struct NetV1 {
@@ -57,4 +60,4 @@ protected:
     uint16_t sender;
 };
 
-#endif //OUTSIDE_TEMP_{}SMARTN{}ET_H
+#endif //OUTSIDE_TEMP_SMARTNET_H

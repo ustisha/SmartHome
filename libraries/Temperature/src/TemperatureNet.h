@@ -10,6 +10,7 @@ class TemperatureNet : public NetComponent {
 public:
     TemperatureNet(uint16_t p, Temperature *t);
 
+//    void sendTimer();
 protected:
     Temperature *temperature;
 };
