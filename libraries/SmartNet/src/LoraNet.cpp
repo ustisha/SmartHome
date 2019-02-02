@@ -14,7 +14,24 @@ bool LoraNet::setup() {
     return true;
 }
 
-void LoraNet::sendData() {
-    LoRa.write(1);
+void LoraNet::sendData(Packet p) {
+    LoRa.beginPacket();
+
+    LoRa.write(p.sender.b[0]);
+    LoRa.write(p.sender.b[1]);
+    LoRa.write(p.sp.b[0]);
+    LoRa.write(p.sp.b[1]);
+
+    LoRa.write(p.receiver.b[0]);
+    LoRa.write(p.receiver.b[1]);
+    LoRa.write(p.rp.b[0]);
+    LoRa.write(p.rp.b[1]);
+
+    LoRa.write(p.cmd);
+    LoRa.write(p.data.b[0]);
+    LoRa.write(p.data.b[1]);
+
+    LoRa.endPacket();
+    LoRa.receive();
 }
 

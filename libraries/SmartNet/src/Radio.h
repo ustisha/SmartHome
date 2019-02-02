@@ -2,10 +2,11 @@
 #define SMARTHOME_RADIO_H
 
 #include <Arduino.h>
+#include <Networking.h>
 
 class Radio {
 public:
-    virtual void sendData() = 0;
+    virtual void sendData(Packet p) = 0;
 
     virtual bool setup() = 0;
 

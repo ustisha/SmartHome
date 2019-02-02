@@ -50,21 +50,19 @@ void setup(void) {
     Wire.begin();
 
     owTemp = new OneWireTemperature(&oneWire, 0);
-    tempNet = new TemperatureNet(OUTSIDE_TEMP_18B20, owTemp);
+    tempNet = new TemperatureNet(OUTSIDE_TEMP_18B20, net, owTemp);
 
     LoraNet ln(LORA_SS, LORA_RESET, LORA_DIO0);
     net = new SmartNet(OUTSIDE_TEMP);
     net->addRadioChannel(ln, 0);
-    net->addNetComponent(tempNet);
-    tempNet->addNet(net, GATEWAY, GATEWAY_HTTP_HANDLER);
-//    tempNet->sendTimer(1000);
+    tempNet->addReceiver(GATEWAY, GATEWAY_HTTP_HANDLER, OUTSIDE_TEMP_CMD_TEMPERATURE, 2000);
 
-    task = new Task();
-    task->each(OneWireUpdate, 10000);
+//    task = new Task();
+//    task->each(OneWireUpdate, 10000);
 
     // Debug print
     Serial.begin(9600);
-    task->each(debug, 5000);
+//    task->each(debug, 5000);
 
 
 

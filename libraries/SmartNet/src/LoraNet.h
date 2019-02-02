@@ -14,7 +14,7 @@ public:
 
     bool setup() override;
 
-    void sendData() override;
+    void sendData(Packet p) override;
 
 };
 

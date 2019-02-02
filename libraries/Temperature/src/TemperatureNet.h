@@ -4,13 +4,15 @@
 #include <Arduino.h>
 #include <Temperature.h>
 #include <NetComponent.h>
+#include <Networking.h>
 
 class TemperatureNet : public NetComponent {
     using NetComponent::NetComponent;
 public:
-    TemperatureNet(uint16_t p, Temperature *t);
+    TemperatureNet(uint16_t p, SmartNet *n, Temperature *t);
 
-//    void sendTimer();
+    void sendCommandData(uint8_t cmd) override;
+
 protected:
     Temperature *temperature;
 };
