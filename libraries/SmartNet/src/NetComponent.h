@@ -1,9 +1,10 @@
 #ifndef SMARTHOME_NETCOMPONENT_H
 #define SMARTHOME_NETCOMPONENT_H
 
-class SmartNet;
+//class SmartNet;
 
 #include <Arduino.h>
+#include <SmartNet.h>
 
 class NetComponent {
 

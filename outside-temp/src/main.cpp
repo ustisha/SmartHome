@@ -24,28 +24,6 @@ SmartNet *net;
 OneWireTemperature *owTemp;
 TemperatureNet *tempNet;
 
-// arrays to hold device address
-//DeviceAddress insideThermometer;
-
-// function to print a device address
-//void printAddress(DeviceAddress deviceAddress)
-//{
-//    for (uint8_t i = 0; i < 8; i++)
-//    {
-//        if (deviceAddress[i] < 16) Serial.print("0");
-//        Serial.print(deviceAddress[i], HEX);
-//    }
-//}
-
-void OneWireUpdate() {
-    owTemp->read();
-}
-
-void debug() {
-    Serial.print("Temp C: ");
-    Serial.println(owTemp->get());
-}
-
 void setup(void) {
     Wire.begin();
 
@@ -57,13 +35,8 @@ void setup(void) {
     net->addRadioChannel(ln, 0);
     tempNet->addReceiver(GATEWAY, GATEWAY_HTTP_HANDLER, OUTSIDE_TEMP_CMD_TEMPERATURE, 2000);
 
-//    task = new Task();
-//    task->each(OneWireUpdate, 10000);
-
     // Debug print
     Serial.begin(9600);
-//    task->each(debug, 5000);
-
 
 
 //    bme.begin(0x76);

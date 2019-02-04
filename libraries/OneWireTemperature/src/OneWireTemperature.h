@@ -7,6 +7,7 @@
 #include <NetComponent.h>
 
 class OneWireTemperature : public Temperature {
+    using Temperature::Temperature;
 public:
     OneWireTemperature(OneWire *oneWire, byte idx);
 

@@ -4,7 +4,7 @@
 class NetComponent;
 
 #include <Arduino.h>
-#include <NetComponent.h>
+//#include <NetComponent.h>
 #include <Radio.h>
 
 const int GATEWAY = 1;

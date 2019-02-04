@@ -8,10 +8,12 @@ void TemperatureNet::sendCommandData(uint16_t r, uint16_t rp, uint8_t cmd) {
     temperature->read();
 
     Packet p;
-    p.sender.i = net.getSender();
+    p.sender.i = net->getSender();
     p.sp.i = sport;
     p.receiver.i = r;
     p.rp.i = rp;
     p.cmd = cmd;
-    p.data.i = temperature->get();
-}
+    p.data.i = int32_t (temperature->get() * 100);
+
+    net->sendPacket(p);
+ }
