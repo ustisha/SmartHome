@@ -2,6 +2,7 @@
 
 LoraNet::LoraNet(int ss, int reset, int dio0) {
     LoRa.setPins(ss, reset, dio0);
+    enabled = true;
 }
 
 bool LoraNet::setup() {
@@ -27,9 +28,13 @@ void LoraNet::sendData(Packet p) {
     LoRa.write(p.rp.b[0]);
     LoRa.write(p.rp.b[1]);
 
-    LoRa.write(p.cmd);
+    LoRa.write(p.cmd.b[0]);
+    LoRa.write(p.cmd.b[1]);
+
     LoRa.write(p.data.b[0]);
     LoRa.write(p.data.b[1]);
+    LoRa.write(p.data.b[2]);
+    LoRa.write(p.data.b[3]);
 
     LoRa.endPacket();
     LoRa.receive();

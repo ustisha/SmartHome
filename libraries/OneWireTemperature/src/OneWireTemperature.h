@@ -2,6 +2,7 @@
 #define OUTSIDE_TEMP_ONEWIRETEMPERATURE_H
 
 #include <Arduino.h>
+#include <DebugLog.h>
 #include <Temperature.h>
 #include <DallasTemperature.h>
 #include <NetComponent.h>

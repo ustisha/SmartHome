@@ -14,6 +14,7 @@ set(mini.upload.speed "57600")
 # Define the port for uploading code to the Arduino
 set(${PROJECT_NAME}_PORT COM6)
 
+set(DebugLog_RECURSE True)
 set(LoRa_RECURSE True)
 set(BH1750_RECURSE True)
 set(BME280_RECURSE True)

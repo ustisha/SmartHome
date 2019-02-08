@@ -5,7 +5,7 @@ NetComponent::NetComponent(uint16_t sp, SmartNet *n) {
     net = n;
 }
 
-void NetComponent::addReceiver(uint16_t r, uint16_t rp, uint8_t c, uint16_t t) {
+void NetComponent::addReceiver(uint16_t r, uint16_t rp, uint16_t c, uint16_t t) {
     int i = getIndex();
     if (i > -1) {
         rcvr[i].receiver = r;
@@ -13,6 +13,14 @@ void NetComponent::addReceiver(uint16_t r, uint16_t rp, uint8_t c, uint16_t t) {
         rcvr[i].timeout = t;
         rcvr[i].cmd = c;
         rcvr[i].last = millis();
+        LOG("[NetComponent] Receiver added to network. Idx: ");
+        LOGVLN(i);
+        LOG(" * Receiver: ");
+        LOGVLN(r);
+        LOG(" * Receiver port: ");
+        LOGVLN(rp);
+        LOG(" * Command: ");
+        LOGVLN(c);
     }
 }
 
@@ -30,9 +38,10 @@ void NetComponent::tick() {
     unsigned long m = millis();
     for (int i = 0; i <= MAX; i++) {
         if (rcvr[i].receiver != NULL && m >= (rcvr[i].last + rcvr[i].timeout)) {
-            rcvr[i].last = 0;
-            rcvr[i].timeout = 0;
-            sendCommandData(rcvr[i].cmd, rcvr[i].receiver, rcvr[i].rport);
+            rcvr[i].last += rcvr[i].timeout;
+            LOG("[NetComponent] Send data by timeout. Idx: ");
+            LOGVLN(i);
+            sendCommandData(rcvr[i].receiver, rcvr[i].rport, rcvr[i].cmd);
         }
     }
 }

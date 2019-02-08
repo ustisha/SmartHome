@@ -10,7 +10,11 @@ public:
 
     virtual bool setup() = 0;
 
+    bool isEnabled();
+
 protected:
+
+    bool enabled = false;
 };
 
 #endif //SMARTHOME_RADIO_H

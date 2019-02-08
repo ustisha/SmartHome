@@ -11,7 +11,7 @@ class TemperatureNet : public NetComponent {
 public:
     TemperatureNet(uint16_t p, SmartNet *n, Temperature *t);
 
-    void sendCommandData(uint16_t r, uint16_t rp, uint8_t cmd) override;
+    void sendCommandData(uint16_t r, uint16_t rp, uint16_t cmd) override;
 
 protected:
     Temperature *temperature;

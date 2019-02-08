@@ -1,28 +1,30 @@
 #ifndef SMARTHOME_NETWORKING_H
 #define SMARTHOME_NETWORKING_H
 
-union Int {
+union UInt {
     int i = 0;
-    uint8_t b[sizeof(int)];
+    uint8_t b[sizeof(unsigned int)];
 };
 
-union Float {
-    float f = 0;
-    uint8_t b[sizeof(float)];
-};
-
-union Byte {
-    byte bt = 0;
-    uint8_t b[sizeof(byte)];
+union Long {
+    int i = 0;
+    uint8_t b[sizeof(long)];
 };
 
 struct Packet {
-    Int sender;
-    Int sp;
-    Int receiver;
-    Int rp;
-    uint8_t cmd = NULL;
-    Int data;
+    UInt sender;
+    UInt sp;
+    UInt receiver;
+    UInt rp;
+    UInt cmd;
+    Long data;
 };
+
+const uint16_t GATEWAY = 1;
+const uint16_t GATEWAY_HTTP_HANDLER = 1001;
+
+const uint16_t OUTSIDE_TEMP = 2;
+const uint16_t OUTSIDE_TEMP_18B20 = 2001;
+const uint16_t OUTSIDE_TEMP_CMD_TEMPERATURE = 1;
 
 #endif //SMARTHOME_NETWORKING_H

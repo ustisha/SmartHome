@@ -1,7 +1,7 @@
+#include <DebugLog.h>
 #include <Wire.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <LoRa.h>
 #include <BME280.hpp>
 #include <BH1750.h>
 #include <Task.h>
@@ -11,7 +11,7 @@
 #include <SmartNet.h>
 #include <LoraNet.h>
 
-#define LORA_SS 53
+#define LORA_SS 10
 #define LORA_RESET 9
 #define LORA_DIO0 3
 #define ONE_WIRE_BUS 2
@@ -25,19 +25,18 @@ OneWireTemperature *owTemp;
 TemperatureNet *tempNet;
 
 void setup(void) {
-    Wire.begin();
+    LOG_INIT(57600);
 
-    owTemp = new OneWireTemperature(&oneWire, 0);
-    tempNet = new TemperatureNet(OUTSIDE_TEMP_18B20, net, owTemp);
+    Wire.begin();
+    LOGLN("[Main] Wire started");
 
     LoraNet ln(LORA_SS, LORA_RESET, LORA_DIO0);
     net = new SmartNet(OUTSIDE_TEMP);
     net->addRadioChannel(ln, 0);
-    tempNet->addReceiver(GATEWAY, GATEWAY_HTTP_HANDLER, OUTSIDE_TEMP_CMD_TEMPERATURE, 2000);
 
-    // Debug print
-    Serial.begin(9600);
-
+    owTemp = new OneWireTemperature(&oneWire, 0);
+    tempNet = new TemperatureNet(OUTSIDE_TEMP_18B20, net, owTemp);
+    tempNet->addReceiver(GATEWAY, GATEWAY_HTTP_HANDLER, OUTSIDE_TEMP_CMD_TEMPERATURE, 10000);
 
 //    bme.begin(0x76);
 //    Serial.println("BME sensor started");
@@ -82,6 +81,7 @@ void setup(void) {
 void loop(void) {
     task->tick();
     net->tick();
+    tempNet->tick();
 
     // call sensors.requestTemperatures() to issue a global temperature
     // request to all devices on the bus
