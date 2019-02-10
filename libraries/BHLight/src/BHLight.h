@@ -1,7 +1,7 @@
 #ifndef BHLIGHT_H
 #define BHLIGHT_H
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <DebugLog.h>

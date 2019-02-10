@@ -3,7 +3,7 @@
 
 //class SmartNet;
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <SmartNet.h>
@@ -13,14 +13,14 @@ class NetComponent {
     const static byte MAX = 3;
 
     struct R {
-        R() : network(NULL), receiver(0), rport(0), timeout(0), cmd(0), last(0) {
+        R() : network(NULL), receiver(0), rport(0), cmd(0), timeout(0), last(0) {
         }
 
         Radio *network;
         uint8_t receiver;
         uint16_t rport;
-        uint16_t timeout;
         uint8_t cmd;
+        unsigned long timeout;
         unsigned long last;
     };
 

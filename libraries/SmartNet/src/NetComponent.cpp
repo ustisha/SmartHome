@@ -5,6 +5,14 @@ NetComponent::NetComponent(uint16_t sp, SmartNet *n) {
     net = n;
 }
 
+/**
+ * Attach receiver data to network component.
+ * @param n Network carrier.
+ * @param r Receiver id.
+ * @param rp Receiver port.
+ * @param c Command to send.
+ * @param t Timeout in seconds.
+ */
 void NetComponent::addReceiver(Radio *n, uint8_t r, uint16_t rp, uint8_t c, uint16_t t) {
     int i = getIndex();
     IF_SERIAL_DEBUG(printf_P(PSTR("[NetComponent::addReceiver] Idx: %d\n"), i));
@@ -12,7 +20,7 @@ void NetComponent::addReceiver(Radio *n, uint8_t r, uint16_t rp, uint8_t c, uint
         rcvr[i].network = n;
         rcvr[i].receiver = r;
         rcvr[i].rport = rp;
-        rcvr[i].timeout = t;
+        rcvr[i].timeout = t * 1000;
         rcvr[i].cmd = c;
         rcvr[i].last = millis();
     }

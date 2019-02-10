@@ -1,7 +1,7 @@
 #ifndef ONEWIRETEMPERATURE_H
 #define ONEWIRETEMPERATURE_H
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <DebugLog.h>

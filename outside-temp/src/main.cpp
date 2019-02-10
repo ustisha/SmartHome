@@ -1,4 +1,4 @@
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <avr/pgmspace.h>
 #include <RF24.h>
@@ -54,22 +54,19 @@ void setup(void) {
 
     owTemp = new OneWireTemp(&oneWire, 0);
     tempNet = new TempNet(OUTSIDE_TEMP_18B20, net, owTemp);
-    tempNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, 10000);
+    tempNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, 2 * 60);
 
     bmeThp = new BMETempHumPressure(&bme, 0x76);
     thpNet = new TempHumPressureNet(OUTSIDE_TEMP_BME280, net, bmeThp);
-    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, 10000);
-    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_HUMIDITY, 10000);
-    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_PRESSURE, 10000);
+    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, 2 * 60);
+    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_HUMIDITY, 2 * 60);
+    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_PRESSURE, 2 * 60);
 
     bhLight = new BHLight();
     lightNet = new LightNet(OUTSIDE_TEMP_BH1750, net, bhLight);
-    lightNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_LIGHT, 10000);
+    lightNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_LIGHT, 5 * 60);
 }
 
-/*
- * Main function. It will request the tempC from the sensors and display on Serial.
- */
 void loop(void) {
     tempNet->tick();
     thpNet->tick();

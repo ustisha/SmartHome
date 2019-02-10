@@ -1,7 +1,7 @@
 #ifndef LORANET_H
 #define LORANET_H
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <DebugLog.h>
