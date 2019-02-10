@@ -6,10 +6,12 @@
 #include <printf.h>
 #include <DebugLog.h>
 #include <Wire.h>
+#include <LightSensor.h>
+#include <LightNet.h>
+#include <BHLight.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <BME280.hpp>
-#include <BH1750.h>
 #include <Temp.h>
 #include <OneWireTemp.h>
 #include <SPI.h>
@@ -27,7 +29,6 @@
 #define ONE_WIRE_BUS 2
 
 OneWire oneWire(ONE_WIRE_BUS);
-//BH1750 lm;
 
 SmartNet *net;
 LoraNet *loraNet;
@@ -35,6 +36,8 @@ OneWireTemp *owTemp;
 TempNet *tempNet;
 BMETempHumPressure *bmeThp;
 TempHumPressureNet *thpNet;
+BHLight *bhLight;
+LightNet *lightNet;
 
 void setup(void) {
 #ifdef SERIAL_DEBUG
@@ -43,8 +46,6 @@ void setup(void) {
     IF_SERIAL_DEBUG(printf_P(PSTR("====== [DEBUG] ======\n")));
 #endif
 
-    //IF_SERIAL_DEBUG(printf_P(PSTR("%lu: MAC Received on %u %s\n\r"),millis(),pipe_num,header.toString()));
-    //IF_SERIAL_DEBUG(printf_P("%u: MAC Received on %u %s\n\r",millis(),pipe_num,header->toString()));
     Wire.begin();
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Wire started\n")));
 
@@ -61,9 +62,9 @@ void setup(void) {
     thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_HUMIDITY, 10000);
     thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_PRESSURE, 10000);
 
-    // On esp8266 you can select SCL and SDA pins using Wire.begin(D4, D3);
-//    lm.begin();
-//    Serial.println("Light sensor started");
+    bhLight = new BHLight();
+    lightNet = new LightNet(OUTSIDE_TEMP_BH1750, net, bhLight);
+    lightNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_LIGHT, 10000);
 }
 
 /*
@@ -72,30 +73,6 @@ void setup(void) {
 void loop(void) {
     tempNet->tick();
     thpNet->tick();
-
-//    float lux = lm.readLightLevel();
-//    Serial.print("Light: ");
-//    Serial.print(lux);
-//    Serial.println(" lx");
-//
-//    Serial.println("beginPacket");
-//    LoRa.beginPacket();
-//
-//    LoRa.write(currentTemp.b[0]);
-//    LoRa.write(currentTemp.b[1]);
-//    LoRa.write(currentTemp.b[2]);
-//    LoRa.write(currentTemp.b[3]);
-//    Serial.println("write");
-//
-//    LoRa.endPacket();
-//    Serial.println("endPacket");
-//    LoRa.receive();
-//    Serial.println("receive");
-
-//    Serial.println("DONE");
-
-    // It responds almost immediately. Let's print out the data
-//    printTemperature(insideThermometer); // Use a simple function to print out the data
-//    delay(5000);
+    lightNet->tick();
 }
 

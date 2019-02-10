@@ -23,6 +23,7 @@ set(DallasTemperature_RECURSE True)
 set(OneWire_RECURSE True)
 set(OneWireTemperature_RECURSE True)
 set(BMETempHumPressure_RECURSE True)
+set(BHLight_RECURSE True)
 
 # Command to generate code arduino firmware (.hex file)
 generate_arduino_firmware(${PROJECT_NAME})
