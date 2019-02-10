@@ -1,13 +1,23 @@
+#define SERIAL_DEBUG
+
+#include <avr/pgmspace.h>
+#include <RF24.h>
+#include <RF24_config.h>
+#include <printf.h>
 #include <DebugLog.h>
 #include <Wire.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <BME280.hpp>
 #include <BH1750.h>
-#include <Task.h>
-#include <Temperature.h>
-#include <OneWireTemperature.h>
-#include <TemperatureNet.h>
+#include <Temp.h>
+#include <OneWireTemp.h>
+#include <SPI.h>
+#include <LoRa.h>
+#include <Net.h>
+#include <TempNet.h>
+#include <BMETempHumPressure.h>
+#include <TempHumPressureNet.h>
 #include <SmartNet.h>
 #include <LoraNet.h>
 
@@ -19,92 +29,50 @@
 OneWire oneWire(ONE_WIRE_BUS);
 //BH1750 lm;
 
-Task *task;
 SmartNet *net;
-OneWireTemperature *owTemp;
-TemperatureNet *tempNet;
+LoraNet *loraNet;
+OneWireTemp *owTemp;
+TempNet *tempNet;
+BMETempHumPressure *bmeThp;
+TempHumPressureNet *thpNet;
 
 void setup(void) {
-    LOG_INIT(57600);
+#ifdef SERIAL_DEBUG
+    Serial.begin(57600);
+    printf_begin();
+    IF_SERIAL_DEBUG(printf_P(PSTR("====== [DEBUG] ======\n")));
+#endif
 
+    //IF_SERIAL_DEBUG(printf_P(PSTR("%lu: MAC Received on %u %s\n\r"),millis(),pipe_num,header.toString()));
+    //IF_SERIAL_DEBUG(printf_P("%u: MAC Received on %u %s\n\r",millis(),pipe_num,header->toString()));
     Wire.begin();
-    LOGLN("[Main] Wire started");
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Wire started\n")));
 
-    LoraNet ln(LORA_SS, LORA_RESET, LORA_DIO0);
+    loraNet = new LoraNet(LORA_SS, LORA_RESET, LORA_DIO0);
     net = new SmartNet(OUTSIDE_TEMP);
-    net->addRadioChannel(ln, 0);
 
-    owTemp = new OneWireTemperature(&oneWire, 0);
-    tempNet = new TemperatureNet(OUTSIDE_TEMP_18B20, net, owTemp);
-    tempNet->addReceiver(GATEWAY, GATEWAY_HTTP_HANDLER, OUTSIDE_TEMP_CMD_TEMPERATURE, 10000);
+    owTemp = new OneWireTemp(&oneWire, 0);
+    tempNet = new TempNet(OUTSIDE_TEMP_18B20, net, owTemp);
+    tempNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, 10000);
 
-//    bme.begin(0x76);
-//    Serial.println("BME sensor started");
+    bmeThp = new BMETempHumPressure(&bme, 0x76);
+    thpNet = new TempHumPressureNet(OUTSIDE_TEMP_BME280, net, bmeThp);
+    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, 10000);
+    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_HUMIDITY, 10000);
+    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_PRESSURE, 10000);
 
     // On esp8266 you can select SCL and SDA pins using Wire.begin(D4, D3);
 //    lm.begin();
 //    Serial.println("Light sensor started");
-
-//    LoRa.setPins(53, 9, 3);
-//    LoRa.begin(433E6);
-//    LoRa.setTxPower(10);
-//    LoRa.setSpreadingFactor(8);
-//    LoRa.enableCrc();
-//    LoRa.idle();
-
 }
-
-// function to print the temperature for a device
-//void printTemperature(DeviceAddress deviceAddress) {
-// method 1 - slower
-//Serial.print("Temp C: ");
-//Serial.print(sensors.getTempC(deviceAddress));
-//Serial.print(" Temp F: ");
-//Serial.print(sensors.getTempF(deviceAddress)); // Makes a second call to getTempC and then converts to Fahrenheit
-
-// method 2 - faster
-//    float tempC = sensors.getTempC(deviceAddress);
-//    if (tempC == DEVICE_DISCONNECTED_C) {
-//        Serial.println("Error: Could not read temperature data");
-//        return;
-//    }
-//    Serial.print("Temp C: ");
-//    Serial.print(tempC);
-//    Serial.print(" Temp F: ");
-//    Serial.println(DallasTemperature::toFahrenheit(tempC)); // Converts tempC to Fahrenheit
-//}
-
 
 /*
  * Main function. It will request the tempC from the sensors and display on Serial.
  */
 void loop(void) {
-    task->tick();
-    net->tick();
     tempNet->tick();
+    thpNet->tick();
 
-    // call sensors.requestTemperatures() to issue a global temperature
-    // request to all devices on the bus
-//    Serial.println("Requesting temperatures...");
-//    sensors.requestTemperatures(); // Send the command to get temperatures
-
-//    Float currentTemp;
-//    Float bmeCurrentTemp;
-//    Float bmeCurrentPressure;
-//    Float bmeCurrentHum;
-
-//    currentTemp.f = sensors.getTempCByIndex(0);
-//    Serial.print("Temp C: ");
-//    Serial.println(currentTemp.f);
-
-//    bme.getData(&bmeCurrentTemp.f, &bmeCurrentPressure.f, &bmeCurrentHum.f);
-//    Serial.print("BME Temp C: ");
-//    Serial.println(bmeCurrentTemp.f);
-//    Serial.print("BME Pressure mmHg: ");
-//    Serial.println(bmeCurrentPressure.f);
-//    Serial.print("BME Humidity %: ");
-//    Serial.println(bmeCurrentHum.f);
-//
 //    float lux = lm.readLightLevel();
 //    Serial.print("Light: ");
 //    Serial.print(lux);

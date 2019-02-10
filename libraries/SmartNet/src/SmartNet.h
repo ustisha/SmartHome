@@ -1,34 +1,27 @@
-#ifndef OUTSIDE_TEMP_SMARTNET_H
-#define OUTSIDE_TEMP_SMARTNET_H
-
-class NetComponent;
+#ifndef SMARTNET_H
+#define SMARTNET_H
 
 #include <Arduino.h>
 #include <DebugLog.h>
-#include <Radio.h>
+#include <LoraNet.h>
 
 class SmartNet {
     const static uint8_t MAX = 10;
-    const static uint8_t CHANNELS = 2;
+//    const static uint8_t CHANNELS = 2;
 
 public:
-    explicit SmartNet(uint16_t s);
-
-    void addRadioChannel(Radio &r, byte idx = 0);
-
-    void sendPacket(Packet p);
+    SmartNet(uint16_t s);
 
     void tick();
 
-    uint16_t getSender();
+    uint8_t getSender();
 
 protected:
 
-    int getIndex();
+//    int getIndex();
 
-    Radio *channels[CHANNELS];
-    NetComponent *components[MAX];
-    uint16_t sender;
+//    NetComponent **components = new NetComponent *[MAX];
+    uint8_t sender;
 };
 
-#endif //OUTSIDE_TEMP_SMARTNET_H
+#endif //SMARTNET_H

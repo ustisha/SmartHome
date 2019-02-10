@@ -1,5 +1,5 @@
-#ifndef ARDUINOEXAMPLE_TEMPERATURE_H
-#define ARDUINOEXAMPLE_TEMPERATURE_H
+#ifndef FORMAT_H
+#define FORMAT_H
 
 
 class Format {
@@ -14,4 +14,4 @@ public:
     static void pressure(char *formatted, float hpa, uint8_t type, bool units);
 };
 
-#endif
+#endif //FORMAT_H

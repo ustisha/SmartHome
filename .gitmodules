@@ -16,3 +16,12 @@
 [submodule "arduino-cmake"]
 	path = arduino-cmake
 	url = https://github.com/ustisha/arduino-cmake
+[submodule "libraries/RF24Mesh"]
+	path = libraries/RF24Mesh
+	url = https://github.com/nRF24/RF24Mesh
+[submodule "libraries/RF24"]
+	path = libraries/RF24
+	url = https://github.com/nRF24/RF24
+[submodule "libraries/RF24Network"]
+	path = libraries/RF24Network
+	url = https://github.com/nRF24/RF24Network

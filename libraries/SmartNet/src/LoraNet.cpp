@@ -1,8 +1,9 @@
 #include "LoraNet.h"
 
-LoraNet::LoraNet(int ss, int reset, int dio0) {
+LoraNet::LoraNet(uint8_t ss, uint8_t reset, uint8_t dio0) {
     LoRa.setPins(ss, reset, dio0);
-    enabled = true;
+    enabled = setup();
+    IF_SERIAL_DEBUG(printf_P(PSTR("[LoraNet] Initialized\n")));
 }
 
 bool LoraNet::setup() {
@@ -15,28 +16,36 @@ bool LoraNet::setup() {
     return true;
 }
 
-void LoraNet::sendData(Packet p) {
+void LoraNet::sendData(Packet &p) {
+
+    IF_SERIAL_DEBUG(
+            printf_P(PSTR("[LoraNet::sendData] Sender: %i, Sport: %u, Receiver: %i, Rport: %u, Cmd: %i, Data: %l\n"),
+                     p.sender, p.sp, p.receiver, p.rp, p.cmd, p.data));
+
+    Serial.println(p.data);
     LoRa.beginPacket();
 
-    LoRa.write(p.sender.b[0]);
-    LoRa.write(p.sender.b[1]);
-    LoRa.write(p.sp.b[0]);
-    LoRa.write(p.sp.b[1]);
+    UInt sp(p.sp);
+    UInt rp(p.rp);
+    Long data(p.data);
 
-    LoRa.write(p.receiver.b[0]);
-    LoRa.write(p.receiver.b[1]);
-    LoRa.write(p.rp.b[0]);
-    LoRa.write(p.rp.b[1]);
+    LoRa.write(p.sender);
+    LoRa.write(sp.b[0]);
+    LoRa.write(sp.b[1]);
 
-    LoRa.write(p.cmd.b[0]);
-    LoRa.write(p.cmd.b[1]);
+    LoRa.write(p.receiver);
+    LoRa.write(rp.b[0]);
+    LoRa.write(rp.b[1]);
 
-    LoRa.write(p.data.b[0]);
-    LoRa.write(p.data.b[1]);
-    LoRa.write(p.data.b[2]);
-    LoRa.write(p.data.b[3]);
+    LoRa.write(p.cmd);
+
+    LoRa.write(data.b[0]);
+    LoRa.write(data.b[1]);
+    LoRa.write(data.b[2]);
+    LoRa.write(data.b[3]);
 
     LoRa.endPacket();
     LoRa.receive();
-}
 
+    IF_SERIAL_DEBUG(printf_P(PSTR("[LoraNet::sendData] Sent. Receive mode\n")));
+}

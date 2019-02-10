@@ -1,5 +1,5 @@
-#ifndef ARDUINOEXAMPLE_TASK_H
-#define ARDUINOEXAMPLE_TASK_H
+#ifndef TASK_H
+#define TASK_H
 
 #include <Arduino.h>
 
@@ -35,4 +35,4 @@ public:
 };
 
 
-#endif //ARDUINOEXAMPLE_TASK_H
+#endif //TASK_H
