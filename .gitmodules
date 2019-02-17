@@ -25,3 +25,6 @@
 [submodule "libraries/RF24Network"]
 	path = libraries/RF24Network
 	url = https://github.com/nRF24/RF24Network
+[submodule "libraries/LowPower"]
+	path = libraries/LowPower
+	url = https://github.com/rocketscream/Low-Power

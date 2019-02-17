@@ -1,6 +1,8 @@
 //#define SERIAL_DEBUG
 
 #include <avr/pgmspace.h>
+#include <avr/power.h>
+#include <LowPower.h>
 #include <RF24.h>
 #include <RF24_config.h>
 #include <printf.h>
@@ -21,7 +23,7 @@
 #include <BMETempHumPressure.h>
 #include <TempHumPressureNet.h>
 #include <SmartNet.h>
-#include <LoraNet.h>
+#include <LoraNetEE.h>
 
 #define LORA_SS 10
 #define LORA_RESET 9
@@ -31,7 +33,7 @@
 OneWire oneWire(ONE_WIRE_BUS);
 
 SmartNet *net;
-LoraNet *loraNet;
+LoraNetEE *loraNetEE;
 OneWireTemp *owTemp;
 TempNet *tempNet;
 BMETempHumPressure *bmeThp;
@@ -44,30 +46,41 @@ void setup(void) {
     Serial.begin(57600);
     printf_begin();
     IF_SERIAL_DEBUG(printf_P(PSTR("====== [DEBUG] ======\n")));
+#else
+    // Only in production mode. Serial print not working with this settings.
+    clock_prescale_set(clock_div_8);
 #endif
+
+    // Sec for stabilization components power
+    delay(500);
 
     Wire.begin();
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Wire started\n")));
 
-    loraNet = new LoraNet(LORA_SS, LORA_RESET, LORA_DIO0);
+    loraNetEE = new LoraNetEE(LORA_SS, LORA_RESET, LORA_DIO0);
     net = new SmartNet(OUTSIDE_TEMP);
 
     owTemp = new OneWireTemp(&oneWire, 0);
     tempNet = new TempNet(OUTSIDE_TEMP_18B20, net, owTemp);
-    tempNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, 2 * 60);
+    tempNet->addReceiver(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, 2);
 
     bmeThp = new BMETempHumPressure(&bme, 0x76);
     thpNet = new TempHumPressureNet(OUTSIDE_TEMP_BME280, net, bmeThp);
-    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, 2 * 60);
-    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_HUMIDITY, 2 * 60);
-    thpNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_PRESSURE, 2 * 60);
+    thpNet->addReceiver(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, 2);
+    thpNet->addReceiver(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_HUMIDITY, 2);
+    thpNet->addReceiver(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_PRESSURE, 2);
 
     bhLight = new BHLight();
     lightNet = new LightNet(OUTSIDE_TEMP_BH1750, net, bhLight);
-    lightNet->addReceiver(loraNet, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_LIGHT, 5 * 60);
+    lightNet->addReceiver(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_LIGHT, 2);
 }
 
 void loop(void) {
+#ifdef SERIAL_DEBUG
+    delay(1000);
+#endif
+    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+
     tempNet->tick();
     thpNet->tick();
     lightNet->tick();

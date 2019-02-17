@@ -3,6 +3,8 @@
 LoraNet::LoraNet(uint8_t ss, uint8_t reset, uint8_t dio0) {
     LoRa.setPins(ss, reset, dio0);
     enabled = setup();
+    LoRa.receive();
+
     IF_SERIAL_DEBUG(printf_P(PSTR("[LoraNet] Initialized\n")));
 }
 
@@ -11,7 +13,6 @@ bool LoraNet::setup() {
     LoRa.setTxPower(10);
     LoRa.setSpreadingFactor(8);
     LoRa.enableCrc();
-    LoRa.idle();
 
     return true;
 }
