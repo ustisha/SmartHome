@@ -3,6 +3,7 @@
 NetComponent::NetComponent(uint16_t sp, SmartNet *n) {
     sport = sp;
     net = n;
+    sleepTime = 0;
 }
 
 /**
@@ -13,20 +14,20 @@ NetComponent::NetComponent(uint16_t sp, SmartNet *n) {
  * @param c Command to send.
  * @param t Timeout in seconds.
  */
-void NetComponent::addReceiver(Radio *n, uint8_t r, uint16_t rp, uint8_t c, uint16_t t) {
+void NetComponent::addReceiver(Radio *n, uint8_t r, uint16_t rp, uint8_t c, float t) {
     int i = getIndex();
     IF_SERIAL_DEBUG(printf_P(PSTR("[NetComponent::addReceiver] Idx: %d\n"), i));
     if (i > -1) {
         rcvr[i].network = n;
         rcvr[i].receiver = r;
         rcvr[i].rport = rp;
-        rcvr[i].timeout = t * 1000;
+        rcvr[i].timeout = uint32_t (t * 1000);
         rcvr[i].cmd = c;
         rcvr[i].last = millis();
     }
 }
 
-byte NetComponent::getIndex() {
+uint8_t NetComponent::getIndex() {
     uint8_t i = 0;
     do {
         if (rcvr[i].receiver == 0) {
@@ -36,8 +37,10 @@ byte NetComponent::getIndex() {
     return -1;
 }
 
-void NetComponent::tick() {
-    unsigned long m = millis();
+void NetComponent::tick(uint16_t sleep) {
+    sleepTime += sleep;
+    unsigned long m;
+    m = millis() + sleepTime;
     for (int i = 0; i < NetComponent::MAX; i++) {
         if (rcvr[i].receiver != 0 && m >= (rcvr[i].last + rcvr[i].timeout)) {
             rcvr[i].last += rcvr[i].timeout;

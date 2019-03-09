@@ -2,7 +2,7 @@
 
 BHLight::BHLight() {
     bh = new BH1750();
-    bh->begin();
+    status = (int) bh->begin();
 }
 
 void BHLight::read() {
@@ -15,5 +15,9 @@ void BHLight::read() {
 
     IF_SERIAL_DEBUG(printf_P(PSTR("[BHLight::read] Lux: %s\n"), buffer));
 #endif
+}
+
+int BHLight::getStatus() {
+    return status;
 }
 

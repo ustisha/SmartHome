@@ -1,8 +1,6 @@
 #ifndef NETCOMPONENT_H
 #define NETCOMPONENT_H
 
-//class SmartNet;
-
 //#define SERIAL_DEBUG
 
 #include <Arduino.h>
@@ -20,8 +18,8 @@ class NetComponent {
         uint8_t receiver;
         uint16_t rport;
         uint8_t cmd;
-        unsigned long timeout;
-        unsigned long last;
+        uint32_t timeout;
+        uint32_t last;
     };
 
 public:
@@ -29,18 +27,19 @@ public:
 
     virtual ~NetComponent() {};
 
-    void addReceiver(Radio *n, uint8_t r, uint16_t rp, uint8_t c, uint16_t t);
+    void addReceiver(Radio *n, uint8_t r, uint16_t rp, uint8_t c, float t);
 
     virtual void sendCommandData(Radio *n, uint8_t r, uint16_t rp, uint8_t cmd) = 0;
 
-    void tick();
+    void tick(uint16_t sleep = 0);
 
 protected:
     SmartNet *net;
     uint16_t sport;
+    uint32_t sleepTime;
     R rcvr[NetComponent::MAX];
 
-    byte getIndex();
+    uint8_t getIndex();
 };
 
 #endif //NETCOMPONENT_H

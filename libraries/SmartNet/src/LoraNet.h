@@ -28,6 +28,7 @@ union Long {
 
 class LoraNet : public Radio {
     using Radio::Radio;
+    const uint16_t WAIT_TRANSMITTING = 2000;
 public:
 
     LoraNet(uint8_t ss = LORA_DEFAULT_SS_PIN, uint8_t reset = LORA_DEFAULT_RESET_PIN,

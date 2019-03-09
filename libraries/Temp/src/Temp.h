@@ -11,8 +11,11 @@ public:
 
     float get();
 
+    int getStatus();
+
 protected:
     float temp = -1;
+    int status = -1;
 };
 
 #endif //TEMP_H

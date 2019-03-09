@@ -1,11 +1,17 @@
 #include "BMETempHumPressure.h"
 
-BMETempHumPressure::BMETempHumPressure(BME280 *bme, const uint8_t address) {
-    bme->begin(address);
+BMETempHumPressure::BMETempHumPressure(TwoWire &wire, uint8_t address) {
+    bme = new BME280(wire, address);
+    status = bme->begin();
+    IF_SERIAL_DEBUG(printf_P(PSTR("[BMETempHumPressure] Status: %d\n"), status));
 }
 
 void BMETempHumPressure::read() {
-    bme.getData(&temp, &pressure, &hum);
+    bme->readSensor();
+
+    temp = bme->getTemperature_C();
+    pressure = bme->getPressure_Pa();
+    hum = bme->getHumidity_RH();
 
 #ifdef SERIAL_DEBUG
     String t(temp);

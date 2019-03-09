@@ -16,9 +16,11 @@ public:
 
     void read() override;
 
+    int getStatus();
+
 protected:
     BH1750 *bh;
-
+    int status = 0;
 };
 
 #endif //BHLIGHT_H

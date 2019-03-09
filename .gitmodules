@@ -1,9 +1,6 @@
 [submodule "libraries/BH1750"]
 	path = libraries/BH1750
 	url = https://github.com/claws/BH1750
-[submodule "libraries/BME280"]
-	path = libraries/BME280
-	url = https://github.com/shield-9/Arduino-BME280
 [submodule "libraries/DallasTemperature"]
 	path = libraries/DallasTemperature
 	url = https://github.com/milesburton/Arduino-Temperature-Control-Library
@@ -28,3 +25,6 @@
 [submodule "libraries/LowPower"]
 	path = libraries/LowPower
 	url = https://github.com/rocketscream/Low-Power
+[submodule "libraries/BME280"]
+	path = libraries/BME280
+	url = https://github.com/bolderflight/BME280
