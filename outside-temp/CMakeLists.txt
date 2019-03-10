@@ -6,10 +6,8 @@ set(PROJECT_NAME outside-temp)
 project(${PROJECT_NAME} C CXX)
 set(${PROJECT_NAME}_SRCS src/main.cpp)
 
-set(${PROJECT_NAME}_BOARD mini)
-set(${PROJECT_NAME}_BOARD_CPU atmega328)
-set(mini.build.mcu "atmega328p")
-set(mini.upload.speed "57600")
+set(${PROJECT_NAME}_BOARD pro)
+set(${PROJECT_NAME}_BOARD_CPU 16MHzatmega328)
 
 # Define the port for uploading code to the Arduino
 set(${PROJECT_NAME}_PORT COM6)
