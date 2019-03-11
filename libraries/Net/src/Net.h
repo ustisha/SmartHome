@@ -27,7 +27,7 @@ const uint8_t CMD_LIGHT = 4;
 const uint8_t CMD_INFO = 100;
 const uint8_t INFO_NETWORK_STARTED = 1;
 const uint8_t INFO_SETUP_COMPLETED = 9;
-const uint8_t INFO_ERROR_18B20 = 20;
+const uint8_t INFO_ERROR_DS18B20 = 20;
 const uint8_t INFO_ERROR_BME280 = 21;
 const uint8_t INFO_ERROR_BH1750 = 22;
 

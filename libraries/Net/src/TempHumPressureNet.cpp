@@ -5,9 +5,6 @@ TempHumPressureNet::TempHumPressureNet(uint16_t p, SmartNet *n, TempHumPressure 
 }
 
 void TempHumPressureNet::sendCommandData(Radio *n, uint8_t r, uint16_t rp, uint8_t cmd) {
-    // @todo read by timeout instead of on each command
-    tempHumPressure->read();
-
     Packet p;
     p.sender = net->getSender();
     p.sp = sport;

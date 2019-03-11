@@ -3,7 +3,14 @@
 OneWireTemp::OneWireTemp(OneWire *oneWire, byte idx) : addressIdx(idx) {
     sensors = new DallasTemperature(oneWire);
     sensors->begin();
+
+    DeviceAddress deviceAddress;
+    sensors->getAddress(deviceAddress, idx);
+    status = sensors->isConnected(deviceAddress);
+    IF_SERIAL_DEBUG(printf_P(PSTR("[OneWireTemp] Status: %d\n"), status));
+
     sensors->setResolution(11);
+    sensors->requestTemperatures();
 }
 
 void OneWireTemp::read() {

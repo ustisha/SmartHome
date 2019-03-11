@@ -31,7 +31,10 @@
 #define LORA_DIO0 3
 #define ONE_WIRE_BUS 2
 
-#define SENSOR_INTERVAL 10
+#define SENSOR_INTERVAL 30
+#define POLL_INTERVAL 20
+
+const uint16_t SLEEP = 1000;
 
 OneWire oneWire(ONE_WIRE_BUS);
 
@@ -55,11 +58,10 @@ void setup(void) {
     IF_SERIAL_DEBUG(printf_P(PSTR("====== [DEBUG] ======\n")));
 #else
     // Only in production mode. Serial print not working with this settings.
-    //clock_prescale_set(clock_div_16);
+    // clock_prescale_set(clock_div_2);
 #endif
 
-    Wire.begin();
-    IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Wire started\n")));
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Main] System started\n")));
 
     loraNetEE = new LoraNetEE(LORA_SS, LORA_RESET, LORA_DIO0);
     net = new SmartNet(OUTSIDE_TEMP);
@@ -69,10 +71,18 @@ void setup(void) {
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Network started\n")));
 
     owTemp = new OneWireTemp(&oneWire, 0);
+    owTemp->setPollInterval(POLL_INTERVAL);
     tempNet = new TempNet(OUTSIDE_TEMP_18B20, net, owTemp);
-    tempNet->addReceiver(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, SENSOR_INTERVAL);
+    if (!owTemp->getStatus()) {
+        // DS18B20 error
+        info->sendCommandData(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_INFO, INFO_ERROR_DS18B20);
+        IF_SERIAL_DEBUG(printf_P(PSTR("[Main] DS18B20 error\n")));
+    } else {
+        tempNet->addReceiver(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, SENSOR_INTERVAL);
+    }
 
     bmeThp = new BMETempHumPressure(Wire, 0x76);
+    bmeThp->setPollInterval(POLL_INTERVAL);
     thpNet = new TempHumPressureNet(OUTSIDE_TEMP_BME280, net, bmeThp);
     if (bmeThp->getStatus() < 0) {
         // BME280 error
@@ -100,14 +110,21 @@ void setup(void) {
 }
 
 void loop(void) {
-    tempNet->tick(4000);
-    thpNet->tick(4000);
-    lightNet->tick(4000);
+    if (owTemp->getStatus()) {
+        owTemp->tick(SLEEP);
+    }
+    if (bmeThp->getStatus()) {
+        bmeThp->tick(SLEEP);
+    }
+
+    tempNet->tick(SLEEP);
+    thpNet->tick(SLEEP);
+    lightNet->tick(SLEEP);
 
 #ifdef SERIAL_DEBUG
     Serial.flush();
 #endif
 
-    LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
+    LowPower.powerDown(SLEEP_1S, ADC_OFF, BOD_OFF);
 }
 

@@ -5,8 +5,6 @@ TempNet::TempNet(uint16_t p, SmartNet *n, Temp *t) : NetComponent(p, n) {
 }
 
 void TempNet::sendCommandData(Radio *n, uint8_t r, uint16_t rp, uint8_t cmd) {
-    temperature->read();
-
     Packet p;
     p.sender = net->getSender();
     p.sp = sport;
