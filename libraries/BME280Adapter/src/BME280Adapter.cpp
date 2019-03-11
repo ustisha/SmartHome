@@ -13,6 +13,8 @@ void BME280Adapter::read() {
     pressure = bme->getPressure_Pa();
     hum = bme->getHumidity_RH();
 
+    bme->setStandbyTime(BME280::STANDBY_1000_MS);
+
 #ifdef SERIAL_DEBUG
     String t(temp);
     static char tBuf[8];
