@@ -7,24 +7,29 @@
 #include <RF24_config.h>
 #include <printf.h>
 #include <DebugLog.h>
-#include <Wire.h>
-#include <LightSensor.h>
-#include <LightNet.h>
-#include <BHLight.h>
-#include <OneWire.h>
-#include <DallasTemperature.h>
-#include <BME280.h>
-#include <Temp.h>
-#include <OneWireTemp.h>
 #include <SPI.h>
+#include <Wire.h>
+#include <OneWire.h>
 #include <LoRa.h>
 #include <Net.h>
-#include <NetInfo.h>
-#include <TempNet.h>
-#include <BMETempHumPressure.h>
-#include <TempHumPressureNet.h>
+#include <LightSensorNet.h>
+#include <LightSensorInterface.h>
+#include <BH1750.h>
+#include <BH1750Adapter.h>
+#include <DallasTemperature.h>
+#include <TInterface.h>
+#include <DS18B20Adapter.h>
+#include <THInterface.h>
+#include <THPInterface.h>
+#include <BME280.h>
+#include <BME280Adapter.h>
+#include <InfoNet.h>
+#include <TNet.h>
+#include <THPNet.h>
 #include <SmartNet.h>
 #include <LoraNetEE.h>
+#include <Vcc.h>
+#include <VccNet.h>
 
 #define LORA_SS 10
 #define LORA_RESET 9
@@ -35,18 +40,21 @@
 #define POLL_INTERVAL 20
 
 const uint16_t SLEEP = 1000;
+const float vccCorrection = 1.0/1.0;
 
 OneWire oneWire(ONE_WIRE_BUS);
 
-NetInfo *info;
+InfoNet *info;
 SmartNet *net;
 LoraNetEE *loraNetEE;
-OneWireTemp *owTemp;
-TempNet *tempNet;
-BMETempHumPressure *bmeThp;
-TempHumPressureNet *thpNet;
-BHLight *bhLight;
-LightNet *lightNet;
+DS18B20Adapter *owTemp;
+TNet *tempNet;
+BME280Adapter *bmeThp;
+THPNet *thpNet;
+BH1750Adapter *bhLight;
+LightSensorNet *lightNet;
+Vcc *vcc;
+VccNet *vccNet;
 
 void setup(void) {
     // Sec for stabilization components power
@@ -65,14 +73,14 @@ void setup(void) {
 
     loraNetEE = new LoraNetEE(LORA_SS, LORA_RESET, LORA_DIO0);
     net = new SmartNet(OUTSIDE_TEMP);
-    info = new NetInfo(OUTSIDE_TEMP_INFO, net);
+    info = new InfoNet(OUTSIDE_TEMP_INFO, net);
     // Info network started
     info->sendCommandData(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_INFO, INFO_NETWORK_STARTED);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Network started\n")));
 
-    owTemp = new OneWireTemp(&oneWire, 0);
+    owTemp = new DS18B20Adapter(&oneWire, 0);
     owTemp->setPollInterval(POLL_INTERVAL);
-    tempNet = new TempNet(OUTSIDE_TEMP_18B20, net, owTemp);
+    tempNet = new TNet(OUTSIDE_TEMP_18B20, net, owTemp);
     if (!owTemp->getStatus()) {
         // DS18B20 error
         info->sendCommandData(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_INFO, INFO_ERROR_DS18B20);
@@ -81,9 +89,9 @@ void setup(void) {
         tempNet->addReceiver(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_TEMPERATURE, SENSOR_INTERVAL);
     }
 
-    bmeThp = new BMETempHumPressure(Wire, 0x76);
+    bmeThp = new BME280Adapter(Wire, 0x76);
     bmeThp->setPollInterval(POLL_INTERVAL);
-    thpNet = new TempHumPressureNet(OUTSIDE_TEMP_BME280, net, bmeThp);
+    thpNet = new THPNet(OUTSIDE_TEMP_BME280, net, bmeThp);
     if (bmeThp->getStatus() < 0) {
         // BME280 error
         info->sendCommandData(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_INFO, INFO_ERROR_BME280);
@@ -94,8 +102,8 @@ void setup(void) {
         thpNet->addReceiver(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_PRESSURE, SENSOR_INTERVAL);
     }
 
-    bhLight = new BHLight();
-    lightNet = new LightNet(OUTSIDE_TEMP_BH1750, net, bhLight);
+    bhLight = new BH1750Adapter();
+    lightNet = new LightSensorNet(OUTSIDE_TEMP_BH1750, net, bhLight);
     if (!bhLight->getStatus()) {
         // BH1750 error
         info->sendCommandData(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_INFO, INFO_ERROR_BH1750);
@@ -103,6 +111,10 @@ void setup(void) {
     } else {
         lightNet->addReceiver(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_LIGHT, SENSOR_INTERVAL);
     }
+
+    vcc = new Vcc(vccCorrection);
+    vccNet = new VccNet(OUTSIDE_TEMP_VCC, net, vcc);
+    vccNet->addReceiver(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_VCC, SENSOR_INTERVAL);
 
     // Info setup completed
     info->sendCommandData(loraNetEE, GATEWAY, GATEWAY_HTTP_HANDLER, CMD_INFO, INFO_SETUP_COMPLETED);
@@ -120,6 +132,7 @@ void loop(void) {
     tempNet->tick(SLEEP);
     thpNet->tick(SLEEP);
     lightNet->tick(SLEEP);
+    vccNet->tick(SLEEP);
 
 #ifdef SERIAL_DEBUG
     Serial.flush();

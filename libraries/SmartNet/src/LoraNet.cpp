@@ -35,7 +35,7 @@ void LoraNet::sendData(Packet &p) {
         delayMicroseconds(100);
     }
     // @todo Send immediately after previous send without delay not working.
-    delay(10);
+    delay(20);
 
     UInt sp(p.sp);
     UInt rp(p.rp);

@@ -5,7 +5,7 @@
 
 #include <Arduino.h>
 #include <DebugLog.h>
-#include <Radio.h>
+#include <RadioInterface.h>
 #include <LoRa.h>
 
 union UInt {
@@ -26,8 +26,8 @@ union Long {
     };
 };
 
-class LoraNet : public Radio {
-    using Radio::Radio;
+class LoraNet : public RadioInterface {
+    using RadioInterface::RadioInterface;
     const uint16_t WAIT_TRANSMITTING = 2000;
 public:
 

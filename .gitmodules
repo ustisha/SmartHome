@@ -28,3 +28,6 @@
 [submodule "libraries/BME280"]
 	path = libraries/BME280
 	url = https://github.com/bolderflight/BME280
+[submodule "libraries/Vcc"]
+	path = libraries/Vcc
+	url = https://github.com/Yveaux/Arduino_Vcc
