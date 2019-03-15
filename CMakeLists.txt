@@ -10,7 +10,7 @@ project(SmartHome C CXX)
 #print_board_settings(mini)
 
 # add libraries to project
-link_directories(${ARDUINO_SDK}/libraries)
+link_directories(${ARDUINO_SDK_PATH}/libraries)
 link_directories(${CMAKE_SOURCE_DIR}/libraries)
 link_directories(C:\\Arduino\\libraries)
 

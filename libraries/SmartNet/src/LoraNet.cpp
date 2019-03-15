@@ -3,26 +3,24 @@
 LoraNet::LoraNet(uint8_t ss, uint8_t reset, uint8_t dio0) {
     LoRa.setPins(ss, reset, dio0);
     enabled = setup();
-    LoRa.receive();
 
-    IF_SERIAL_DEBUG(printf_P(PSTR("[LoraNet] Initialized\n")));
+    IF_SERIAL_DEBUG(printf_P(PSTR("[LoraNet] Initialize status: %d\n"), (int) enabled));
 }
 
 bool LoraNet::setup() {
-    LoRa.begin(433E6);
-    LoRa.setTxPower(10);
-    LoRa.setSpreadingFactor(8);
-    LoRa.enableCrc();
-    LoRa.idle();
-
-    return true;
+    int status = LoRa.begin(510E6);
+    if (status) {
+        LoRa.setSpreadingFactor(7);
+        LoRa.setSignalBandwidth(250E3);
+        LoRa.setSyncWord(0xCC);
+        LoRa.enableCrc();
+        LoRa.idle();
+        return true;
+    }
+    return false;
 }
 
 void LoraNet::sendData(Packet &p) {
-
-    IF_SERIAL_DEBUG(
-            printf_P(PSTR("[LoraNet::sendData] Sender: %i, Sport: %u, Receiver: %i, Rport: %u, Cmd: %i, Data: %ld\n"),
-                     p.sender, p.sp, p.receiver, p.rp, p.cmd, p.data));
 
     unsigned long start, m;
     start = millis();
@@ -32,10 +30,12 @@ void LoraNet::sendData(Packet &p) {
             IF_SERIAL_DEBUG(printf_P(PSTR("[LoraNet::sendData] Wait transmitting failed\n")));
             break;
         }
-        delayMicroseconds(100);
+        yield();
     }
-    // @todo Send immediately after previous send without delay not working.
-    delay(20);
+
+    IF_SERIAL_DEBUG(
+            printf_P(PSTR("[LoraNet::sendData] Sender: %i, Sport: %u, Receiver: %i, Rport: %u, Cmd: %i, Data: %ld\n"),
+                     p.sender, p.sp, p.receiver, p.rp, p.cmd, p.data));
 
     UInt sp(p.sp);
     UInt rp(p.rp);
@@ -57,8 +57,7 @@ void LoraNet::sendData(Packet &p) {
     LoRa.write(data.b[3]);
 
     int status;
-    status = LoRa.endPacket(true);
-    LoRa.receive();
+    status = LoRa.endPacket();
 
     IF_SERIAL_DEBUG(printf_P(PSTR("[LoraNet::sendData] Sent. Status: %d\n"), status));
 }

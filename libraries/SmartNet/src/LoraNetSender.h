@@ -4,11 +4,11 @@
 #include <Arduino.h>
 #include <LoraNet.h>
 
-class LoraNetEE : public LoraNet {
+class LoraNetSender : public LoraNet {
     using LoraNet::LoraNet;
 public:
 
-    LoraNetEE(uint8_t ss, uint8_t reset, uint8_t dio0);
+    LoraNetSender(uint8_t ss, uint8_t reset, uint8_t dio0);
 
     void sendData(Packet &p) override;
 };
