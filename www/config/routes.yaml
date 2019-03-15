@@ -1,0 +1,7 @@
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
+
+app_lora_receive:
+  path: /lora/receive
+  controller: App\Controller\LoraController::receive
