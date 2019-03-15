@@ -16,4 +16,4 @@ link_directories(C:\\Arduino\\libraries)
 
 # add the project directory into build
 add_subdirectory(outside-temp)
-#add_subdirectory(gateway)
+add_subdirectory(gateway)

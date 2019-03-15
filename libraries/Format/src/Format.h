@@ -1,6 +1,8 @@
 #ifndef FORMAT_H
 #define FORMAT_H
 
+#include <Arduino.h>
+#include <IPAddress.h>
 
 class Format {
 public:
@@ -12,6 +14,7 @@ public:
     static void humidity(char *formatted, float h);
     static void pressure(char *formatted, float hpa);
     static void pressure(char *formatted, float hpa, uint8_t type, bool units);
+    static void ip(char *formatted, IPAddress addr);
 };
 
 #endif //FORMAT_H
