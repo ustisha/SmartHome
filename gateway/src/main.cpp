@@ -84,6 +84,7 @@ void onReceive(int packetSize) {
         client.println(host);
         client.println("Connection: close");
         client.println();
+        client.flush();
     } else {
         IF_SERIAL_DEBUG(
                 printf_P(PSTR("[Gateway::onReceive] Connection failed\n")));
