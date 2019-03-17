@@ -10,6 +10,8 @@ struct Packet {
     long data;
 };
 
+const uint8_t PACKET_SIZE = 11;
+
 const uint8_t GATEWAY = 1;
 const uint16_t GATEWAY_HTTP_HANDLER = 1001;
 

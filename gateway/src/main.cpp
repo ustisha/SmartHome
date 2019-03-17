@@ -8,6 +8,7 @@
 #include <LoRa.h>
 #include <Ethernet.h>
 #include <Format.h>
+#include <Net.h>
 
 union UInt {
     uint16_t i = 0;
@@ -38,6 +39,10 @@ unsigned long byteCount = 0;
 
 void onReceive(int packetSize) {
     IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::onReceive] LoRa packet. Size %d\n"), packetSize));
+
+    if (packetSize != PACKET_SIZE) {
+        return;
+    }
 
     UInt sp(0);
     UInt rp(0);
