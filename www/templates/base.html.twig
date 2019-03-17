@@ -6,7 +6,13 @@
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
-        {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock %}
+    <div style="font-size: 26px">Температура 1: <b>{{ outsideTemp.temperatureDS18B20 }}&nbsp;℃</b></div>
+        <div style="font-size: 26px">Температура 2: <b>{{ outsideTemp.temperatureBME280 }}&nbsp;℃</b></div>
+        <div style="font-size: 26px">Влажность: <b>{{ outsideTemp.humidity }}&nbsp;%</b></div>
+        <div style="font-size: 26px">Давление: <b>{{ outsideTemp.pressureMmHg }}&nbsp;mmHg</b></div>
+        <div style="font-size: 26px">Освещенность: <b>{{ outsideTemp.lux }}&nbsp;Lux</b></div>
+        <div style="font-size: 26px">Напряжение: <b>{{ outsideTemp.vcc }}&nbsp;V</b></div>
+        </br>
+        <div>Обновлено: {{ outsideTemp.lastUpdate|date("d.m.Y H:i:s") }}</div>
     </body>
 </html>
