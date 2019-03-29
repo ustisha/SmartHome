@@ -36,8 +36,8 @@
 #define LORA_DIO0 3
 #define ONE_WIRE_BUS 2
 
-#define SENSOR_INTERVAL 30
-#define POLL_INTERVAL 60
+#define SENSOR_INTERVAL 120
+#define POLL_INTERVAL 110
 
 const uint16_t SLEEP = 4000;
 const float vccCorrection = 1.0/1.0;
@@ -64,9 +64,6 @@ void setup(void) {
     Serial.begin(57600);
     printf_begin();
     IF_SERIAL_DEBUG(printf_P(PSTR("====== [DEBUG] ======\n")));
-#else
-    // Only in production mode. Serial print not working with this settings.
-    // clock_prescale_set(clock_div_2);
 #endif
 
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] System started\n")));
