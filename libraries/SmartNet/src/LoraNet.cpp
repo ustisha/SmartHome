@@ -10,7 +10,7 @@ LoraNet::LoraNet(uint8_t ss, uint8_t reset, uint8_t dio0) {
 bool LoraNet::setup() {
     int status = LoRa.begin(510E6);
     if (status) {
-        LoRa.setSpreadingFactor(7);
+        LoRa.setSpreadingFactor(10);
         LoRa.setSignalBandwidth(250E3);
         LoRa.setSyncWord(0xCC);
         LoRa.enableCrc();
