@@ -62,6 +62,10 @@ void onReceive(int packetSize) {
     data.b[2] = (uint8_t) LoRa.read();
     data.b[3] = (uint8_t) LoRa.read();
 
+    int rssi = LoRa.packetRssi();
+#ifdef SERIAL_DEBUG
+    long freqErr = LoRa.packetFrequencyError();
+#endif
     String snr(LoRa.packetSnr());
     static char snrBuf[8];
     snr.toCharArray(snrBuf, snr.length() + 1);
@@ -71,7 +75,8 @@ void onReceive(int packetSize) {
                     PSTR("[Gateway::onReceive] LoRa Packet. Sender: %i, Sport: %u, Receiver: %i, Rport: %u, Cmd: %i, Data: %ld\n"),
                     sender, sp.i, receiver, rp.i, cmd, data.i));
 
-    IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::onReceive] LoRa packet. RSSI: %d, SNR: %s\n"), LoRa.packetRssi(), snrBuf));
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::onReceive] LoRa packet. RSSI: %d, SNR: %s, Frequency err: %ld\n"),
+                             rssi, snrBuf, freqErr));
 
     if (client.connect(gateway, 80)) {
         IPAddress remoteIp = client.remoteIP();
@@ -83,7 +88,8 @@ void onReceive(int packetSize) {
 
         static char get[128];
         static char host[32];
-        sprintf(get, "GET /lora/receive?s=%i&sp=%u&r=%i&rp=%u&cmd=%i&data=%ld HTTP/1.1", sender, sp.i, receiver, rp.i, cmd, data.i);
+        sprintf( get, "GET /lora/receive?s=%i&sp=%u&r=%i&rp=%u&cmd=%i&data=%ld&rssi=%d&snr=%s HTTP/1.1",
+                sender, sp.i, receiver, rp.i, cmd, data.i, rssi, snrBuf);
         client.println(get);
         sprintf(host, "Host: %s", gateway);
         client.println(host);
@@ -133,7 +139,7 @@ void setup() {
     LoRa.setPins(6, 5, 3);
     int status = LoRa.begin(510E6);
     if (status) {
-        LoRa.setSpreadingFactor(7);
+        LoRa.setSpreadingFactor(10);
         LoRa.setSignalBandwidth(250E3);
         LoRa.setSyncWord(0xCC);
         LoRa.enableCrc();
