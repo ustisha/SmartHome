@@ -22,20 +22,25 @@ class RadioLogRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int $sender
+     * @param int   $sender
+     *
+     * @param array $commands
      *
      * @return RadioLog[]
      */
-    public function loadLastLog(int $sender)
+    public function loadLastLog(int $sender,  array $commands = [])
     {
+        $qb = $this->createQueryBuilder('l');
         $qbGroup = $this->createQueryBuilder('rl');
         $qbGroup->select('MAX(rl.id) ')
             ->andWhere('rl.sender = :sender')
             ->andWhere('rl.direction = :direction')
             ->andWhere($qbGroup->expr()->in('rl.sender_port', Net::ports()))
             ->groupBy('rl.sender, rl.sender_port, rl.command');
+        if (count($commands)) {
+            $qbGroup->andWhere($qb->expr()->in('rl.command', $commands));
+        }
 
-        $qb = $this->createQueryBuilder('l');
         $qb->setParameter('sender', $sender)
             ->setParameter('direction', RadioAbstract::DIRECTION_IN);
         $qb->andWhere($qb->expr()->in('l.id', $qbGroup->getDQL()));

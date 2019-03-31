@@ -7,7 +7,7 @@ namespace App\Model;
 use App\Entity\RadioLog;
 use Doctrine\ORM\EntityManagerInterface;
 
-class OutsideTemp
+class OutsideTemp implements \JsonSerializable
 {
     protected $temperature = [];
 
@@ -33,7 +33,8 @@ class OutsideTemp
 
     public function __construct(EntityManagerInterface $entityManager)
     {
-        $data = $entityManager->getRepository(RadioLog::class)->loadLastLog(Net::OUTSIDE_TEMP);
+        $commands = [Net::CMD_TEMPERATURE, Net::CMD_HUMIDITY, Net::CMD_PRESSURE, Net::CMD_LIGHT, Net::CMD_VCC];
+        $data = $entityManager->getRepository(RadioLog::class)->loadLastLog(Net::OUTSIDE_TEMP, $commands);
         $this->lastUpdate = new \DateTime();
         foreach ($data as $outside) {
             if ($outside->getCommand() == Net::CMD_TEMPERATURE) {
@@ -127,4 +128,23 @@ class OutsideTemp
         return $this->lastUpdate;
     }
 
+    /**
+     * Specify data which should be serialized to JSON
+     * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    public function jsonSerialize()
+    {
+        return [
+            'temperature_DS18B20' => $this->getTemperatureDS18B20(),
+            'temperature_BME280' => $this->getTemperatureBME280(),
+            'humidity' => $this->getHumidity(),
+            'pressure' => $this->getPressureMmHg(),
+            'lux' => $this->getLux(),
+            'vcc' => $this->getVcc(),
+            'lastUpdate' => $this->getLastUpdate()
+        ];
+    }
 }
