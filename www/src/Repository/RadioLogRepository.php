@@ -5,7 +5,10 @@ namespace App\Repository;
 use App\Entity\RadioLog;
 use App\Model\Net;
 use App\Radio\RadioAbstract;
+use App\Repository\RadioLog\MaxValue;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Internal\HydrationCompleteHandler;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -28,7 +31,7 @@ class RadioLogRepository extends ServiceEntityRepository
      *
      * @return RadioLog[]
      */
-    public function loadLastLog(int $sender,  array $commands = [])
+    public function loadLastLog(int $sender, array $commands = [])
     {
         $qb = $this->createQueryBuilder('l');
         $qbGroup = $this->createQueryBuilder('rl');
@@ -46,6 +49,39 @@ class RadioLogRepository extends ServiceEntityRepository
         $qb->andWhere($qb->expr()->in('l.id', $qbGroup->getDQL()));
 
         return $qb->getQuery()->execute();
+    }
+
+
+    /**
+     * @param int      $sender
+     * @param DateTime $from
+     * @param DateTime $to
+     * @param array    $commands
+     *
+     * @return MaxValue[]
+     */
+    public function loadMaxValues(int $sender, DateTime $from, DateTime $to, array $commands = []): array
+    {
+        $qb = $this->createQueryBuilder('rl');
+        $qb->select('rl.sender_port', 'rl.command', $qb->expr()->max('rl.data') . 'AS data')
+            ->andWhere('rl.sender = :sender')
+            ->andWhere('rl.direction = :direction')
+            ->andWhere($qb->expr()->in('rl.sender_port', Net::ports()))
+            ->andWhere('rl.date > :from')
+            ->andWhere('rl.date < :to')
+            ->groupBy('rl.sender, rl.sender_port, rl.command');
+
+        if (count($commands)) {
+            $qb->andWhere($qb->expr()->in('rl.command', $commands));
+        }
+
+        $qb->setParameter('sender', $sender)
+            ->setParameter('direction', RadioAbstract::DIRECTION_IN)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to);
+
+        return $qb->getQuery()
+            ->getResult();
     }
 
     // /**

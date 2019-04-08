@@ -11,6 +11,8 @@ class OutsideTemp implements \JsonSerializable
 {
     protected $temperature = [];
 
+    protected $temperatureMax = [];
+
     protected $humidity;
 
     /**
@@ -52,6 +54,15 @@ class OutsideTemp implements \JsonSerializable
                 $this->lastUpdate = $outside->getDate();
             }
         }
+
+        $from = (new \DateTime('-4 day'))->setTime(12, 0, 0);
+        $to = (new \DateTime('-4 day'))->setTime(23, 59, 59);
+        $data = $entityManager->getRepository(RadioLog::class)->loadMaxValues(Net::OUTSIDE_TEMP, $from, $to, [Net::CMD_TEMPERATURE]);
+        var_dump($data);
+        foreach ($data as $row) {
+            $this->temperatureMax[$row['sender_port']] = $row['data'] / 100;
+        }
+
     }
 
     /**

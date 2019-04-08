@@ -23,18 +23,23 @@ import '../css/app.scss';
 
 import React, {Component} from 'react';
 import ReactDom from 'react-dom';
+import {Col, Container, Row} from "react-bootstrap";
 import DevTools from "mobx-react-devtools";
 import {observer} from 'mobx-react';
 
 import {OutsideTempView} from "./outside-temp/outside-temp";
 
+
 @observer
 class App extends Component {
     render() {
-        return <div>
-            <OutsideTempView/>
-            <DevTools/>
-        </div>
+        return (<Container>
+                <Row>
+                    <Col xs="4"> <OutsideTempView/></Col>
+                    <Col xs="auto">.col-auto - variable width content</Col>
+                    <Col xs="4">.col-4</Col>
+                </Row>
+            </Container>);
     }
 }
 
