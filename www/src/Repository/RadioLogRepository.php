@@ -5,10 +5,11 @@ namespace App\Repository;
 use App\Entity\RadioLog;
 use App\Model\Net;
 use App\Radio\RadioAbstract;
-use App\Repository\RadioLog\MaxValue;
+use App\Repository\RadioLog\AggregateValue;
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Internal\HydrationCompleteHandler;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\Query\Expr\Func;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -51,19 +52,19 @@ class RadioLogRepository extends ServiceEntityRepository
         return $qb->getQuery()->execute();
     }
 
-
     /**
+     * @param Func     $func
      * @param int      $sender
      * @param DateTime $from
      * @param DateTime $to
      * @param array    $commands
      *
-     * @return MaxValue[]
+     * @return Query
      */
-    public function loadMaxValues(int $sender, DateTime $from, DateTime $to, array $commands = []): array
+    protected function getAggregateQuery(Func $func, int $sender, DateTime $from, DateTime $to, array $commands = []): Query
     {
         $qb = $this->createQueryBuilder('rl');
-        $qb->select('rl.sender_port', 'rl.command', $qb->expr()->max('rl.data') . 'AS data')
+        $qb->select('rl.sender_port', 'rl.command', $func . 'AS data')
             ->andWhere('rl.sender = :sender')
             ->andWhere('rl.direction = :direction')
             ->andWhere($qb->expr()->in('rl.sender_port', Net::ports()))
@@ -80,8 +81,82 @@ class RadioLogRepository extends ServiceEntityRepository
             ->setParameter('from', $from)
             ->setParameter('to', $to);
 
-        return $qb->getQuery()
-            ->getResult();
+        return $qb->getQuery();
+    }
+
+    /**
+     * @param int      $sender
+     * @param DateTime $from
+     * @param DateTime $to
+     * @param array    $commands
+     *
+     * @return AggregateValue[]|null
+     */
+    public function loadMaxValues(int $sender, DateTime $from, DateTime $to, array $commands = []): array
+    {
+        $this->getEntityManager()->getConfiguration()->addCustomHydrationMode(
+            AggregateValue::class,
+            AggregateValue\Hydrator::class
+        );
+        $query = $this->getAggregateQuery(
+            $this->getEntityManager()->getExpressionBuilder()->max('rl.data'),
+            $sender,
+            $from,
+            $to,
+            $commands
+        );
+
+        return $query->getResult(AggregateValue::class);
+    }
+
+    /**
+     * @param int      $sender
+     * @param DateTime $from
+     * @param DateTime $to
+     * @param array    $commands
+     *
+     * @return AggregateValue[]|null
+     */
+    public function loadMinValues(int $sender, DateTime $from, DateTime $to, array $commands = []): array
+    {
+        $this->getEntityManager()->getConfiguration()->addCustomHydrationMode(
+            AggregateValue::class,
+            AggregateValue\Hydrator::class
+        );
+        $query = $this->getAggregateQuery(
+            $this->getEntityManager()->getExpressionBuilder()->min('rl.data'),
+            $sender,
+            $from,
+            $to,
+            $commands
+        );
+
+        return $query->getResult(AggregateValue::class);
+    }
+
+    /**
+     * @param int      $sender
+     * @param DateTime $from
+     * @param DateTime $to
+     * @param array    $commands
+     *
+     * @return AggregateValue[]|null
+     */
+    public function loadAvgValues(int $sender, DateTime $from, DateTime $to, array $commands = []): array
+    {
+        $this->getEntityManager()->getConfiguration()->addCustomHydrationMode(
+            AggregateValue::class,
+            AggregateValue\Hydrator::class
+        );
+        $query = $this->getAggregateQuery(
+            $this->getEntityManager()->getExpressionBuilder()->avg('rl.data'),
+            $sender,
+            $from,
+            $to,
+            $commands
+        );
+
+        return $query->getResult(AggregateValue::class);
     }
 
     // /**

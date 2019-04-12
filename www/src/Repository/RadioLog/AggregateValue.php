@@ -4,7 +4,7 @@
 namespace App\Repository\RadioLog;
 
 
-class MaxValue
+class AggregateValue
 {
 
     protected $sender_port;

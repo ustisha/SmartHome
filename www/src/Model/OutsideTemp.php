@@ -9,18 +9,28 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class OutsideTemp implements \JsonSerializable
 {
+    const CURRENT = 1;
+    const MAX = 2;
+    const MIN = 3;
+    const LAST_HOUR = 4;
+    const EACH_HOUR = 5;
+
+    /**
+     * @var array
+     */
     protected $temperature = [];
 
-    protected $temperatureMax = [];
-
-    protected $humidity;
+    /**
+     * @var array
+     */
+    protected $humidity = [];
 
     /**
      * Pressure in Pa
      *
-     * @var int|null
+     * @var array
      */
-    protected $pressure;
+    protected $pressure = [];
 
     /**
      * In Lux
@@ -40,11 +50,11 @@ class OutsideTemp implements \JsonSerializable
         $this->lastUpdate = new \DateTime();
         foreach ($data as $outside) {
             if ($outside->getCommand() == Net::CMD_TEMPERATURE) {
-                $this->temperature[$outside->getSenderPort()] = $outside->getData() / 100;
+                $this->temperature[self::CURRENT][$outside->getSenderPort()] = $outside->getData() / 100;
             } elseif ($outside->getCommand() == Net::CMD_HUMIDITY) {
-                $this->humidity = $outside->getData() / 100;
+                $this->humidity[self::CURRENT] = $outside->getData() / 100;
             } elseif ($outside->getCommand() == Net::CMD_PRESSURE) {
-                $this->pressure = $outside->getData();
+                $this->pressure[self::CURRENT] = $outside->getData();
             } elseif ($outside->getCommand() == Net::CMD_LIGHT) {
                 $this->lux = $outside->getData();
             } elseif ($outside->getCommand() == Net::CMD_VCC) {
@@ -55,25 +65,81 @@ class OutsideTemp implements \JsonSerializable
             }
         }
 
-        $from = (new \DateTime('-4 day'))->setTime(12, 0, 0);
-        $to = (new \DateTime('-4 day'))->setTime(23, 59, 59);
-        $data = $entityManager->getRepository(RadioLog::class)->loadMaxValues(Net::OUTSIDE_TEMP, $from, $to, [Net::CMD_TEMPERATURE]);
-        var_dump($data);
+        $from = (new \DateTime())->setTime(9, 0, 0);
+        $to = (new \DateTime())->setTime(23, 59, 59);
+        $data = $entityManager->getRepository(RadioLog::class)->loadMaxValues(
+            Net::OUTSIDE_TEMP,
+            $from,
+            $to,
+            [Net::CMD_TEMPERATURE, Net::CMD_HUMIDITY]
+        );
         foreach ($data as $row) {
-            $this->temperatureMax[$row['sender_port']] = $row['data'] / 100;
+            if ($row->getCommand() == Net::CMD_TEMPERATURE) {
+                $this->temperature[self::MAX][$row->getSenderPort()] = $row->getData() / 100;
+            } elseif ($row->getCommand() == Net::CMD_HUMIDITY) {
+                $this->humidity[self::MAX] = $row->getData() / 100;
+            }
         }
 
+        $from = (new \DateTime())->setTime(0, 0, 0);
+        $to = (new \DateTime())->setTime(8, 59, 59);
+        $data = $entityManager->getRepository(RadioLog::class)->loadMinValues(
+            Net::OUTSIDE_TEMP,
+            $from,
+            $to,
+            [Net::CMD_TEMPERATURE, Net::CMD_HUMIDITY]
+        );
+        foreach ($data as $row) {
+            if ($row->getCommand() == Net::CMD_TEMPERATURE) {
+                $this->temperature[self::MIN][$row->getSenderPort()] = $row->getData() / 100;
+            } elseif ($row->getCommand() == Net::CMD_HUMIDITY) {
+                $this->humidity[self::MIN] = $row->getData() / 100;
+            }
+        }
+
+        $from = (new \DateTime('-1 hour'));
+        $to = (new \DateTime('-55 min'));
+        $data = $entityManager->getRepository(RadioLog::class)->loadAvgValues(
+            Net::OUTSIDE_TEMP,
+            $from,
+            $to,
+            [Net::CMD_TEMPERATURE, Net::CMD_HUMIDITY]
+        );
+        foreach ($data as $row) {
+            if ($row->getCommand() == Net::CMD_TEMPERATURE) {
+                $this->temperature[self::LAST_HOUR][$row->getSenderPort()] = $row->getData() / 100;
+            } elseif ($row->getCommand() == Net::CMD_HUMIDITY) {
+                $this->humidity[self::LAST_HOUR] = $row->getData() / 100;
+            }
+        }
+
+        foreach([1, 2, 3, 6, 12] as $i) {
+            $from = (new \DateTime("-$i hour"));
+            $toHour = $i - 1;
+            $to = (new \DateTime("-$toHour hour -55 min"));
+            $data = $entityManager->getRepository(RadioLog::class)->loadAvgValues(
+                Net::OUTSIDE_TEMP,
+                $from,
+                $to,
+                [Net::CMD_PRESSURE]
+            );
+            foreach ($data as $row) {
+                $this->pressure[self::EACH_HOUR][$i] = $row->getData();
+            }
+        }
     }
 
     /**
      * @param int $sensor
      *
+     * @param int $type
+     *
      * @return float|null
      */
-    private function getTemp(int $sensor)
+    private function getTemp(int $sensor, int $type)
     {
-        if (isset($this->temperature[$sensor])) {
-            return $this->temperature[$sensor];
+        if (isset($this->temperature[$type][$sensor])) {
+            return $this->temperature[$type][$sensor];
         }
         return null;
     }
@@ -87,32 +153,62 @@ class OutsideTemp implements \JsonSerializable
     }
 
     /**
+     * @param int $type
+     *
      * @return float|null
      */
-    public function getTemperatureDS18B20()
+    public function getTemperatureDS18B20($type = self::CURRENT)
     {
-        return $this->getTemp(Net::OUTSIDE_TEMP_18B20);
+        return $this->getTemp(Net::OUTSIDE_TEMP_18B20, $type);
     }
 
     /**
+     * @param int $type
+     *
      * @return float|null
      */
-    public function getTemperatureBME280()
+    public function getTemperatureBME280($type = self::CURRENT)
     {
-        return $this->getTemp(Net::OUTSIDE_TEMP_BME280);
+        return $this->getTemp(Net::OUTSIDE_TEMP_BME280, $type);
     }
 
     /**
-     * @return float|int
+     * @param int $type
+     *
+     * @return float|null
      */
-    public function getHumidity()
+    public function getHumidity($type = self::CURRENT)
     {
-        return $this->humidity;
+        if (isset($this->humidity[$type])) {
+            return $this->humidity[$type];
+        }
+        return null;
     }
 
-    public function getPressureMmHg()
+    private function convertPressureToMmHg($value) {
+        return round($value / 13332.2387415, 2);
+    }
+
+    public function getPressure($type = self::CURRENT)
     {
-        return round($this->pressure / 13332.2387415, 2);
+        if (isset($this->pressure[$type])) {
+            return $this->pressure[$type];
+        }
+        return null;
+    }
+
+    public function getPressureMmHg($type = self::CURRENT)
+    {
+        if (is_array($this->getPressure($type))) {
+            $arr = [];
+            $input = $this->getPressure($type);
+            krsort($input);
+            foreach ($input as $key => $value) {
+                $arr["{$key}h"] = $this->convertPressureToMmHg($value);
+            }
+            return $arr;
+        }
+        return $this->convertPressureToMmHg($this->pressure[$type]);
     }
 
     /**
@@ -148,11 +244,34 @@ class OutsideTemp implements \JsonSerializable
      */
     public function jsonSerialize()
     {
+        $ds18B20hour = 0;
+        if ($this->getTemperatureDS18B20(self::LAST_HOUR) !== null) {
+            $ds18B20hour = $this->getTemperatureDS18B20() - $this->getTemperatureDS18B20(self::LAST_HOUR);
+        }
+        $bme280hour = 0;
+        if ($this->getTemperatureBME280(self::LAST_HOUR) !== null) {
+            $bme280hour = $this->getTemperatureBME280() - $this->getTemperatureBME280(self::LAST_HOUR);
+        }
+        $humidity1hour = 0;
+        if ($this->getHumidity(self::LAST_HOUR) !== null) {
+            $humidity1hour = $this->getHumidity() - $this->getHumidity(self::LAST_HOUR);
+        }
+
         return [
             'temperature_DS18B20' => $this->getTemperatureDS18B20(),
+            'temperature_max_DS18B20' => $this->getTemperatureDS18B20(self::MAX),
+            'temperature_min_DS18B20' => $this->getTemperatureDS18B20(self::MIN),
+            'temperature_1hour_DS18B20' => $ds18B20hour,
             'temperature_BME280' => $this->getTemperatureBME280(),
+            'temperature_max_BME280' => $this->getTemperatureBME280(self::MAX),
+            'temperature_min_BME280' => $this->getTemperatureBME280(self::MIN),
+            'temperature_1hour_BME280' => $bme280hour,
             'humidity' => $this->getHumidity(),
+            'humidity_max' => $this->getHumidity(self::MAX),
+            'humidity_min' => $this->getHumidity(self::MIN),
+            'humidity_1hour' => $humidity1hour,
             'pressure' => $this->getPressureMmHg(),
+            'pressure_each_hour' => $this->getPressureMmHg(self::EACH_HOUR),
             'lux' => $this->getLux(),
             'vcc' => $this->getVcc(),
             'lastUpdate' => $this->getLastUpdate()

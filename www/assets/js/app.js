@@ -35,9 +35,7 @@ class App extends Component {
     render() {
         return (<Container>
                 <Row>
-                    <Col xs="4"> <OutsideTempView/></Col>
-                    <Col xs="auto">.col-auto - variable width content</Col>
-                    <Col xs="4">.col-4</Col>
+                    <Col xs="auto"><OutsideTempView/></Col>
                 </Row>
             </Container>);
     }
