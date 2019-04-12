@@ -47,16 +47,24 @@ class OutsideTemp {
             x: '1h',
             y: 1,
             mmHg: 0
+        }, {
+            x: '0h',
+            y: 0,
+            mmHg: 0
         }
     ];
 
     constructor() {
         this.reload();
-        setInterval(this.reload.bind(this), 10000);
+        setInterval(this.loadData.bind(this), 60000);
     }
 
     reload() {
         this.loading = true;
+        this.loadData();
+    }
+
+    loadData() {
         fetch('/outside/temp')
         .then((resp) => {
             return resp.json();
@@ -92,7 +100,9 @@ class OutsideTemp {
             this.pressureHistory = history;
 
         }).finally(() => {
-            this.loading = false;
+            if (this.loading) {
+                this.loading = false;
+            }
         });
     }
 
@@ -191,6 +201,7 @@ export class OutsideTempView extends Component {
                                         data={outsideTemp.pressureHistory}
                                         barRatio={1.1}
                                         labels={(d) => `${d.mmHg}`}
+                                        domainPadding={{x: 0}}
                                         padding={{
                                             top: 60,
                                             bottom: 0,

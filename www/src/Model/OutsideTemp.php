@@ -206,6 +206,7 @@ class OutsideTemp implements \JsonSerializable
             foreach ($input as $key => $value) {
                 $arr["{$key}h"] = $this->convertPressureToMmHg($value);
             }
+            $arr["0h"] = $this->getPressureMmHg(self::CURRENT);
             return $arr;
         }
         return $this->convertPressureToMmHg($this->pressure[$type]);
