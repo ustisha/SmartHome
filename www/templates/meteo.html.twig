@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Метеостанция c.Усть-Иша{% endblock %}</title>
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('meteo') }}
+        {% endblock %}
+    </head>
+    <body>
+    <div id="root"></div>
+    {% block javascripts %}
+        {{ encore_entry_script_tags('meteo') }}
+    {% endblock %}
+    </body>
+</html>

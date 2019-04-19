@@ -113,7 +113,7 @@ class OutsideTemp implements \JsonSerializable
             }
         }
 
-        foreach([1, 2, 3, 6, 12] as $i) {
+        foreach ([1, 2, 3, 6, 12] as $i) {
             $from = (new \DateTime("-$i hour"));
             $toHour = $i - 1;
             $to = (new \DateTime("-$toHour hour -55 min"));
@@ -185,7 +185,8 @@ class OutsideTemp implements \JsonSerializable
         return null;
     }
 
-    private function convertPressureToMmHg($value) {
+    private function convertPressureToMmHg($value)
+    {
         return round($value / 13332.2387415, 2);
     }
 
@@ -208,8 +209,10 @@ class OutsideTemp implements \JsonSerializable
             }
             $arr["0h"] = $this->getPressureMmHg(self::CURRENT);
             return $arr;
+        } elseif (isset($this->pressure[$type])) {
+            return $this->convertPressureToMmHg($this->pressure[$type]);
         }
-        return $this->convertPressureToMmHg($this->pressure[$type]);
+        return null;
     }
 
     /**

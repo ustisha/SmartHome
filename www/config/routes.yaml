@@ -1,3 +1,10 @@
+meteo:
+    path: /
+    host: "{subdomain}.meteo.ustisha.ru"
+    requirements:
+        subdomain: dev
+    controller: App\Controller\MeteoController::index
+
 index:
     path: /
     controller: App\Controller\DefaultController::index
