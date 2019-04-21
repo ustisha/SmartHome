@@ -1,16 +1,16 @@
 export class RadioLog {
 
     sender = {
-        2: {
-            title: 'Метеостанция',
-            ports: {
-                2001: 'INFO',
-                2002: 'DS18B20',
-                2003: 'BME280',
-                2004: 'BH1750',
-                2005: 'VCC'
-            }
-        }
+        2: 'Метеостанция',
+        3: 'Теплица'
+    };
+
+    ports = {
+        2001: 'INFO',
+        2002: 'DS18B20',
+        2003: 'BME280',
+        2004: 'BH1750',
+        2005: 'VCC'
     };
 
     commands = {
@@ -28,13 +28,13 @@ export class RadioLog {
 
     getSenderTitle(sender) {
         return this.sender[sender]
-            ? this.sender[sender].title
+            ? this.sender[sender]
             : false;
     }
 
-    getSenderPortTitle(sender, port) {
-        return (this.sender[sender] && this.sender[sender].ports[port])
-            ? this.sender[sender].ports[port]
+    getPortTitle(port) {
+        return (this.ports[port])
+            ? this.ports[port]
             : false;
     }
 

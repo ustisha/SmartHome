@@ -24,8 +24,8 @@ class LogTable {
         }, {
             dataField: 'senderPort',
             text: 'Компонент',
-            formatter: function (cell, row) {
-                return new RadioLog().getSenderPortTitle(row.sender, cell);
+            formatter: function (cell) {
+                return new RadioLog().getPortTitle(cell);
             }
         }, {
             dataField: 'command',
