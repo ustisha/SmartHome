@@ -46,7 +46,7 @@ class OutsideTemp implements \JsonSerializable
     public function __construct(EntityManagerInterface $entityManager)
     {
         $commands = [Net::CMD_TEMPERATURE, Net::CMD_HUMIDITY, Net::CMD_PRESSURE, Net::CMD_LIGHT, Net::CMD_VCC];
-        $data = $entityManager->getRepository(RadioLog::class)->loadLastLog(Net::OUTSIDE_TEMP, $commands);
+        $data = $entityManager->getRepository(RadioLog::class)->senderLog(Net::OUTSIDE_TEMP, $commands);
         $this->lastUpdate = new \DateTime();
         foreach ($data as $outside) {
             if ($outside->getCommand() == Net::CMD_TEMPERATURE) {

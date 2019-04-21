@@ -1,13 +1,17 @@
-meteo:
-    path: /
-    host: "{subdomain}.meteo.ustisha.ru"
-    requirements:
-        subdomain: dev
-    controller: App\Controller\MeteoController::index
+#meteo:
+#    path: /
+#    host: "{subdomain}.meteo.ustisha.ru"
+#    requirements:
+#        subdomain: dev
+#    controller: App\Controller\MeteoController::index
 
 index:
     path: /
     controller: App\Controller\DefaultController::index
+
+log_table:
+    path: /log/table/{page}
+    controller: App\Controller\LogController::table
 
 app_lora_receive:
     path: /lora/receive

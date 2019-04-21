@@ -1,12 +1,13 @@
 $font-size-base: 0.8rem;
-$padding-base-vertical: 3px;
-$padding-base-horizontal: 4px;
-$padding-large-vertical: 5px;
-$padding-large-horizontal: 6px;
-$padding-small-vertical: 2px;
-$padding-small-horizontal: 4px;
+
+$list-group-item-padding-y: .35rem !default;
+$list-group-item-padding-x: 0.6rem !default;
+
+$card-spacer-y: .35rem !default;
+$card-spacer-x: 0.6rem !default;
 
 @import "~bootstrap/scss/bootstrap";
 @import "~bootswatch/dist/sandstone/bootswatch";
 
 @import "outside-temp.css";
+@import "log-table.css";

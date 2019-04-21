@@ -10,6 +10,8 @@ use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Func;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -20,9 +22,42 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class RadioLogRepository extends ServiceEntityRepository
 {
+    const DEFAULT_MAX_PER_PAGE = 12;
+
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, RadioLog::class);
+    }
+
+    /**
+     * @param array $commands
+     * @param int   $page
+     * @param array $filter
+     * @param int   $maxPerPage
+     *
+     * @return Pagerfanta
+     */
+    public function commandsLog(array $commands, int $page = 1, array $filter = [], int $maxPerPage = self::DEFAULT_MAX_PER_PAGE)
+    {
+        $qb = $this->createQueryBuilder('l');
+        $qb->andWhere($qb->expr()->in('l.command', $commands))
+            ->orderBy('l.date', 'DESC');
+        return $this->createPaginator($qb->getQuery(), $page, $maxPerPage);
+    }
+
+    /**
+     * @param Query $query
+     * @param int   $page
+     * @param int   $maxPerPage
+     *
+     * @return Pagerfanta
+     */
+    private function createPaginator(Query $query, int $page, int $maxPerPage): Pagerfanta
+    {
+        $paginator = new Pagerfanta(new DoctrineORMAdapter($query));
+        $paginator->setMaxPerPage($maxPerPage);
+        $paginator->setCurrentPage($page);
+        return $paginator;
     }
 
     /**
@@ -32,7 +67,7 @@ class RadioLogRepository extends ServiceEntityRepository
      *
      * @return RadioLog[]
      */
-    public function loadLastLog(int $sender, array $commands = [])
+    public function senderLog(int $sender, array $commands = [])
     {
         $qb = $this->createQueryBuilder('l');
         $qbGroup = $this->createQueryBuilder('rl');

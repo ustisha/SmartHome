@@ -6,6 +6,7 @@ import Moment from "react-moment";
 import NumeralFormat from "../components/react-numeral-format";
 import TemperatureArrow from "../components/react-temperature-arrow";
 import {VictoryAxis, VictoryChart, VictoryBar} from 'victory';
+import classNames from "classnames";
 
 class OutsideTemp {
 
@@ -113,7 +114,8 @@ const outsideTemp = new OutsideTemp();
 @observer
 export class OutsideTempView extends Component {
     render() {
-        return <Card className="mt-1" style={{width: '22rem'}}>
+        var cardClass = classNames('mt-1', this.props.className);
+        return <Card className={cardClass}>
             <Card.Header>
                 <h4>Метеостанция</h4>
                 <div className="card-header-info" hidden={outsideTemp.loading}>
@@ -124,17 +126,16 @@ export class OutsideTempView extends Component {
                 </div>
             </Card.Header>
             <Card.Body>
-                <Card.Text>
-                    <ListGroup>
-                        <ListGroup.Item variant="primary">
-                            Температура&nbsp;1:&nbsp;
-                            <span hidden={outsideTemp.loading}>
+                <ListGroup>
+                    <ListGroup.Item variant="primary">
+                        Температура&nbsp;1:&nbsp;
+                        <span hidden={outsideTemp.loading}>
                                 <b><NumeralFormat value={outsideTemp.temperature_DS18B20} format="+0.0"/>℃</b>&nbsp;
                             </span>
-                            <span hidden={!outsideTemp.loading}>
+                        <span hidden={!outsideTemp.loading}>
                                 <Spinner animation="border" variant="info" size="sm"/>
                             </span>
-                            <div>
+                        <div>
                                 <span className="card-item-info" hidden={outsideTemp.loading}>
                                     Мин.:&nbsp;<b><NumeralFormat value={outsideTemp.temperature_min_DS18B20}
                                                                  format="+0.0"/>℃</b>&nbsp;/
@@ -144,17 +145,17 @@ export class OutsideTempView extends Component {
                                     <TemperatureArrow value={outsideTemp.temperature_1hour_DS18B20}/>
                                     <b><NumeralFormat value={outsideTemp.temperature_1hour_DS18B20} format="0.0"/>℃</b>
                                 </span>
-                                <span hidden={!outsideTemp.loading}>...</span>
-                            </div>
-                        </ListGroup.Item>
-                        <ListGroup.Item variant="primary">
-                            Температура 2:&nbsp;
-                            <span hidden={outsideTemp.loading}><b><NumeralFormat value={outsideTemp.temperature_BME280}
-                                                                                 format="+0.0"/>℃</b></span>
-                            <span hidden={!outsideTemp.loading}>
+                            <span hidden={!outsideTemp.loading}>...</span>
+                        </div>
+                    </ListGroup.Item>
+                    <ListGroup.Item variant="primary">
+                        Температура 2:&nbsp;
+                        <span hidden={outsideTemp.loading}><b><NumeralFormat value={outsideTemp.temperature_BME280}
+                                                                             format="+0.0"/>℃</b></span>
+                        <span hidden={!outsideTemp.loading}>
                                 <Spinner animation="border" variant="info" size="sm"/>
                             </span>
-                            <div>
+                        <div>
                                 <span className="card-item-info" hidden={outsideTemp.loading}>
                                     Мин.:&nbsp;<b><NumeralFormat value={outsideTemp.temperature_min_BME280}
                                                                  format="+0.0"/>℃</b>&nbsp;/
@@ -164,17 +165,17 @@ export class OutsideTempView extends Component {
                                     <TemperatureArrow value={outsideTemp.temperature_1hour_BME280}/>
                                     <b><NumeralFormat value={outsideTemp.temperature_1hour_BME280} format="0.0"/>℃</b>
                                 </span>
-                                <span hidden={!outsideTemp.loading}>...</span>
-                            </div>
-                        </ListGroup.Item>
-                        <ListGroup.Item variant="primary">
-                            Влажность:&nbsp;
-                            <span hidden={outsideTemp.loading}><b><NumeralFormat value={outsideTemp.humidity}
-                                                                                 format="0.0"/>%</b></span>
-                            <span hidden={!outsideTemp.loading}>
+                            <span hidden={!outsideTemp.loading}>...</span>
+                        </div>
+                    </ListGroup.Item>
+                    <ListGroup.Item variant="primary">
+                        Влажность:&nbsp;
+                        <span hidden={outsideTemp.loading}><b><NumeralFormat value={outsideTemp.humidity}
+                                                                             format="0.0"/>%</b></span>
+                        <span hidden={!outsideTemp.loading}>
                                 <Spinner animation="border" variant="info" size="sm"/>
                             </span>
-                            <div>
+                        <div>
                                 <span className="card-item-info" hidden={outsideTemp.loading}>
                                     Мин.:&nbsp;<b><NumeralFormat value={outsideTemp.humidity_min}
                                                                  format="0.0"/>%</b>&nbsp;/
@@ -184,47 +185,46 @@ export class OutsideTempView extends Component {
                                     <TemperatureArrow value={outsideTemp.humidity_1hour}/>
                                     <b><NumeralFormat value={outsideTemp.humidity_1hour} format="0.0"/>%</b>
                                 </span>
-                                <span hidden={!outsideTemp.loading}>...</span>
-                            </div>
-                        </ListGroup.Item>
-                        <ListGroup.Item variant="primary">
-                            Давление:&nbsp;
-                            <span hidden={outsideTemp.loading}><b><NumeralFormat value={outsideTemp.pressure}
-                                                                                 format="0.0"/> mmHg</b></span>
-                            <span hidden={!outsideTemp.loading}>
+                            <span hidden={!outsideTemp.loading}>...</span>
+                        </div>
+                    </ListGroup.Item>
+                    <ListGroup.Item variant="primary">
+                        Давление:&nbsp;
+                        <span hidden={outsideTemp.loading}><b><NumeralFormat value={outsideTemp.pressure}
+                                                                             format="0.0"/> mmHg</b></span>
+                        <span hidden={!outsideTemp.loading}>
                                 <Spinner animation="border" variant="info" size="sm"/>
                             </span>
-                            <div>
-                                <VictoryChart
-                                    domainPadding={{x: 25}}>
-                                    <VictoryBar
-                                        data={outsideTemp.pressureHistory}
-                                        barRatio={1.1}
-                                        labels={(d) => `${d.mmHg}`}
-                                        domainPadding={{x: 0}}
-                                        padding={{
-                                            top: 60,
-                                            bottom: 0,
-                                            left: 0,
-                                            right: 0
-                                        }}
-                                    />
-                                    <VictoryAxis
-                                        domainPadding={{x: 0}}
-                                    />
-                                </VictoryChart>
-                            </div>
-                        </ListGroup.Item>
-                        <ListGroup.Item variant="primary">
-                            Освещенность:&nbsp;
-                            <span hidden={outsideTemp.loading}><b>{outsideTemp.lux} Lux</b></span>
-                            <span hidden={!outsideTemp.loading}>
+                        <div>
+                            <VictoryChart
+                                domainPadding={{x: 25}}>
+                                <VictoryBar
+                                    data={outsideTemp.pressureHistory}
+                                    barRatio={1.1}
+                                    labels={(d) => `${d.mmHg}`}
+                                    domainPadding={{x: 0}}
+                                    padding={{
+                                        top: 60,
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0
+                                    }}
+                                />
+                                <VictoryAxis
+                                    domainPadding={{x: 0}}
+                                />
+                            </VictoryChart>
+                        </div>
+                    </ListGroup.Item>
+                    <ListGroup.Item variant="primary">
+                        Освещенность:&nbsp;
+                        <span hidden={outsideTemp.loading}><b>{outsideTemp.lux} Lux</b></span>
+                        <span hidden={!outsideTemp.loading}>
                                 <Spinner animation="border" variant="info" size="sm"/>
                             </span>
-                        </ListGroup.Item>
-                    </ListGroup>
-                </Card.Text>
-                <Button onClick={outsideTemp.reload.bind(outsideTemp)} variant="primary" size="lg">Обновить</Button>
+                    </ListGroup.Item>
+                </ListGroup>
+                <Button className="mt-1" onClick={outsideTemp.reload.bind(outsideTemp)} variant="primary" size="lg">Обновить</Button>
             </Card.Body>
         </Card>;
     }
