@@ -16,11 +16,13 @@ const uint8_t GATEWAY = 1;
 const uint16_t GATEWAY_HTTP_HANDLER = 1001;
 
 const uint8_t OUTSIDE_TEMP = 2;
-const uint16_t OUTSIDE_TEMP_INFO = 2001;
-const uint16_t OUTSIDE_TEMP_18B20 = 2002;
-const uint16_t OUTSIDE_TEMP_BME280 = 2003;
-const uint16_t OUTSIDE_TEMP_BH1750 = 2004;
-const uint16_t OUTSIDE_TEMP_VCC = 2005;
+const uint8_t GREENHOUSE = 3;
+
+const uint16_t PORT_INFO = 2001;
+const uint16_t PORT_18B20 = 2002;
+const uint16_t PORT_BME280 = 2003;
+const uint16_t PORT_BH1750 = 2004;
+const uint16_t PORT_VCC = 2005;
 
 const uint8_t CMD_TEMPERATURE = 1;
 const uint8_t CMD_HUMIDITY = 2;
