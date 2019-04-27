@@ -14,7 +14,6 @@
 #include <TInterface.h>
 #include <THInterface.h>
 #include <THPInterface.h>
-#include <BME280.h>
 #include <BME280Adapter.h>
 #include <InfoNet.h>
 #include <NetComponent.h>
@@ -25,6 +24,7 @@
 #include <Vcc.h>
 #include <VccNet.h>
 #include <Relay.h>
+#include <TempController.h>
 
 #define LORA_SS 10
 #define LORA_RESET 9

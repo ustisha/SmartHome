@@ -5,8 +5,19 @@
 
 class Relay {
 public:
-    Relay(uint8_t pin);
+    Relay(uint8_t p, bool invt = false);
 
+    void on();
+
+    void off();
+
+    void change();
+
+    bool isOn();
+
+protected:
+    uint8_t pin;
+    bool invert;
 };
 
 #endif //RELAY_H
