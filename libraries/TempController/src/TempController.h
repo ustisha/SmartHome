@@ -5,8 +5,8 @@
 
 #include <Arduino.h>
 #include <DebugLog.h>
-//#include <TInterface.h>
-//#include <NetComponent.h>
+#include <TInterface.h>
+#include <NetComponent.h>
 #include <Relay.h>
 
 class TempController {
@@ -24,7 +24,7 @@ public:
 
     void addRelay(Relay *r, uint8_t i, bool heat, float rangeOn = 0.1, float rangeOff = 0.0);
 
-    void addNet(RadioInterface *radio, NetComponent *net, uint8_t r, uint16_t rp);
+    void addNet(RadioInterface *radio, NetComponent *net, uint8_t r);
 
     void setTimeout(uint16_t t);
 
@@ -32,7 +32,7 @@ public:
 
 protected:
 
-    void sendCommand(uint8_t cmd, long data);
+    void sendCommand(uint16_t rp, uint8_t cmd, long data);
 
     void control();
 
@@ -40,7 +40,7 @@ protected:
     NetComponent *net;
     RadioInterface *radio;
     RelayControl controls[MAX];
-    uint8_t r, rp;
+    uint8_t r;
     float downLimit, upLimit;
     uint32_t timeout = DEFAULT_INTERVAL;
     unsigned long sleepTime = 0;

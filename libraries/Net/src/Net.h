@@ -23,24 +23,22 @@ const uint16_t PORT_18B20 = 2002;
 const uint16_t PORT_BME280 = 2003;
 const uint16_t PORT_BH1750 = 2004;
 const uint16_t PORT_VCC = 2005;
-const uint16_t PORT_R1 = 3000;
-const uint16_t PORT_R2 = 3001;
-const uint16_t PORT_R3 = 3002;
-const uint16_t PORT_R4 = 3003;
-const uint16_t PORT_R5 = 3004;
-const uint16_t PORT_R6 = 3005;
-const uint16_t PORT_R7 = 3006;
-const uint16_t PORT_R8 = 3007;
-const uint16_t PORT_R9 = 3008;
-const uint16_t PORT_R10 = 3009;
 
 const uint8_t CMD_TEMPERATURE = 1;
 const uint8_t CMD_HUMIDITY = 2;
 const uint8_t CMD_PRESSURE = 3;
 const uint8_t CMD_LIGHT = 4;
 const uint8_t CMD_VCC = 5;
-
+const uint8_t CMD_RELAY = 10;
+const uint8_t CMD_MODE = 11;
 const uint8_t CMD_INFO = 100;
+
+const uint8_t RELAY_ON = 1;
+const uint8_t RELAY_OFF = 2;
+
+const uint8_t MODE_AUTO = 1;
+const uint8_t MODE_MANUAL = 2;
+
 const uint8_t INFO_NETWORK_STARTED = 1;
 const uint8_t INFO_SETUP_COMPLETED = 9;
 const uint8_t INFO_ERROR_DS18B20 = 20;

@@ -52,14 +52,13 @@ void TempController::tick(uint16_t sleep) {
     }
 }
 
-void TempController::addNet(RadioInterface *radio, NetComponent *net, uint8_t r, uint16_t rp) {
+void TempController::addNet(RadioInterface *radio, NetComponent *net, uint8_t r) {
     this->radio = radio;
     this->net = net;
     this->r = r;
-    this->rp = rp;
 }
 
-void TempController::sendCommand(uint8_t cmd, long data) {
+void TempController::sendCommand(uint16_t rp, uint8_t cmd, long data) {
 //    net->sendCommandData(this->radio, )
 }
 
@@ -74,7 +73,7 @@ void TempController::control() {
             if (controls[i].heat) {
                 if (tiface->get() <= (downLimit - controls[i].rangeOn) && !controls[i].relay->isOn()) {
                     controls[i].relay->on();
-
+                    sendCommand(3000 + i, CMD_ON, );
                     IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::control] Relay index: %d ON\n"), i));
                 } else if (tiface->get() >= (downLimit - controls[i].rangeOff) && controls[i].relay->isOn()) {
                     controls[i].relay->off();

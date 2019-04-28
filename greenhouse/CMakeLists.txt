@@ -12,8 +12,5 @@ set(${PROJECT_NAME}_BOARD_CPU 16MHzatmega328)
 # Define the port for uploading code to the Arduino
 set(${PROJECT_NAME}_PORT COM6)
 
-set(BME280Adapter_RECURSE True)
-set(TempController_RECURSE True)
-
 # Command to generate code arduino firmware (.hex file)
 generate_arduino_firmware(${PROJECT_NAME})

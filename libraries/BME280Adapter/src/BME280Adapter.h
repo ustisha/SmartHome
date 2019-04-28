@@ -6,7 +6,8 @@
 #include <Arduino.h>
 #include <DebugLog.h>
 #include <THPInterface.h>
-#include <BME280.h>
+#include <Wire.h>
+#include <BME280.hpp>
 
 class BME280Adapter : public THPInterface {
     using THPInterface::THPInterface;

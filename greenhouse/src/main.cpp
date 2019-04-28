@@ -11,9 +11,9 @@
 #include <Wire.h>
 #include <LoRa.h>
 #include <Net.h>
-//#include <TInterface.h>
-//#include <THInterface.h>
-//#include <THPInterface.h>
+#include <TInterface.h>
+#include <THInterface.h>
+#include <THPInterface.h>
 #include <BME280Adapter.h>
 #include <InfoNet.h>
 #include <NetComponent.h>
@@ -91,6 +91,7 @@ void setup(void) {
     tempController->addRelay(r1, 0, true);
     tempController->addRelay(r2, 1, true, 0.5, 0.1);
     tempControllerNet = new TempControllerNet(PORT_TEMP_CONTROLLER, net, tempController);
+//    tempController->addNet();
 
     vcc = new Vcc(vccCorrection);
     vccNet = new VccNet(PORT_VCC, net, vcc);
