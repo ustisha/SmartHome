@@ -13,6 +13,7 @@ int TInterface::getStatus() {
 
 void TInterface::setPollInterval(uint16_t tout) {
     timeout = tout * 1000;
+    read();
 }
 
 void TInterface::tick(uint16_t sleep) {
@@ -23,5 +24,8 @@ void TInterface::tick(uint16_t sleep) {
         last += timeout;
         IF_SERIAL_DEBUG(printf_P(PSTR("[TInterface::tick] Read sensor\n")));
         read();
+    }
+    if (m < last) {
+        last = m;
     }
 }

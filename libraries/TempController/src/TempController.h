@@ -4,10 +4,13 @@
 #define SERIAL_DEBUG
 
 #include <Arduino.h>
+#include <DebugLog.h>
 #include <TInterface.h>
+#include <NetInterface.h>
+#include <NetComponent.h>
 #include <Relay.h>
 
-class TempController {
+class TempController : public NetInterface {
     const static uint8_t MAX = 2;
     const static uint32_t DEFAULT_INTERVAL = 5 * 60000;
     struct RelayControl {
@@ -18,20 +21,34 @@ class TempController {
         float rangeOff = 0;
     };
 public:
-    TempController(TInterface *tiface, float required);
+    TempController(TInterface *tiface, float downLimit, float upLimit);
 
-    void addRelay(Relay *r, uint8_t i, bool heat, float rangeOn = 0.1, float rangeOff = 0.2);
+    void addRelay(Relay *r, uint8_t i, bool heat, float rangeOn = 0.1, float rangeOff = 0.0);
 
-    void setTimeout(uint32_t t);
-
-    void control();
+    void setTimeout(uint16_t t);
 
     void tick(uint16_t sleep);
 
+    int getRelayState(uint8_t i);
+
+    void setRelayState(uint8_t i, uint8_t state);
+
+    byte getMode();
+
+    void setMode(uint8_t mode);
+
 protected:
+
+    void control();
+
+    void relayOn(uint8_t i);
+
+    void relayOff(uint8_t i);
+
     TInterface *tiface;
     RelayControl controls[MAX];
-    float required;
+    float downLimit, upLimit;
+    uint8_t mode;
     uint32_t timeout = DEFAULT_INTERVAL;
     unsigned long sleepTime = 0;
     unsigned long last = millis();

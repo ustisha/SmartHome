@@ -40,6 +40,8 @@ public:
 
     void sendData(Packet &p) override;
 
+    void onReciveFunc(void(*callback)(int));
+
 };
 
 #endif //LORANET_H

@@ -1,11 +1,14 @@
 #ifndef RELAY_H
 #define RELAY_H
 
+#define SERIAL_DEBUG
+
 #include <Arduino.h>
+#include <DebugLog.h>
 
 class Relay {
 public:
-    Relay(uint8_t p, bool invt = false);
+    Relay(uint8_t p, bool invt = true);
 
     void on();
 

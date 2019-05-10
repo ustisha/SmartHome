@@ -4,6 +4,7 @@ NetComponent::NetComponent(uint16_t sp, SmartNet *n) {
     sport = sp;
     net = n;
     sleepTime = 0;
+    net->addNetComponent(this);
 }
 
 /**
@@ -47,5 +48,11 @@ void NetComponent::tick(uint16_t sleep) {
             IF_SERIAL_DEBUG(printf_P(PSTR("[NetComponent::tick] By timeout. Idx: %d\n"), i));
             sendCommandData(rcvr[i].network, rcvr[i].receiver, rcvr[i].rport, rcvr[i].cmd);
         }
+    }
+}
+
+void NetComponent::receiveHandle(uint16_t sp, uint8_t cmd, long data) {
+    if (sp == this->sport) {
+        receiveCommandData(cmd, data);
     }
 }
