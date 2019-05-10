@@ -12,10 +12,12 @@ struct Packet {
 
 const uint8_t PACKET_SIZE = 11;
 
+// Components
 const uint8_t GATEWAY = 1;
 const uint8_t OUTSIDE_TEMP = 2;
 const uint8_t GREENHOUSE = 3;
 
+// Component ports
 const uint16_t PORT_HTTP_HANDLER = 1001;
 const uint16_t PORT_TEMP_CONTROLLER = 1002;
 const uint16_t PORT_INFO = 2001;
@@ -24,15 +26,28 @@ const uint16_t PORT_BME280 = 2003;
 const uint16_t PORT_BH1750 = 2004;
 const uint16_t PORT_VCC = 2005;
 
+// Commands
 const uint8_t CMD_TEMPERATURE = 1;
 const uint8_t CMD_HUMIDITY = 2;
 const uint8_t CMD_PRESSURE = 3;
 const uint8_t CMD_LIGHT = 4;
 const uint8_t CMD_VCC = 5;
-const uint8_t CMD_RELAY = 10;
+const uint8_t CMD_RELAY_00 = 40;
+// Reserved for autocalculate relay number
+//const uint8_t CMD_RELAY_01 = 41;
+//const uint8_t CMD_RELAY_02 = 42;
+//const uint8_t CMD_RELAY_03 = 43;
+//const uint8_t CMD_RELAY_04 = 44;
+//const uint8_t CMD_RELAY_05 = 45;
+//const uint8_t CMD_RELAY_06 = 46;
+//const uint8_t CMD_RELAY_07 = 47;
+//const uint8_t CMD_RELAY_08 = 48;
+const uint8_t CMD_RELAY_09 = 49;
 const uint8_t CMD_MODE = 11;
 const uint8_t CMD_INFO = 100;
 
+// Data values.
+const uint8_t RELAY_DISABLED = 0;
 const uint8_t RELAY_ON = 1;
 const uint8_t RELAY_OFF = 2;
 

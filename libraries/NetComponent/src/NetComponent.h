@@ -3,8 +3,11 @@
 
 //#define SERIAL_DEBUG
 
+class SmartNet;
+
 #include <Arduino.h>
 #include <SmartNet.h>
+#include <RadioInterface.h>
 
 class NetComponent {
 
@@ -31,6 +34,8 @@ public:
 
     virtual void sendCommandData(RadioInterface *n, uint8_t r, uint16_t rp, uint8_t cmd) = 0;
 
+    void receiveHandle(uint16_t sp, uint8_t cmd, long data);
+
     void tick(uint16_t sleep = 0);
 
 protected:
@@ -40,6 +45,8 @@ protected:
     R rcvr[NetComponent::MAX];
 
     uint8_t getIndex();
+
+    virtual void receiveCommandData(uint8_t cmd, long data) = 0;
 };
 
 #endif //NETCOMPONENT_H

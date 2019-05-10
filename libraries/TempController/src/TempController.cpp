@@ -52,42 +52,75 @@ void TempController::tick(uint16_t sleep) {
     }
 }
 
-void TempController::addNet(RadioInterface *radio, NetComponent *net, uint8_t r) {
-    this->radio = radio;
-    this->net = net;
-    this->r = r;
-}
-
-void TempController::sendCommand(uint16_t rp, uint8_t cmd, long data) {
-//    net->sendCommandData(this->radio, )
-}
-
-
 void TempController::setTimeout(uint16_t t) {
     timeout = uint32_t(t * 1000);
 }
 
 void TempController::control() {
+    if (this->mode != MODE_AUTO) {
+        return;
+    }
     for (int i = 0; i < MAX; ++i) {
         if (controls[i].enabled) {
             if (controls[i].heat) {
                 if (tiface->get() <= (downLimit - controls[i].rangeOn) && !controls[i].relay->isOn()) {
-                    controls[i].relay->on();
-                    sendCommand(3000 + i, CMD_ON, );
-                    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::control] Relay index: %d ON\n"), i));
+                    relayOn(i);
                 } else if (tiface->get() >= (downLimit - controls[i].rangeOff) && controls[i].relay->isOn()) {
-                    controls[i].relay->off();
-                    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::control] Relay index: %d OFF\n"), i));
+                    relayOff(i);
                 }
             } else {
                 if (tiface->get() >= (upLimit + controls[i].rangeOn) && !controls[i].relay->isOn()) {
-                    controls[i].relay->on();
-                    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::control] Relay index: %d ON\n"), i));
+                    relayOn(i);
                 } else if (tiface->get() <= (upLimit + controls[i].rangeOff) && controls[i].relay->isOn()) {
-                    controls[i].relay->off();
-                    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::control] Relay index: %d OFF\n"), i));
+                    relayOff(i);
                 }
             }
         }
+    }
+}
+
+void TempController::relayOff(uint8_t i) {
+    controls[i].relay->off();
+    netComponent->sendCommandData(radio, r, rp, CMD_RELAY_00 + i);
+    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::control] Relay index: %d OFF\n"), i));
+}
+
+void TempController::relayOn(uint8_t i) {
+    if (this->mode != MODE_AUTO) {
+        return;
+    }
+    controls[i].relay->on();
+    netComponent->sendCommandData(radio, r, rp, CMD_RELAY_00 + i);
+    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::control] Relay index: %d ON\n"), i));
+}
+
+int TempController::getRelayState(uint8_t i) {
+    if (i >= MAX || !controls[i].enabled) {
+        return RELAY_DISABLED;
+    }
+    return controls[i].relay->isOn() ? RELAY_ON : RELAY_OFF;
+}
+
+void TempController::setRelayState(uint8_t i, uint8_t state) {
+    if (i >= MAX || !controls[i].enabled) {
+        return;
+    }
+    setMode(MODE_MANUAL);
+    if (state == RELAY_ON) {
+        relayOn(i);
+    } else if (state == RELAY_OFF) {
+        relayOff(i);
+    }
+}
+
+byte TempController::getMode() {
+    return this->mode;
+}
+
+void TempController::setMode(uint8_t mode) {
+    this->mode = mode;
+    netComponent->sendCommandData(radio, r, rp, CMD_MODE);
+    if (this->mode == MODE_AUTO) {
+        control();
     }
 }

@@ -7,7 +7,7 @@
 #include <DebugLog.h>
 #include <THPInterface.h>
 #include <Wire.h>
-#include <BME280.hpp>
+#include <BME280.h>
 
 class BME280Adapter : public THPInterface {
     using THPInterface::THPInterface;

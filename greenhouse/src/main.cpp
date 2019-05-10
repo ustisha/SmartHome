@@ -43,7 +43,6 @@ const float vccCorrection = 1.0/1.0;
 InfoNet *info;
 SmartNet *net;
 LoraNetSender *loraNetSender;
-TNet *tempNet;
 BME280Adapter *bmeThp;
 THPNet *thpNet;
 Vcc *vcc;
@@ -51,6 +50,41 @@ VccNet *vccNet;
 Relay *r1, *r2;
 TempController *tempController;
 TempControllerNet *tempControllerNet;
+
+void onReceive(int packetSize) {
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Main::onReceive] LoRa packet. Size %d\n"), packetSize));
+
+    if (packetSize != PACKET_SIZE) {
+        return;
+    }
+
+    UInt sp(0);
+    UInt rp(0);
+    Long data(0);
+    Packet p{};
+
+    p.sender = (uint8_t) LoRa.read();
+    sp.b[0] = (uint8_t) LoRa.read();
+    sp.b[1] = (uint8_t) LoRa.read();
+    p.sp = sp.i;
+
+    p.receiver = (uint8_t) LoRa.read();
+    if (p.receiver != GREENHOUSE) {
+        return;
+    }
+    rp.b[0] = (uint8_t) LoRa.read();
+    rp.b[1] = (uint8_t) LoRa.read();
+    p.rp = rp.i;
+
+    p.cmd = (uint8_t) LoRa.read();
+    data.b[0] = (uint8_t) LoRa.read();
+    data.b[1] = (uint8_t) LoRa.read();
+    data.b[2] = (uint8_t) LoRa.read();
+    data.b[3] = (uint8_t) LoRa.read();
+    p.data = data.i;
+
+    net->commandReceived(p);
+}
 
 void setup(void) {
     // Sec for stabilization components power
@@ -65,6 +99,7 @@ void setup(void) {
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] System started\n")));
 
     loraNetSender = new LoraNetSender(LORA_SS, LORA_RESET, LORA_DIO0);
+    loraNetSender->onReciveFunc(onReceive);
     net = new SmartNet(GREENHOUSE);
     info = new InfoNet(PORT_INFO, net);
     // Info network started
@@ -91,7 +126,7 @@ void setup(void) {
     tempController->addRelay(r1, 0, true);
     tempController->addRelay(r2, 1, true, 0.5, 0.1);
     tempControllerNet = new TempControllerNet(PORT_TEMP_CONTROLLER, net, tempController);
-//    tempController->addNet();
+    tempController->addNet(loraNetSender, tempControllerNet, GATEWAY, PORT_HTTP_HANDLER);
 
     vcc = new Vcc(vccCorrection);
     vccNet = new VccNet(PORT_VCC, net, vcc);
@@ -116,5 +151,6 @@ void loop(void) {
     thpNet->tick(SLEEP);
     vccNet->tick(SLEEP);
     tempController->tick(SLEEP);
+    tempControllerNet->tick(SLEEP);
 }
 

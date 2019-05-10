@@ -15,6 +15,8 @@ public:
 
     void sendCommandData(RadioInterface *n, uint8_t r, uint16_t rp, uint8_t cmd) override;
 
+    void receiveCommandData(uint8_t cmd, long data) override ;
+
 protected:
     TempController *tempCtrl;
 };
