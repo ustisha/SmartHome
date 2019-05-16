@@ -3,11 +3,11 @@
 
 //#define SERIAL_DEBUG
 
-class SmartNet;
-
 #include <Arduino.h>
 #include <SmartNet.h>
 #include <RadioInterface.h>
+
+class SmartNet;
 
 class NetComponent {
 

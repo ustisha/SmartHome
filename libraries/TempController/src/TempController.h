@@ -27,7 +27,7 @@ public:
 
     void setTimeout(uint16_t t);
 
-    void tick(uint16_t sleep);
+    void tick(uint16_t sleep = 0);
 
     int getRelayState(uint8_t i);
 

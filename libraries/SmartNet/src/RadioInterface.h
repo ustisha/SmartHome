@@ -1,5 +1,5 @@
-#ifndef RADIO_H
-#define RADIO_H
+#ifndef RADIO_INTERFACE_H
+#define RADIO_INTERFACE_H
 
 #include <Arduino.h>
 #include <Net.h>
@@ -19,4 +19,4 @@ protected:
     bool enabled = false;
 };
 
-#endif //RADIO_H
+#endif //RADIO_INTERFACE_H

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <NetComponent.h>
+#include <RadioInterface.h>
 #include <Net.h>
 
 class InfoNet : public NetComponent {

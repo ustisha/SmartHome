@@ -17,7 +17,7 @@ public:
 
     void setPollInterval(uint16_t tout);
 
-    void tick(uint16_t sleep);
+    void tick(uint16_t sleep = 0);
 
 protected:
     float temp = -1;

@@ -10,9 +10,6 @@
 [submodule "libraries/OneWire"]
 	path = libraries/OneWire
 	url = https://github.com/PaulStoffregen/OneWire
-[submodule "arduino-cmake"]
-	path = arduino-cmake
-	url = https://github.com/ustisha/arduino-cmake
 [submodule "libraries/RF24Mesh"]
 	path = libraries/RF24Mesh
 	url = https://github.com/nRF24/RF24Mesh
@@ -31,3 +28,6 @@
 [submodule "libraries/Vcc"]
 	path = libraries/Vcc
 	url = https://github.com/Yveaux/Arduino_Vcc
+[submodule "arduino-cmake"]
+	path = arduino-cmake
+	url = https://github.com/ustisha/arduino-cmake
