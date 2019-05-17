@@ -18,11 +18,11 @@ TempController::TempController(TInterface *tiface, float downLimit, float upLimi
 }
 
 void TempController::addRelay(Relay *r, uint8_t i, bool heat, float rangeOn, float rangeOff) {
-    controls[i].enabled = true;
-    controls[i].relay = r;
-    controls[i].heat = heat;
-    controls[i].rangeOn = rangeOn;
-    controls[i].rangeOff = rangeOff;
+    relayControl[i].enabled = true;
+    relayControl[i].relay = r;
+    relayControl[i].heat = heat;
+    relayControl[i].rangeOn = rangeOn;
+    relayControl[i].rangeOff = rangeOff;
 
 #ifdef SERIAL_DEBUG
     String on(rangeOn);
@@ -36,6 +36,24 @@ void TempController::addRelay(Relay *r, uint8_t i, bool heat, float rangeOn, flo
     IF_SERIAL_DEBUG(
             printf_P(PSTR("[TempController::addRelay] Idx: %i, Mode: %d, On: %s, Off: %s\n"),
                      i, (int) heat, onBuf, offBuf));
+#endif
+}
+
+void TempController::addServo(Servo *s, uint8_t i, bool heat, int angle, float ratio) {
+    servoControl[i].enabled = true;
+    servoControl[i].servo = s;
+    servoControl[i].heat = heat;
+    servoControl[i].angle = angle;
+    servoControl[i].ratio = ratio;
+
+#ifdef SERIAL_DEBUG
+    String rto(ratio);
+    static char ratioBuf[8];
+    rto.toCharArray(ratioBuf, 8);
+
+    IF_SERIAL_DEBUG(
+            printf_P(PSTR("[TempController::addServo] Idx: %i, Mode: %d, Angle: %i, Ratio: %s\n"),
+                     i, (int) heat, angle, ratio));
 #endif
 }
 
@@ -61,48 +79,79 @@ void TempController::control() {
         return;
     }
     for (int i = 0; i < MAX; ++i) {
-        if (controls[i].enabled) {
-            if (controls[i].heat) {
-                if (tiface->get() <= (downLimit - controls[i].rangeOn) && !controls[i].relay->isOn()) {
+        if (relayControl[i].enabled) {
+            if (relayControl[i].heat) {
+                if (tiface->get() <= (downLimit - relayControl[i].rangeOn) && !relayControl[i].relay->isOn()) {
                     relayOn(i);
-                } else if (tiface->get() >= (downLimit - controls[i].rangeOff) && controls[i].relay->isOn()) {
+                } else if (tiface->get() >= (downLimit - relayControl[i].rangeOff) && relayControl[i].relay->isOn()) {
                     relayOff(i);
                 }
             } else {
-                if (tiface->get() >= (upLimit + controls[i].rangeOn) && !controls[i].relay->isOn()) {
+                if (tiface->get() >= (upLimit + relayControl[i].rangeOn) && !relayControl[i].relay->isOn()) {
                     relayOn(i);
-                } else if (tiface->get() <= (upLimit + controls[i].rangeOff) && controls[i].relay->isOn()) {
+                } else if (tiface->get() <= (upLimit + relayControl[i].rangeOff) && relayControl[i].relay->isOn()) {
                     relayOff(i);
                 }
             }
+        }
+        if (servoControl[i].enabled) {
+            int angle = 0;
+            if (servoControl[i].heat) {
+                if (tiface->get() < downLimit) {
+                    angle = round(abs(tiface->get() - downLimit) * 10 * servoControl[i].ratio);
+                }
+            } else {
+                if (tiface->get() > upLimit) {
+                    angle = round(abs(tiface->get() - upLimit) * 10 * servoControl[i].ratio);
+                }
+            }
+            servoWrite(i, angle);
         }
     }
 }
 
 void TempController::relayOff(uint8_t i) {
-    controls[i].relay->off();
+    if (!relayControl[i].enabled) {
+        return;
+    }
+    relayControl[i].relay->off();
     netComponent->sendCommandData(radio, r, rp, CMD_RELAY_00 + i);
-    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::control] Relay index: %d OFF\n"), i));
+    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::relayOff] Relay index: %d OFF\n"), i));
 }
 
 void TempController::relayOn(uint8_t i) {
-    if (this->mode != MODE_AUTO) {
+    if (!relayControl[i].enabled) {
         return;
     }
-    controls[i].relay->on();
+    relayControl[i].relay->on();
     netComponent->sendCommandData(radio, r, rp, CMD_RELAY_00 + i);
-    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::control] Relay index: %d ON\n"), i));
+    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::relayOn] Relay index: %d ON\n"), i));
+}
+
+void TempController::servoWrite(uint8_t i, int angle) {
+    if (!servoControl[i].enabled) {
+        return;
+    }
+    if (angle < 0) {
+        angle = 0;
+    }
+    if (angle > servoControl[i].angle) {
+        angle = servoControl[i].angle;
+    }
+    servoControl[i].servo->write(angle);
+    netComponent->sendCommandData(radio, r, rp, CMD_SERVO_00 + i);
+    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::servoWrite] Servo index: %d Angle: %d\n"), i, angle));
 }
 
 int TempController::getRelayState(uint8_t i) {
-    if (i >= MAX || !controls[i].enabled) {
+    if (i >= MAX || !relayControl[i].enabled) {
         return RELAY_DISABLED;
     }
-    return controls[i].relay->isOn() ? RELAY_ON : RELAY_OFF;
+    return relayControl[i].relay->isOn() ? RELAY_ON : RELAY_OFF;
 }
 
 void TempController::setRelayState(uint8_t i, uint8_t state) {
-    if (i >= MAX || !controls[i].enabled) {
+    if (i >= MAX || !relayControl[i].enabled) {
         return;
     }
     setMode(MODE_MANUAL);
@@ -111,6 +160,14 @@ void TempController::setRelayState(uint8_t i, uint8_t state) {
     } else if (state == RELAY_OFF) {
         relayOff(i);
     }
+}
+
+void TempController::setServoState(uint8_t i, int angle) {
+    if (i >= MAX || !servoControl[i].enabled) {
+        return;
+    }
+    setMode(MODE_MANUAL);
+    servoWrite(i, angle);
 }
 
 byte TempController::getMode() {

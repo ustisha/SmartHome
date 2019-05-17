@@ -24,6 +24,8 @@ void TempControllerNet::sendCommandData(RadioInterface *n, uint8_t r, uint16_t r
 void TempControllerNet::receiveCommandData(uint8_t cmd, long data) {
     if (cmd >= CMD_RELAY_00 && cmd <= CMD_RELAY_09) {
         tempCtrl->setRelayState(cmd - CMD_RELAY_00, data);
+    } else if (cmd >= CMD_SERVO_00 && cmd <= CMD_SERVO_09) {
+        tempCtrl->setServoState(cmd - CMD_RELAY_00, data);
     } else if (cmd == CMD_MODE) {
         tempCtrl->setMode(data);
     }

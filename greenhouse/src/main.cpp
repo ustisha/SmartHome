@@ -1,22 +1,12 @@
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
-#include <avr/pgmspace.h>
-#include <avr/power.h>
-#include <LowPower.h>
-#include <RF24.h>
-#include <RF24_config.h>
-#include <printf.h>
 #include <DebugLog.h>
 #include <SPI.h>
 #include <Wire.h>
-#include <LoRa.h>
-#include <Net.h>
-#include <TInterface.h>
-#include <THInterface.h>
-#include <THPInterface.h>
+#include <Servo.h>
+#include <LightSensorNet.h>
 #include <BME280Adapter.h>
 #include <InfoNet.h>
-#include <NetComponent.h>
 #include <TNet.h>
 #include <THPNet.h>
 #include <SmartNet.h>
@@ -27,18 +17,33 @@
 #include <TempController.h>
 #include <TempControllerNet.h>
 
+#ifdef IF_SERIAL_DEBUG
+
+int serial_putc(char c, FILE *) {
+    Serial.write(c);
+
+    return c;
+}
+
+void printf_begin(void) {
+    fdevopen(&serial_putc, 0);
+}
+
+#endif
+
 #define LORA_SS 10
 #define LORA_RESET 9
 #define LORA_DIO0 2
 
 #define R1 4
 #define R2 6
+#define SERV1 5
+#define SERV2 7
 
 #define SENSOR_INTERVAL 120
 #define POLL_INTERVAL 110
 
-const uint16_t SLEEP = 4000;
-const float vccCorrection = 1.0/1.0;
+const float vccCorrection = 1.0 / 1.0;
 
 InfoNet *info;
 SmartNet *net;
@@ -50,6 +55,7 @@ VccNet *vccNet;
 Relay *r1, *r2;
 TempController *tempController;
 TempControllerNet *tempControllerNet;
+Servo *serv1, *serv2;
 
 void onReceive(int packetSize) {
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main::onReceive] LoRa packet. Size %d\n"), packetSize));
@@ -87,9 +93,6 @@ void onReceive(int packetSize) {
 }
 
 void setup(void) {
-    // Sec for stabilization components power
-    LowPower.powerStandby(SLEEP_250MS, ADC_OFF, BOD_OFF);
-
 #ifdef SERIAL_DEBUG
     Serial.begin(57600);
     printf_begin();
@@ -121,10 +124,16 @@ void setup(void) {
 
     r1 = new Relay(R1);
     r2 = new Relay(R2);
+    serv1 = new Servo();
+    serv1->attach(SERV1);
+    serv2 = new Servo();
+    serv2->attach(SERV2);
     tempController = new TempController(bmeThp, 26.0, 30.0);
     tempController->setTimeout(2);
     tempController->addRelay(r1, 0, true);
     tempController->addRelay(r2, 1, true, 0.5, 0.1);
+    tempController->addServo(serv1, 0, false, 160, 1.4);
+    tempController->addServo(serv2, 1, false, 160, 1.8);
     tempControllerNet = new TempControllerNet(PORT_TEMP_CONTROLLER, net, tempController);
     tempController->addNet(loraNetSender, tempControllerNet, GATEWAY, PORT_HTTP_HANDLER);
 
@@ -141,16 +150,13 @@ void loop(void) {
 #ifdef SERIAL_DEBUG
     Serial.flush();
 #endif
-
-    LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF);
-
     if (bmeThp->getStatus()) {
-        bmeThp->tick(SLEEP);
+        bmeThp->tick();
     }
 
-    thpNet->tick(SLEEP);
-    vccNet->tick(SLEEP);
-    tempController->tick(SLEEP);
-    tempControllerNet->tick(SLEEP);
+    thpNet->tick();
+    vccNet->tick();
+    tempController->tick();
+    tempControllerNet->tick();
 }
 

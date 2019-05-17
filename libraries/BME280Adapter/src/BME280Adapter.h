@@ -1,7 +1,7 @@
 #ifndef BMETEMPHUMPRESSURE_H
 #define BMETEMPHUMPRESSURE_H
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <DebugLog.h>

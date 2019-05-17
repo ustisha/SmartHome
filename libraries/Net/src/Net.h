@@ -43,6 +43,17 @@ const uint8_t CMD_RELAY_00 = 40;
 //const uint8_t CMD_RELAY_07 = 47;
 //const uint8_t CMD_RELAY_08 = 48;
 const uint8_t CMD_RELAY_09 = 49;
+// Reserved for autocalculate servo number
+const uint8_t CMD_SERVO_00 = 50;
+//const uint8_t CMD_SERVO_01 = 51;
+//const uint8_t CMD_SERVO_02 = 52;
+//const uint8_t CMD_SERVO_03 = 53;
+//const uint8_t CMD_SERVO_04 = 54;
+//const uint8_t CMD_SERVO_05 = 55;
+//const uint8_t CMD_SERVO_06 = 56;
+//const uint8_t CMD_SERVO_07 = 57;
+//const uint8_t CMD_SERVO_08 = 58;
+const uint8_t CMD_SERVO_09 = 59;
 const uint8_t CMD_MODE = 11;
 const uint8_t CMD_INFO = 100;
 
