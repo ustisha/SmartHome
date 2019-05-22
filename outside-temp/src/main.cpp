@@ -3,9 +3,6 @@
 #include <avr/pgmspace.h>
 #include <avr/power.h>
 #include <LowPower.h>
-#include <RF24.h>
-#include <RF24_config.h>
-#include <printf.h>
 #include <DebugLog.h>
 #include <SPI.h>
 #include <Wire.h>
@@ -20,6 +17,20 @@
 #include <LoraNetSender.h>
 #include <Vcc.h>
 #include <VccNet.h>
+
+#ifdef IF_SERIAL_DEBUG
+
+int serial_putc(char c, FILE *) {
+    Serial.write(c);
+
+    return c;
+}
+
+void printf_begin(void) {
+    fdevopen(&serial_putc, 0);
+}
+
+#endif
 
 #define LORA_SS 10
 #define LORA_RESET 9
