@@ -43,11 +43,15 @@ void NetComponent::tick(uint16_t sleep) {
     unsigned long m;
     m = millis() + sleepTime;
     for (int i = 0; i < NetComponent::MAX; i++) {
-        if (rcvr[i].receiver != 0 && m >= (rcvr[i].last + rcvr[i].timeout)) {
+        if (rcvr[i].receiver != 0 && (m >= (rcvr[i].last + rcvr[i].timeout) || rcvr[i].last < rcvr[i].timeout)) {
             rcvr[i].last += rcvr[i].timeout;
             IF_SERIAL_DEBUG(printf_P(PSTR("[NetComponent::tick] By timeout. Idx: %d\n"), i));
             sendCommandData(rcvr[i].network, rcvr[i].receiver, rcvr[i].rport, rcvr[i].cmd);
         }
+        // @todo Проверить как работает таймер при переполнении millis();
+        /*if (rcvr[i].receiver != 0 && millis() < rcvr[i].last) {
+            rcvr[i].last = m;
+        }*/
     }
 }
 

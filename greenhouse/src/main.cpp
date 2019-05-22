@@ -10,6 +10,8 @@
 #include <TNet.h>
 #include <THPNet.h>
 #include <SmartNet.h>
+#include <AnalogReader.h>
+#include <ValueIntNet.h>
 #include <LoraNetSender.h>
 #include <Vcc.h>
 #include <VccNet.h>
@@ -35,6 +37,7 @@ void printf_begin(void) {
 #define LORA_RESET 9
 #define LORA_DIO0 2
 
+#define MOISTURE A2
 #define R1 4
 #define R2 6
 #define SERV1 5
@@ -56,6 +59,8 @@ Relay *r1, *r2;
 TempController *tempController;
 TempControllerNet *tempControllerNet;
 Servo *serv1, *serv2;
+AnalogReader *moisture;
+ValueIntNet *moistureNet;
 
 void onReceive(int packetSize) {
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main::onReceive] LoRa packet. Size %d\n"), packetSize));
@@ -122,6 +127,10 @@ void setup(void) {
         thpNet->addReceiver(loraNetSender, GATEWAY, PORT_HTTP_HANDLER, CMD_PRESSURE, SENSOR_INTERVAL);
     }
 
+    moisture = new AnalogReader(MOISTURE);
+    moistureNet = new ValueIntNet(PORT_MOISTURE, net, moisture);
+    moistureNet->addReceiver(loraNetSender, GATEWAY, PORT_HTTP_HANDLER, CMD_VALUE, SENSOR_INTERVAL);
+
     r1 = new Relay(R1);
     r2 = new Relay(R2);
     serv1 = new Servo();
@@ -156,7 +165,10 @@ void loop(void) {
 
     thpNet->tick();
     vccNet->tick();
+    moistureNet->tick();
     tempController->tick();
     tempControllerNet->tick();
 }
 
+
+#pragma clang diagnostic pop

@@ -25,8 +25,10 @@ const uint16_t PORT_18B20 = 2002;
 const uint16_t PORT_BME280 = 2003;
 const uint16_t PORT_BH1750 = 2004;
 const uint16_t PORT_VCC = 2005;
+const uint16_t PORT_MOISTURE = 2006;
 
 // Commands
+const uint8_t CMD_VALUE = 0;
 const uint8_t CMD_TEMPERATURE = 1;
 const uint8_t CMD_HUMIDITY = 2;
 const uint8_t CMD_PRESSURE = 3;
