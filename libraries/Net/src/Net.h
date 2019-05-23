@@ -13,6 +13,7 @@ struct Packet {
 const uint8_t PACKET_SIZE = 11;
 
 // Components
+const uint8_t WWW = 0;
 const uint8_t GATEWAY = 1;
 const uint8_t OUTSIDE_TEMP = 2;
 const uint8_t GREENHOUSE = 3;
@@ -69,6 +70,7 @@ const uint8_t MODE_MANUAL = 2;
 
 const uint8_t INFO_NETWORK_STARTED = 1;
 const uint8_t INFO_SETUP_COMPLETED = 9;
+const uint8_t INFO_PING = 10;
 const uint8_t INFO_ERROR_DS18B20 = 20;
 const uint8_t INFO_ERROR_BME280 = 21;
 const uint8_t INFO_ERROR_BH1750 = 22;

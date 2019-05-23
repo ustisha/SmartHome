@@ -10,7 +10,7 @@ set(${PROJECT_NAME}_BOARD uno)
 set(${PROJECT_NAME}_SRCS src/main.cpp)
 
 # Define the port for uploading code to the Arduino
-set(${PROJECT_NAME}_PORT COM4)
+set(${PROJECT_NAME}_PORT COM3)
 
 # Command to generate code arduino firmware (.hex file)
 generate_arduino_firmware(${PROJECT_NAME})
