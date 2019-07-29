@@ -40,7 +40,7 @@ public:
 
     void sendData(Packet &p) override;
 
-    void onReciveFunc(void(*callback)(int));
+    void onReceiveFunc(void(*callback)(int));
 
 };
 

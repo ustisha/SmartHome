@@ -25,7 +25,7 @@ class TempController : public NetInterface {
         bool enabled = false;
         Servo *servo;
         bool heat = true;
-        int angle = 0;
+        int maxAngle = 0;
         float ratio = 0;
     };
 public:
@@ -42,6 +42,8 @@ public:
     int getRelayState(uint8_t i);
 
     void setRelayState(uint8_t i, uint8_t state);
+
+    int getServoState(uint8_t i);
 
     void setServoState(uint8_t i, int angle);
 
@@ -63,10 +65,10 @@ protected:
     RelayControl relayControl[MAX];
     ServoControl servoControl[MAX];
     float downLimit, upLimit;
-    uint8_t mode;
+    uint8_t mode = MODE_AUTO;
     uint32_t timeout = DEFAULT_INTERVAL;
     unsigned long sleepTime = 0;
-    unsigned long last = millis();
+    unsigned long last;
 };
 
 

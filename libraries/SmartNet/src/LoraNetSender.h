@@ -1,5 +1,5 @@
-#ifndef LORANETEE_H
-#define LORANETEE_H
+#ifndef LORANETSENDER_H
+#define LORANETSENDER_H
 
 #include <Arduino.h>
 #include <LoraNet.h>
@@ -13,4 +13,4 @@ public:
     void sendData(Packet &p) override;
 };
 
-#endif //LORANETEE_H
+#endif //LORANETSENDER_H

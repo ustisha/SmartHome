@@ -62,7 +62,7 @@ void LoraNet::sendData(Packet &p) {
     IF_SERIAL_DEBUG(printf_P(PSTR("[LoraNet::sendData] Sent. Status: %d\n"), status));
 }
 
-void LoraNet::onReciveFunc(void (*callback)(int)) {
+void LoraNet::onReceiveFunc(void (*callback)(int)) {
     LoRa.onReceive(callback);
     LoRa.receive();
 }

@@ -31,3 +31,6 @@
 [submodule "arduino-cmake"]
 	path = arduino-cmake
 	url = https://github.com/ustisha/arduino-cmake
+[submodule "libraries/Ethernet"]
+	path = libraries/Ethernet
+	url = https://github.com/arduino-libraries/Ethernet

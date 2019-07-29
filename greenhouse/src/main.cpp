@@ -4,15 +4,13 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <Servo.h>
-#include <LightSensorNet.h>
 #include <BME280Adapter.h>
 #include <InfoNet.h>
-#include <TNet.h>
 #include <THPNet.h>
 #include <SmartNet.h>
 #include <AnalogReader.h>
 #include <ValueIntNet.h>
-#include <LoraNetSender.h>
+#include <LoraNetReceive.h>
 #include <Vcc.h>
 #include <VccNet.h>
 #include <Relay.h>
@@ -44,13 +42,14 @@ void printf_begin(void) {
 #define SERV2 7
 
 #define SENSOR_INTERVAL 120
-#define POLL_INTERVAL 110
+// @todo 10 is debug value
+#define POLL_INTERVAL 10
 
 const float vccCorrection = 1.0 / 1.0;
 
 InfoNet *info;
 SmartNet *net;
-LoraNetSender *loraNetSender;
+LoraNetReceive *loraNetReceive;
 BME280Adapter *bmeThp;
 THPNet *thpNet;
 Vcc *vcc;
@@ -106,12 +105,12 @@ void setup(void) {
 
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] System started\n")));
 
-    loraNetSender = new LoraNetSender(LORA_SS, LORA_RESET, LORA_DIO0);
-    loraNetSender->onReciveFunc(onReceive);
+    loraNetReceive = new LoraNetReceive(LORA_SS, LORA_RESET, LORA_DIO0);
+    loraNetReceive->onReceiveFunc(onReceive);
     net = new SmartNet(GREENHOUSE);
     info = new InfoNet(PORT_INFO, net);
     // Info network started
-    info->sendCommandData(loraNetSender, GATEWAY, PORT_HTTP_HANDLER, CMD_INFO, INFO_NETWORK_STARTED);
+    info->sendCommandData(loraNetReceive, GATEWAY, PORT_HTTP_HANDLER, CMD_INFO, INFO_NETWORK_STARTED);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Network started\n")));
 
     bmeThp = new BME280Adapter(Wire, 0x76);
@@ -119,17 +118,17 @@ void setup(void) {
     thpNet = new THPNet(PORT_BME280, net, bmeThp);
     if (bmeThp->getStatus() < 0) {
         // BME280 error
-        info->sendCommandData(loraNetSender, GATEWAY, PORT_HTTP_HANDLER, CMD_INFO, INFO_ERROR_BME280);
+        info->sendCommandData(loraNetReceive, GATEWAY, PORT_HTTP_HANDLER, CMD_INFO, INFO_ERROR_BME280);
         IF_SERIAL_DEBUG(printf_P(PSTR("[Main] BME280 error\n")));
     } else {
-        thpNet->addReceiver(loraNetSender, GATEWAY, PORT_HTTP_HANDLER, CMD_TEMPERATURE, SENSOR_INTERVAL);
-        thpNet->addReceiver(loraNetSender, GATEWAY, PORT_HTTP_HANDLER, CMD_HUMIDITY, SENSOR_INTERVAL);
-        thpNet->addReceiver(loraNetSender, GATEWAY, PORT_HTTP_HANDLER, CMD_PRESSURE, SENSOR_INTERVAL);
+        thpNet->addReceiver(loraNetReceive, GATEWAY, PORT_HTTP_HANDLER, CMD_TEMPERATURE, SENSOR_INTERVAL);
+        thpNet->addReceiver(loraNetReceive, GATEWAY, PORT_HTTP_HANDLER, CMD_HUMIDITY, SENSOR_INTERVAL);
+        thpNet->addReceiver(loraNetReceive, GATEWAY, PORT_HTTP_HANDLER, CMD_PRESSURE, SENSOR_INTERVAL);
     }
 
     moisture = new AnalogReader(MOISTURE);
-    moistureNet = new ValueIntNet(PORT_MOISTURE, net, moisture);
-    moistureNet->addReceiver(loraNetSender, GATEWAY, PORT_HTTP_HANDLER, CMD_VALUE, SENSOR_INTERVAL);
+    moistureNet = new ValueIntNet(PORT_VALUE, net, moisture);
+    moistureNet->addReceiver(loraNetReceive, GATEWAY, PORT_HTTP_HANDLER, CMD_MOISTURE, SENSOR_INTERVAL);
 
     r1 = new Relay(R1);
     r2 = new Relay(R2);
@@ -137,21 +136,22 @@ void setup(void) {
     serv1->attach(SERV1);
     serv2 = new Servo();
     serv2->attach(SERV2);
-    tempController = new TempController(bmeThp, 26.0, 30.0);
-    tempController->setTimeout(2);
+    tempController = new TempController(bmeThp, 26.0, 27.0);
+    // @todo 5 is debug value.
+    tempController->setTimeout(5);
     tempController->addRelay(r1, 0, true);
     tempController->addRelay(r2, 1, true, 0.5, 0.1);
-    tempController->addServo(serv1, 0, false, 160, 1.4);
+    tempController->addServo(serv1, 0, false, 160, 2.4);
     tempController->addServo(serv2, 1, false, 160, 1.8);
     tempControllerNet = new TempControllerNet(PORT_TEMP_CONTROLLER, net, tempController);
-    tempController->addNet(loraNetSender, tempControllerNet, GATEWAY, PORT_HTTP_HANDLER);
+    tempController->addNet(loraNetReceive, tempControllerNet, GATEWAY, PORT_HTTP_HANDLER);
 
     vcc = new Vcc(vccCorrection);
-    vccNet = new VccNet(PORT_VCC, net, vcc);
-    vccNet->addReceiver(loraNetSender, GATEWAY, PORT_HTTP_HANDLER, CMD_VCC, SENSOR_INTERVAL);
+    vccNet = new VccNet(PORT_VALUE, net, vcc);
+    vccNet->addReceiver(loraNetReceive, GATEWAY, PORT_HTTP_HANDLER, CMD_VCC, SENSOR_INTERVAL);
 
     // Info setup completed
-    info->sendCommandData(loraNetSender, GATEWAY, PORT_HTTP_HANDLER, CMD_INFO, INFO_SETUP_COMPLETED);
+    info->sendCommandData(loraNetReceive, GATEWAY, PORT_HTTP_HANDLER, CMD_INFO, INFO_SETUP_COMPLETED);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Setup completed\n")));
 }
 
@@ -169,6 +169,3 @@ void loop(void) {
     tempController->tick();
     tempControllerNet->tick();
 }
-
-
-#pragma clang diagnostic pop

@@ -14,6 +14,8 @@ void TempControllerNet::sendCommandData(RadioInterface *n, uint8_t r, uint16_t r
 
     if (cmd >= CMD_RELAY_00 && cmd <= CMD_RELAY_09) {
         p.data = tempCtrl->getRelayState(cmd - CMD_RELAY_00);
+    } else if (cmd >= CMD_SERVO_00 && cmd <= CMD_SERVO_09) {
+        p.data = tempCtrl->getServoState(cmd - CMD_SERVO_00);
     } else if (cmd == CMD_MODE) {
         p.data = tempCtrl->getMode();
     }
@@ -22,10 +24,12 @@ void TempControllerNet::sendCommandData(RadioInterface *n, uint8_t r, uint16_t r
 }
 
 void TempControllerNet::receiveCommandData(uint8_t cmd, long data) {
+    IF_SERIAL_DEBUG(printf_P(PSTR("[TempControllerNet::receiveCommandData] Cmd: %i, Data: %ld\n"), cmd, data));
+
     if (cmd >= CMD_RELAY_00 && cmd <= CMD_RELAY_09) {
         tempCtrl->setRelayState(cmd - CMD_RELAY_00, data);
     } else if (cmd >= CMD_SERVO_00 && cmd <= CMD_SERVO_09) {
-        tempCtrl->setServoState(cmd - CMD_RELAY_00, data);
+        tempCtrl->setServoState(cmd - CMD_SERVO_00, data);
     } else if (cmd == CMD_MODE) {
         tempCtrl->setMode(data);
     }

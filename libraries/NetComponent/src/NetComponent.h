@@ -34,7 +34,7 @@ public:
 
     virtual void sendCommandData(RadioInterface *n, uint8_t r, uint16_t rp, uint8_t cmd) = 0;
 
-    void receiveHandle(uint16_t sp, uint8_t cmd, long data);
+    void receiveHandle(uint16_t rp, uint8_t cmd, long data);
 
     void tick(uint16_t sleep = 0);
 

@@ -9,4 +9,5 @@ void LoraNetSender::sendData(Packet &p) {
     LoraNet::sendData(p);
     LoRa.sleep();
     delayMicroseconds(100);
+    IF_SERIAL_DEBUG(printf_P(PSTR("[LoraNet::sendData] Sleep mode\n")));
 }

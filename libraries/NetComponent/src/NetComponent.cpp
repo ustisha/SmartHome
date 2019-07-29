@@ -55,8 +55,8 @@ void NetComponent::tick(uint16_t sleep) {
     }
 }
 
-void NetComponent::receiveHandle(uint16_t sp, uint8_t cmd, long data) {
-    if (sp == this->sport) {
+void NetComponent::receiveHandle(uint16_t rp, uint8_t cmd, long data) {
+    if (rp == this->sport) {
         receiveCommandData(cmd, data);
     }
 }

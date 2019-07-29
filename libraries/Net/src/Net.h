@@ -26,7 +26,7 @@ const uint16_t PORT_18B20 = 2002;
 const uint16_t PORT_BME280 = 2003;
 const uint16_t PORT_BH1750 = 2004;
 const uint16_t PORT_VCC = 2005;
-const uint16_t PORT_MOISTURE = 2006;
+const uint16_t PORT_VALUE = 2006;
 
 // Commands
 const uint8_t CMD_VALUE = 0;
@@ -35,6 +35,7 @@ const uint8_t CMD_HUMIDITY = 2;
 const uint8_t CMD_PRESSURE = 3;
 const uint8_t CMD_LIGHT = 4;
 const uint8_t CMD_VCC = 5;
+const uint8_t CMD_MOISTURE = 6;
 const uint8_t CMD_RELAY_00 = 40;
 // Reserved for autocalculate relay number
 //const uint8_t CMD_RELAY_01 = 41;
@@ -64,6 +65,8 @@ const uint8_t CMD_INFO = 100;
 const uint8_t RELAY_DISABLED = 0;
 const uint8_t RELAY_ON = 1;
 const uint8_t RELAY_OFF = 2;
+
+const uint8_t SERVO_DISABLED = 0;
 
 const uint8_t MODE_AUTO = 1;
 const uint8_t MODE_MANUAL = 2;

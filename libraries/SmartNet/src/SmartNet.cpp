@@ -10,7 +10,7 @@ int SmartNet::getIndex() {
         if (!components[i].enabled) {
             return i;
         }
-    } while (i++ <= MAX);
+    } while (i++ <= SmartNet::MAX);
     return -1;
 }
 
@@ -20,6 +20,7 @@ uint8_t SmartNet::getSender() {
 
 void SmartNet::addNetComponent(NetComponent *nc) {
     int idx = getIndex();
+    IF_SERIAL_DEBUG(printf_P(PSTR("[SmartNet::addNetComponent] Idx: %d\n"), idx));
     if (idx != -1) {
         components[idx].enabled = true;
         components[idx].netComponent = nc;
@@ -27,9 +28,9 @@ void SmartNet::addNetComponent(NetComponent *nc) {
 }
 
 void SmartNet::commandReceived(Packet packet) {
-    for (int i = 0; i < MAX; i++) {
-        if(components[i].enabled) {
-            components[i].netComponent->receiveHandle(packet.sp, packet.cmd, packet.data);
+    for (int i = 0; i < SmartNet::MAX; i++) {
+        if (components[i].enabled) {
+            components[i].netComponent->receiveHandle(packet.rp, packet.cmd, packet.data);
         }
     }
 }

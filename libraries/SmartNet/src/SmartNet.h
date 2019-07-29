@@ -1,3 +1,5 @@
+//#define SERIAL_DEBUG
+
 #ifndef SMARTNET_H
 #define SMARTNET_H
 
@@ -11,7 +13,7 @@ class NetComponent;
 class SmartNet {
     const static uint8_t MAX = 10;
     struct NetComponents {
-        bool enabled;
+        bool enabled = false;
         NetComponent *netComponent;
     };
 
