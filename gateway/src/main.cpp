@@ -1,4 +1,4 @@
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <DebugLog.h>
 #include <SPI.h>
