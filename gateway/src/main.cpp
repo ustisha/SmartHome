@@ -1,14 +1,15 @@
-//#define SERIAL_DEBUG
+#define SERIAL_DEBUG
 
 #include <DebugLog.h>
 #include <SPI.h>
-#include <LoraNetReceive.h>
+#include <RF24Net.h>
 #include <Ethernet.h>
 #include <Format.h>
 #include <Net.h>
+#include <SmartNet.h>
 #include <Task.h>
 
-#ifdef IF_SERIAL_DEBUG
+#ifdef SERIAL_DEBUG
 
 int serial_putc(char c, FILE *) {
     Serial.write(c);
@@ -20,101 +21,60 @@ void printf_begin(void) {
     fdevopen(&serial_putc, 0);
 }
 
+int freeRAM() {
+    extern int __heap_start, *__brkval;
+    int v;
+    return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+}
+
 #endif
 
-const char domain[] PROGMEM = "home.ustisha.ru";
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(192, 168, 10, 77);
 IPAddress dns(192, 168, 10, 1);
-IPAddress gateway(192, 168, 10, 1);
+IPAddress gatewayIp(192, 168, 10, 1);
 EthernetClient client;
 EthernetServer server(80);
+RF24 radio(RF24_DEFAULT_CE, RF24_DEFAULT_CSN);
 Task *ping;
-LoraNetReceive *loraNet;
+SmartNet *smartNet;
+RF24Net *rf24Net;
 
-void sendData(Packet *p) {
-    IF_SERIAL_DEBUG(
-            printf_P(
-                    PSTR("[Gateway::sendData] LoRa Packet. Sender: %i, Sport: %u, Receiver: %i, Rport: %u, Cmd: %i, Data: %ld\n"),
-                    p->sender, p->sp, p->receiver, p->rp, p->cmd, p->data));
-
-    if (client.connect(gateway, 80)) {
-        IPAddress remoteIp = client.remoteIP();
-        static char ipStr[16];
-        Format::ip(ipStr, remoteIp);
-
-        IF_SERIAL_DEBUG(
-                printf_P(PSTR("[Gateway::sendData] Remote ip: %s\n"), ipStr));
-
-        static char get[128];
-        static char host[32];
-        sprintf(get, "GET /lora/receive?s=%i&sp=%u&r=%i&rp=%u&cmd=%i&data=%ld HTTP/1.1",
-                p->sender, p->sp, p->receiver, p->rp, p->cmd, p->data);
+void doRequest(const char *get) {
+    if (client.connect(gatewayIp, 80)) {
         client.println(get);
-        sprintf(host, "Host: %s", domain);
-        client.println(host);
+        client.println("Host: domain.com");
         client.println("Connection: close");
         client.println();
-        client.flush();
-        IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::sendData] Client stop\n")));
+#ifdef SERIAL_DEBUG
+        IPAddress remoteIp = client.remoteIP();
+        char ipStr[16];
+        Format::ip(ipStr, &remoteIp);
+        IF_SERIAL_DEBUG(
+                printf_P(PSTR("[Gateway::doRequest] Remote ip: %s, Request: %s\n"), ipStr, get));
+#endif
     } else {
         IF_SERIAL_DEBUG(
-                printf_P(PSTR("[Gateway::sendData] Connection failed\n")));
+                printf_P(PSTR("[Gateway::doRequest] Connection failed\n")));
     }
 }
 
-void onReceive(int packetSize) {
-    IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::onReceive] LoRa packet. Size %d\n"), packetSize));
-
-    if (packetSize != PACKET_SIZE) {
-        return;
-    }
-
-    UInt sp(0);
-    UInt rp(0);
-    Long data(0);
-    Packet p{};
-
-    p.sender = (uint8_t) LoRa.read();
-    sp.b[0] = (uint8_t) LoRa.read();
-    sp.b[1] = (uint8_t) LoRa.read();
-    p.sp = sp.i;
-
-    p.receiver = (uint8_t) LoRa.read();
-    rp.b[0] = (uint8_t) LoRa.read();
-    rp.b[1] = (uint8_t) LoRa.read();
-    p.rp = rp.i;
-
-    p.cmd = (uint8_t) LoRa.read();
-    data.b[0] = (uint8_t) LoRa.read();
-    data.b[1] = (uint8_t) LoRa.read();
-    data.b[2] = (uint8_t) LoRa.read();
-    data.b[3] = (uint8_t) LoRa.read();
-    p.data = data.i;
-
-    sendData(&p);
+void onReceiveNRF(Packet *p) {
+    char get[100];
+    sprintf(get, "GET /lora/receive?s=%u&sp=%u&r=%u&rp=%u&cmd=%u&data=%ld HTTP/1.1",
+            p->getSender(), p->getSenderPort(), p->getReceiver(), p->getReceiverPort(), p->getCommand(),
+            p->getData());
+    doRequest(get);
 }
 
 void onPing() {
-    Packet p{};
-    p.sender = GATEWAY;
-    p.sp = PORT_INFO;
-    p.receiver = WWW;
-    p.rp = PORT_INFO;
-    p.cmd = CMD_INFO;
-    p.data = INFO_PING;
-    sendData(&p);
+    doRequest("GET /gateway/ping");
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::onPing] Ram: %d\n"), freeRAM()));
 }
 
-void onCompleted() {
-    Packet p{};
-    p.sender = GATEWAY;
-    p.sp = PORT_INFO;
-    p.receiver = WWW;
-    p.rp = PORT_INFO;
-    p.cmd = CMD_INFO;
-    p.data = INFO_SETUP_COMPLETED;
-    sendData(&p);
+void onReady() {
+    doRequest("GET /gateway/ready");
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::onReady] Ram: %d\n"), freeRAM()));
 }
 
 void setup() {
@@ -124,11 +84,16 @@ void setup() {
     IF_SERIAL_DEBUG(printf_P(PSTR("====== [DEBUG] ======\n")));
 #endif
 
-    IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] System started\n")));
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] System started. Ram: %d\n"), freeRAM()));
 
     // Disable SD card
     pinMode(4, OUTPUT);
     digitalWrite(4, HIGH);
+
+    SPI.begin();
+    smartNet = new SmartNet(GATEWAY, 0);
+    rf24Net = new RF24Net(smartNet, GATEWAY, radio);
+    rf24Net->onReceiveFunc(onReceiveNRF);
 
     if (Ethernet.begin(mac) == 0) {
         IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Ethernet failed to configure Ethernet using DHCP\n")));
@@ -142,28 +107,22 @@ void setup() {
     }
 #ifdef SERIAL_DEBUG
     IPAddress localIp = Ethernet.localIP();
-    static char ipStr[16];
-    Format::ip(ipStr, localIp);
+    char ipStr[16];
+    Format::ip(ipStr, &localIp);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Ethernet IP: %s\n"), ipStr));
 #endif
 
-    loraNet = new LoraNetReceive(6, 5, 3);
-    loraNet->onReceiveFunc(onReceive);
-
-    ping = new Task();
+    ping = new Task(2);
     ping->each(onPing, 60000);
-    ping->one(onCompleted, 1000);
+    ping->one(onReady, 500);
 
-    IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Setup completed\n")));
-
-#ifdef SERIAL_DEBUG
-    Serial.flush();
-#endif
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Setup completed. Ram: %d\n"), freeRAM()));
 }
 
 int onWWWRequest(char *queryString, int resultsMaxCt) {
     int ct = 0;
-    char *var, *value;
+    char *var;
+    char *value;
     char *s = "s";
     char *sp = "sp";
     char *r = "r";
@@ -183,20 +142,20 @@ int onWWWRequest(char *queryString, int resultsMaxCt) {
         ct++;
 
         if (0 == strcmp(var, s)) {
-            p.sender = atoi(value);
+            p.setSender(atoi(value));
         } else if (0 == strcmp(var, sp)) {
-            p.sp = atoi(value);
+            p.setSenderPort(atoi(value));
         } else if (0 == strcmp(var, r)) {
-            p.receiver = atoi(value);
+            p.setReceiver(atoi(value));
         } else if (0 == strcmp(var, rp)) {
-            p.rp = atoi(value);
+            p.setReceiverPort(atoi(value));
         } else if (0 == strcmp(var, cmd)) {
-            p.cmd = atoi(value);
+            p.setCommand(atoi(value));
         } else if (0 == strcmp(var, data)) {
-            p.data = atoi(value);
+            p.setData(atoi(value));
         }
     }
-    loraNet->sendData(p);
+    rf24Net->sendData(&p);
     return ct;
 }
 
@@ -217,8 +176,8 @@ void requestHandler(EthernetClient *client) {
                 strncat(buf, &c, 1);
             }
             if (c == '\n' && currentLineIsBlank) {
-                client->println(PSTR("HTTP/1.1 200 OK"));
-                client->println(PSTR("Connection: close"));
+                client->println("HTTP/1.1 200 OK");
+                client->println("Connection: close");
                 client->println();
                 break;
             }
@@ -228,8 +187,7 @@ void requestHandler(EthernetClient *client) {
             if (c == '\n') {
                 currentLineIsBlank = true;
                 firstString = false;
-            }
-            else if (c != '\r') {
+            } else if (c != '\r') {
                 currentLineIsBlank = false;
             }
         }
@@ -237,14 +195,18 @@ void requestHandler(EthernetClient *client) {
     client->flush();
     client->stop();
     IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::requestHandler] Client disconnected\n")));
-    onWWWRequest(buf, 6);
+    if (strlen(buf) > 0) {
+        onWWWRequest(buf, 6);
+    }
 }
 
 void loop() {
-    ping->tick();
+    rf24Net->tick();
 
     EthernetClient client = server.available();
     if (client) {
         requestHandler(&client);
     }
+
+    ping->tick();
 }
