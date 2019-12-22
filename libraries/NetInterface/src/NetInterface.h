@@ -8,13 +8,12 @@
 
 class NetInterface {
 public:
-    virtual ~NetInterface() {};
-
-    void addNet(RadioInterface *radio, NetComponent *netComponent, uint8_t r, uint16_t rp);
+    void addNet(RadioInterface *radioInterface, NetComponent *netCmp, uint8_t receiver, uint8_t receiverPort);
 
 protected:
     NetComponent *netComponent;
     RadioInterface *radio;
+    bool networking = false;
     uint8_t r, rp;
 };
 

@@ -9,13 +9,9 @@
 class InfoNet : public NetComponent {
     using NetComponent::NetComponent;
 public:
-    InfoNet(uint16_t p, SmartNet *n);
+    void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd) override;
 
-    virtual ~InfoNet() {};
-
-    void sendCommandData(RadioInterface *n, uint8_t r, uint16_t rp, uint8_t cmd) override;
-
-    void sendCommandData(RadioInterface *n, uint8_t r, uint16_t rp, uint8_t cmd, long value);
+    void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd, long value);
 
 protected:
     RadioInterface *radio;

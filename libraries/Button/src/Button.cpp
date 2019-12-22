@@ -1,45 +1,47 @@
 #include "Arduino.h"
-#include "Switcher.h"
+#include "Button.h"
 
-Switcher::Switcher(uint8_t swPin) {
-    pin = swPin;
+Button::Button(uint8_t btnPin) {
+    pin = btnPin;
     start = 0;
     pinMode(pin, INPUT);
     digitalWrite(pin, HIGH);
 }
 
-int Switcher::getIndex() {
+uint8_t Button::getIndex() {
     uint8_t i = 0;
     do {
-        if (arr[i].cb == NULL) {
+        if (!arr[i].enabled) {
             return i;
         }
-    }  while (i++ <= MAX );
+    } while (i++ <= MAX);
     return -1;
 }
 
-int Switcher::sortByPress(const void *elem1, const void *elem2) {
+int Button::sortByPress(const void *elem1, const void *elem2) {
     return ((Callback *) elem1)->press < ((Callback *) elem2)->press ? 1 : -1;
 }
 
-void Switcher::addHandler(void (*cb)(), uint16_t pressTime) {
-    int i = getIndex();
+uint8_t Button::addHandler(HandlerInterface *handlerInterface, uint16_t pressTime) {
+    uint8_t i = getIndex();
     if (i >= 0) {
-        arr[i].cb = cb;
+        arr[i].handlerInterface = handlerInterface;
         arr[i].press = pressTime;
+        arr[i].enabled = true;
     }
-    qsort(arr, MAX, sizeof(Callback), Switcher::sortByPress);
+    qsort(arr, MAX, sizeof(Callback), Button::sortByPress);
+    return i;
 }
 
-bool Switcher::isPressed() {
+bool Button::isPressed() {
     if (pin >= A0) {
-        return analogRead(pin) < Switcher::ANALOG_CONNECTED;
+        return analogRead(pin) < Button::ANALOG_CONNECTED;
     } else {
         return digitalRead(pin) == 0;
     }
 }
 
-void Switcher::tick() {
+void Button::tick() {
     unsigned long m = millis();
     if (start != 0 && start > m) {
         start = m;
@@ -50,8 +52,8 @@ void Switcher::tick() {
     }
     if (!isPressed() && start != 0) {
         for (uint8_t i = 0; i < MAX; i++) {
-            if (arr[i].cb != NULL && (m - start) >= arr[i].press) {
-                arr[i].cb();
+            if (arr[i].enabled && (m - start) >= arr[i].press) {
+                arr[i].handlerInterface->call(i);
                 break;
             }
         }

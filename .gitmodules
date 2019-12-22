@@ -34,3 +34,9 @@
 [submodule "libraries/Ethernet"]
 	path = libraries/Ethernet
 	url = https://github.com/arduino-libraries/Ethernet
+[submodule "libraries/Servo"]
+	path = libraries/Servo
+	url = https://github.com/arduino-libraries/Servo
+[submodule "libraries/EEPROMEx"]
+	path = libraries/EEPROMEx
+	url = https://github.com/thijse/Arduino-EEPROMEx

@@ -1,17 +1,18 @@
-#ifndef ARDUINOEXAMPLE_SWITCHER_H
-#define ARDUINOEXAMPLE_SWITCHER_H
+#ifndef BUTTON_H
+#define BUTTON_H
 
 #include <Arduino.h>
+#include <HandlerInterface.h>
 
-class Switcher {
-    static const uint8_t MAX = 3;
+class Button {
+    static const uint8_t MAX = 2;
     static const uint8_t ANALOG_CONNECTED = 200;
 protected:
 
     struct Callback {
-        void (*cb)() = NULL;
-
+        HandlerInterface *handlerInterface = NULL;
         uint16_t press = 0;
+        bool enabled = false;
     };
 
     Callback arr[MAX];
@@ -21,19 +22,19 @@ protected:
 
     static int sortByPress(const void *elem1, const void *elem2);
 
-    int getIndex();
+    uint8_t getIndex();
 
 public:
     static const uint16_t DEFAULT_PRESS = 50;
 
-    explicit Switcher(uint8_t swPin);
+    explicit Button(uint8_t btnPin);
 
     bool isPressed();
 
-    void addHandler(void (*cb)(), unsigned int pressTime);
+    uint8_t addHandler(HandlerInterface *handlerInterface, uint16_t pressTime = DEFAULT_PRESS);
 
     void tick();
 };
 
 
-#endif //ARDUINOEXAMPLE_SWITCHER_H
+#endif //BUTTON_H

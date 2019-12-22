@@ -11,28 +11,31 @@ class SmartNet;
 
 class NetComponent {
 
-    const static byte MAX = 3;
-
     struct R {
-        R() : network(NULL), receiver(0), rport(0), cmd(0), timeout(0), last(0) {
+        R() {
+            enabled = false;
+            receiver = 0;
+            rport = 0;
+            cmd = 0;
+            timeout = 0;
+            last = millis();
         }
 
         RadioInterface *network;
+        bool enabled;
         uint8_t receiver;
-        uint16_t rport;
+        uint8_t rport;
         uint8_t cmd;
         uint32_t timeout;
         uint32_t last;
     };
 
 public:
-    NetComponent(uint16_t sp, SmartNet *n);
+    NetComponent(SmartNet *n, uint8_t sp, uint8_t max);
 
-    virtual ~NetComponent() {};
+    void addReceiver(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t c, float t);
 
-    void addReceiver(RadioInterface *n, uint8_t r, uint16_t rp, uint8_t c, float t);
-
-    virtual void sendCommandData(RadioInterface *n, uint8_t r, uint16_t rp, uint8_t cmd) = 0;
+    virtual void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd) = 0;
 
     void receiveHandle(uint16_t rp, uint8_t cmd, long data);
 
@@ -40,11 +43,11 @@ public:
 
 protected:
     SmartNet *net;
-    uint16_t sport;
+    uint8_t sport;
+    uint8_t i;
+    uint8_t maxCmp;
     uint32_t sleepTime;
-    R rcvr[NetComponent::MAX];
-
-    uint8_t getIndex();
+    R *rcvr;
 
     virtual void receiveCommandData(uint8_t cmd, long data) = 0;
 };

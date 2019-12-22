@@ -10,11 +10,9 @@
 class LightSensorNet : public NetComponent {
     using NetComponent::NetComponent;
 public:
-    LightSensorNet(uint16_t p, SmartNet *n, LightSensorInterface *ls);
+    LightSensorNet(SmartNet *n, uint8_t sp, uint8_t max, LightSensorInterface *ls);
 
-    virtual ~LightSensorNet() {};
-
-    void sendCommandData(RadioInterface *n, uint8_t r, uint16_t rp, uint8_t cmd) override;
+    void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd) override;
 
 protected:
     LightSensorInterface *lightSensor;

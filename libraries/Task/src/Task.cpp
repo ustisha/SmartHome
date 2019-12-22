@@ -1,24 +1,17 @@
 #include "Task.h"
 
-Task::Task() = default;
-
-int Task::getIndex() {
-    uint8_t i = 0;
-    do {
-        if (a[i].cb == NULL) {
-            return i;
-        }
-    } while (i++ <= MAX);
-    return -1;
-}
+Task::Task(uint8_t max) : a(new Callback[max]{}) {
+    maxTask = max;
+    i = 0;
+};
 
 void Task::add(void (*cb)(), uint16_t t, uint8_t type) {
-    int i = getIndex();
-    if (i > -1) {
+    if (i < maxTask) {
         a[i].cb = cb;
         a[i].type = type;
         a[i].last = millis();
         a[i].timeout = t;
+        i++;
     }
 }
 
@@ -32,28 +25,28 @@ void Task::one(void (*cb)(), uint16_t t) {
 
 void Task::tick() {
     unsigned long m = millis();
-    for (int i = 0; i <= MAX; i++) {
-        if (a[i].cb != NULL && m >= (a[i].last + a[i].timeout)) {
-            if (a[i].type == TYPE_EACH) {
-                a[i].cb();
-                a[i].last += a[i].timeout;
-            } else if (a[i].type == TYPE_ONE) {
-                a[i].cb();
-                a[i].cb = NULL;
-                a[i].last = 0;
-                a[i].timeout = 0;
+    for (int x = 0; x < maxTask; x++) {
+        if (a[x].cb != NULL && m >= (a[x].last + a[x].timeout)) {
+            if (a[x].type == TYPE_EACH) {
+                a[x].cb();
+                a[x].last += a[x].timeout;
+            } else if (a[x].type == TYPE_ONE) {
+                a[x].cb();
+                a[x].cb = NULL;
+                a[x].last = 0;
+                a[x].timeout = 0;
             }
         }
     }
 }
 
 void Task::replace(void (*cb)(), uint16_t t) {
-    uint8_t i = 0;
+    uint8_t x = 0;
     do {
-        if (a[i].cb == cb) {
-            a[i].cb = cb;
-            a[i].last = millis();
-            a[i].timeout = t;
+        if (a[x].cb == cb) {
+            a[x].cb = cb;
+            a[x].last = millis();
+            a[x].timeout = t;
         }
-    } while (i++ <= MAX);
+    } while (x++ < maxTask);
 }

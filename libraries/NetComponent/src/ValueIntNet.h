@@ -8,11 +8,9 @@
 class ValueIntNet : public NetComponent {
     using NetComponent::NetComponent;
 public:
-    ValueIntNet(uint16_t p, SmartNet *n, ValueIntInterface *vInt);
+    ValueIntNet(SmartNet *n, uint8_t sp, uint8_t max, ValueIntInterface *vInt);
 
-    virtual ~ValueIntNet() {};
-
-    void sendCommandData(RadioInterface *n, uint8_t r, uint16_t rp, uint8_t cmd) override;
+    void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd) override;
 
 protected:
     ValueIntInterface *valueInt;

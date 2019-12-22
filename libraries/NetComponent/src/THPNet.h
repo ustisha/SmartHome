@@ -8,11 +8,9 @@
 class THPNet : public NetComponent {
     using NetComponent::NetComponent;
 public:
-    THPNet(uint16_t p, SmartNet *n, THPInterface *thp);
+    THPNet(SmartNet *n, uint8_t sp, uint8_t max, THPInterface *thp);
 
-    virtual ~THPNet() {};
-
-    void sendCommandData(RadioInterface *n, uint8_t r, uint16_t rp, uint8_t cmd) override;
+    void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd) override;
 
 protected:
     THPInterface *tempHumPressure;

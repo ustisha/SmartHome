@@ -14,7 +14,8 @@ public:
     static void humidity(char *formatted, float h);
     static void pressure(char *formatted, float hpa);
     static void pressure(char *formatted, float hpa, uint8_t type, bool units);
-    static void ip(char *formatted, IPAddress addr);
+    static void ip(char *formatted, IPAddress *addr);
+    static void floatVar(char *formatted, float f);
 };
 
 #endif //FORMAT_H

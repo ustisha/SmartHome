@@ -10,30 +10,42 @@
 #include <NetComponent.h>
 #include <Relay.h>
 #include <Servo.h>
+#include <Format.h>
+#include <EEPROMex.h>
+#include <EEPROMvar.h>
 
 class TempController : public NetInterface {
-    const static uint8_t MAX = 2;
     const static uint32_t DEFAULT_INTERVAL = 5 * 60000;
     struct RelayControl {
         bool enabled = false;
         Relay *relay;
-        bool heat = true;
+        uint8_t type = 0;
         float rangeOn = 0;
         float rangeOff = 0;
     };
     struct ServoControl {
         bool enabled = false;
         Servo *servo;
-        bool heat = true;
+        uint8_t type = 0;
+        int minAngle = 0;
         int maxAngle = 0;
         float ratio = 0;
     };
 public:
-    TempController(TInterface *tiface, float downLimit, float upLimit);
+    // 1 бит - Открывать при понижении значения нижней границы
+    // 2 бит - Открывать при превышении значения верхней границы
+    // 3 бит - Открывать при понижении значения ниже верхней границы
+    // 4 бит - Открывать при превышении значения выше нижней границы
+    const static uint8_t TYPE_BELOW_DOWN_LIMIT = B00000001;
+    const static uint8_t TYPE_ABOVE_UP_LIMIT = B00000010;
+    const static uint8_t TYPE_BELOW_UP_LIMIT = B00000100;
+    const static uint8_t TYPE_ABOVE_DOWN_LIMIT = B00001000;
 
-    void addRelay(Relay *r, uint8_t i, bool heat, float rangeOn = 0.1, float rangeOff = 0.0);
+    TempController(uint8_t rMax, uint8_t sMax, TInterface *tiface, float down, float up);
 
-    void addServo(Servo *s, uint8_t i, bool heat, int angle = 90, float ratio = 0.8);
+    void addRelay(Relay *r, uint8_t i, uint8_t type, float rangeOn = 0.1, float rangeOff = 0.0);
+
+    void addServo(Servo *s, uint8_t i, uint8_t type, int minAngle = 0, int maxAngle = 90, float ratio = 0.8);
 
     void setTimeout(uint16_t t);
 
@@ -49,7 +61,17 @@ public:
 
     byte getMode();
 
-    void setMode(uint8_t mode);
+    void setDownLimit(long limit);
+
+    float getDownLimit();
+
+    void setUpLimit(long limit);
+
+    float getUpLimit();
+
+    void setMode(uint8_t m);
+
+    void sendValues();
 
 protected:
 
@@ -62,10 +84,12 @@ protected:
     void servoWrite(uint8_t i, int angle);
 
     TInterface *tiface;
-    RelayControl relayControl[MAX];
-    ServoControl servoControl[MAX];
-    float downLimit, upLimit;
-    uint8_t mode = MODE_AUTO;
+    RelayControl *relayControl;
+    ServoControl *servoControl;
+    EEPROMVar<float> downLimit, upLimit;
+    uint8_t mode;
+    uint8_t relayMax;
+    uint8_t servoMax;
     uint32_t timeout = DEFAULT_INTERVAL;
     unsigned long sleepTime = 0;
     unsigned long last;

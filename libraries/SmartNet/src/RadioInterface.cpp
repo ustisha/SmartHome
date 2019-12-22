@@ -1,5 +1,10 @@
 #include "RadioInterface.h"
 
-bool RadioInterface::isEnabled() {
-    return enabled;
+RadioInterface::RadioInterface(SmartNet *net) {
+    smartNet = net;
+    status = 0;
+}
+
+int RadioInterface::getStatus() {
+    return status;
 }

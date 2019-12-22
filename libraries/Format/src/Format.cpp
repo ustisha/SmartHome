@@ -47,13 +47,19 @@ void Format::pressure(char *formatted, float hpa) {
     Format::pressure(formatted, hpa, Format::PRESSURE_MMHG, true);
 }
 
-void Format::ip(char *formatted, IPAddress addr) {
+void Format::ip(char *formatted, IPAddress *addr) {
     String ip;
     for (int i = 0; i < 4; ++i) {
-        ip.concat(addr[i]);
+        // @todo Why not working with addr[i]!?
+        ip.concat(addr->operator[](i));
         if (i != 3) {
             ip.concat(".");
         }
     }
     ip.toCharArray(formatted, ip.length() + 1);
+}
+
+void Format::floatVar(char *formatted, float f) {
+    String fStr(f);
+    fStr.toCharArray(formatted, fStr.length() + 1);
 }

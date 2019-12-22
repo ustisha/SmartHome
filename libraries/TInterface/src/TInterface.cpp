@@ -3,14 +3,6 @@
 
 TInterface::TInterface() = default;
 
-float TInterface::get() {
-    return temp;
-}
-
-int TInterface::getStatus() {
-    return status;
-}
-
 void TInterface::setPollInterval(uint16_t tout) {
     timeout = tout * 1000;
 }

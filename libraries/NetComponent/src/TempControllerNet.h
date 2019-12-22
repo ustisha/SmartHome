@@ -9,11 +9,9 @@
 class TempControllerNet : public NetComponent {
     using NetComponent::NetComponent;
 public:
-    TempControllerNet(uint16_t p, SmartNet *n, TempController *tCtrl);
+    TempControllerNet(SmartNet *n, uint8_t sp, uint8_t max, TempController *tCtrl);
 
-    virtual ~TempControllerNet() {};
-
-    void sendCommandData(RadioInterface *n, uint8_t r, uint16_t rp, uint8_t cmd) override;
+    void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd) override;
 
     void receiveCommandData(uint8_t cmd, long data) override ;
 

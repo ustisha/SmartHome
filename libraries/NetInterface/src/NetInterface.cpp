@@ -1,8 +1,9 @@
 #include "NetInterface.h"
 
-void NetInterface::addNet(RadioInterface *radio, NetComponent *netComponent, uint8_t r, uint16_t rp) {
-    this->radio = radio;
-    this->netComponent = netComponent;
-    this->r = r;
-    this->rp = rp;
+void NetInterface::addNet(RadioInterface *radioInterface, NetComponent *netCmp, uint8_t receiver, uint8_t receiverPort) {
+    radio = radioInterface;
+    netComponent = netCmp;
+    r = receiver;
+    rp = receiverPort;
+    networking = true;
 }

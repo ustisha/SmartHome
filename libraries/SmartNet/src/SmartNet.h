@@ -11,27 +11,24 @@ class NetComponent;
 #include <NetComponent.h>
 
 class SmartNet {
-    const static uint8_t MAX = 10;
     struct NetComponents {
         bool enabled = false;
         NetComponent *netComponent;
     };
 
 public:
-    SmartNet(uint16_t s);
+    uint8_t sender;
+
+    SmartNet(uint16_t s, uint8_t max);
 
     void addNetComponent(NetComponent *nc);
 
-    void commandReceived(Packet packet);
-
-    uint8_t getSender();
+    void commandReceived(Packet *p);
 
 protected:
-
-    int getIndex();
-
-    NetComponents components[MAX];
-    uint8_t sender;
+    NetComponents *components;
+    uint8_t i;
+    uint8_t maxCmp;
 };
 
 #endif //SMARTNET_H

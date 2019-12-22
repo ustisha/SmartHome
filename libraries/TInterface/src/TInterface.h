@@ -11,9 +11,13 @@ class TInterface {
 public:
     TInterface();
 
-    float get();
+    float get() {
+        return temp;
+    }
 
-    int getStatus();
+    int getStatus() {
+        return status;
+    }
 
     void setPollInterval(uint16_t tout);
 

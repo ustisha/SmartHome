@@ -1,22 +1,26 @@
 #ifndef RADIO_INTERFACE_H
 #define RADIO_INTERFACE_H
 
+class SmartNet;
+
 #include <Arduino.h>
 #include <Net.h>
 
 class RadioInterface {
 public:
-    virtual ~RadioInterface() {};
 
-    virtual void sendData(Packet &p) = 0;
+    RadioInterface(SmartNet *net);
 
-    virtual bool setup() = 0;
+    virtual void sendData(Packet *p) = 0;
 
-    bool isEnabled();
+    virtual void receiveData(Packet *p) = 0;
+
+    int getStatus();
 
 protected:
 
-    bool enabled = false;
+    int status;
+    SmartNet *smartNet;
 };
 
 #endif //RADIO_INTERFACE_H
