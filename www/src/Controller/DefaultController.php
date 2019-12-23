@@ -12,11 +12,12 @@ class DefaultController extends AbstractController
 
     public function index(OutsideTemp $outsideTemp)
     {
-        return $this->render(
-            'base.html.twig',
-            [
-                'outsideTemp' => $outsideTemp,
-            ]
-        );
+        return $this->forward('\App\Controller\MeteoController::index');
+//        return $this->render(
+//            'base.html.twig',
+//            [
+//                'outsideTemp' => $outsideTemp,
+//            ]
+//        );
     }
 }

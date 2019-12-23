@@ -7,7 +7,7 @@ import ReactDom from 'react-dom';
 import {Col, Container, Row} from "react-bootstrap";
 import {observer} from 'mobx-react';
 
-import {OutsideTempView} from "./outside-temp/outside-temp";
+import {OutsideTempView} from "./modules/outside-temp/main";
 
 
 @observer

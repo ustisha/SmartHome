@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\RadioLogRepository")
+ * @ORM\EntityListeners({"App\Listener\RadioLog"})
  */
 class RadioLog
 {

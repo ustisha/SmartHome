@@ -6,15 +6,15 @@ use App\Model\OutsideTemp;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
-class OutsideTempController extends AbstractController
+class OutsideController extends AbstractController
 {
     /**
-     * @Route("/outside/temp", name="outside_temp")
+     * @Route("/outside/data", name="outside_data")
      * @param OutsideTemp $outsideTemp
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
-    public function index(OutsideTemp $outsideTemp)
+    public function data(OutsideTemp $outsideTemp)
     {
         return $this->json($outsideTemp);
     }

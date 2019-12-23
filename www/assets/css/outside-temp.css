@@ -3,5 +3,9 @@
 }
 
 .card-item-info {
-    font-size: 0.7rem;
+    font-size: 0.85rem;
+}
+
+.temp-block {
+    width: 400px;
 }

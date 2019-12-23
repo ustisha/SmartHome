@@ -10,4 +10,9 @@ class LoraRequest extends RadioAbstract
     {
         return self::TYPE_LORA;
     }
+
+    protected function getDirection()
+    {
+        return self::DIRECTION_IN;
+    }
 }

@@ -11,3 +11,15 @@ $card-spacer-x: 0.6rem !default;
 
 @import "outside-temp.css";
 @import "log-table.css";
+
+.temp-block, .relay-block {
+  width: 280px;
+}
+
+.relay-block .relay-buttons {
+  float: right;
+}
+
+.view-block {
+  float: left;
+}
