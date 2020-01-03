@@ -68,12 +68,12 @@ void onReceiveNRF(Packet *p) {
 }
 
 void onPing() {
-    doRequest("GET /receive/ping");
+    doRequest("GET /receive/ping HTTP/1.1");
     IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::onPing] Ram: %d\n"), freeRAM()));
 }
 
 void onReady() {
-    doRequest("GET /receive/ready");
+    doRequest("GET /receive/ready HTTP/1.1");
     IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::onReady] Ram: %d\n"), freeRAM()));
 }
 
