@@ -3,7 +3,7 @@ $font-size-base: 0.8rem;
 $list-group-item-padding-y: .35rem !default;
 $list-group-item-padding-x: 0.6rem !default;
 
-$card-spacer-y: .35rem !default;
+$card-spacer-y: .25rem !default;
 $card-spacer-x: 0.6rem !default;
 
 @import "~bootstrap/scss/bootstrap";
@@ -12,14 +12,43 @@ $card-spacer-x: 0.6rem !default;
 @import "outside-temp.css";
 @import "log-table.css";
 
-.temp-block, .relay-block {
-  width: 280px;
+
+.btn-sm, .btn-group-sm > .dropdown > .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  border-radius: 0.2rem;
 }
 
-.relay-block .relay-buttons {
-  float: right;
+
+.btn:focus {
+  box-shadow: none;
 }
 
-.view-block {
-  float: left;
+.color-5 {
+  background-color: #D9DD92;
+}
+
+.color-4 {
+  background-color: #9F7E69;
+}
+
+.border-color-4 {
+  border-color: #9F7E69;
+}
+
+.text-color-4 {
+  color: #57453A;
+}
+
+.color-3 {
+  background-color: #F7A278;
+}
+
+.color-2 {
+  background-color: #C8E9A0;
+}
+
+.color-1 {
+  background-color: #F6F4D2;
 }

@@ -1,13 +1,31 @@
 security:
+    encoders:
+        App\Entity\User:
+            algorithm: bcrypt
+
+
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory: { memory: ~ }
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+        # used to reload user from session & other features (e.g. switch_user)
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
             anonymous: true
+            json_login:
+                check_path: /login
+            form_login:
+                provider: app_user_provider
+            logout:
+                path:   /logout
+                invalidate_session: true
+                success_handler: logout_success_handler
 
             # activate different ways to authenticate
 
@@ -20,5 +38,4 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/signin, roles: ROLE_USER, host: home.ustisha.ru$ }

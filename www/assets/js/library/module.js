@@ -15,11 +15,6 @@ export class Module {
      */
     processors = [];
 
-    /**
-     * @type {Back}
-     */
-    attempt;
-
     constructor() {
         this.initWs();
     }
@@ -43,7 +38,7 @@ export class Module {
     initWs() {
         this.ws = new WebSocket(`ws://${window.location.hostname}:8081?component=${this.moduleName}`);
         this.ws.onopen = this.onWsOpen.bind(this);
-        this.ws.onmessage = this.onMessage.bind(this);
+        this.ws.onmessage = this.onWsMessage.bind(this);
         this.ws.onclose = this.onWsClose.bind(this);
         this.ws.onerror = this.onWsError.bind(this);
     }
@@ -54,7 +49,7 @@ export class Module {
     }
 
     onWsClose() {
-        let back = this.attempt || (this.attempt = new Back());
+        let back = new Back();
         return back.backoff(function(fail) {
             if (fail) {
                 process.exit(1);
@@ -91,7 +86,7 @@ export class Module {
         });
     }
 
-    onMessage(event) {
+    onWsMessage(event) {
         const data = JSON.parse(event.data);
         this.processData(data);
     }
@@ -117,7 +112,6 @@ export class Module {
             return resp.json();
         })
         .then((data) => {
-            console.log(data);
 
         }).finally(() => {
 

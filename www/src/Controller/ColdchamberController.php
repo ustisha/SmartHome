@@ -7,10 +7,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class GreenhouseController extends AbstractController
+class ColdchamberController extends AbstractController
 {
     /**
-     * @Route("/greenhouse/data", name="greenhouse_data")
+     * @Route("/coldchamber/data", name="coldchamber_data")
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
@@ -20,7 +20,7 @@ class GreenhouseController extends AbstractController
     }
 
     /**
-     * @Route("/greenhouse/command", methods={"POST"}, name="greenhouse_command")
+     * @Route("/coldchamber/command", methods={"POST"}, name="coldchamber_command")
      * @param WwwRequest $request
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse

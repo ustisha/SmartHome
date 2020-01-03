@@ -5,12 +5,12 @@ import {Card, Button, ListGroup} from "react-bootstrap";
 import Moment from "react-moment";
 import {VictoryAxis, VictoryChart, VictoryBar} from 'victory';
 import classNames from "classnames";
-import {Module} from "../../library/module";
-import {PressureGraph} from "../../library/data-processor/pressure-graph";
-import CommonStat from "../../components/react-common-stat";
-import CommonValue from "../../components/react-common-value";
+import {Module} from "../library/module";
+import {PressureGraph} from "../library/data-processor/pressure-graph";
+import CommonStat from "../components/react-common-stat";
+import CommonValue from "../components/react-common-value";
 
-class Main extends Module {
+class MeteoModule extends Module {
 
     @observable ds18b20_temperature = 0;
     @observable ds18b20_temperature_min = 0;
@@ -67,24 +67,29 @@ class Main extends Module {
 }
 
 const pressureGraph = new PressureGraph('bme280_pressure_each_hour');
-const outsideTemp = new Main();
-outsideTemp.addDataProcessor(pressureGraph);
+const meteo = new MeteoModule();
+meteo.addDataProcessor(pressureGraph);
 
 @observer
-export class OutsideTempView extends Component {
+export class Meteo extends Component {
     render() {
-        var cardClass = classNames('mt-1', 'temp-block', this.props.className);
+        const cardClass = classNames('mt-1', 'temp-block', this.props.className);
         return <Card className={cardClass}>
             <Card.Header>
-                <h4>Метеостанция</h4>
-                <div className="card-header-info" hidden={!outsideTemp.errorMessage.length}>
-                    <h6>{outsideTemp.errorMessage}</h6>
+                <div className="overflow-hidden">
+                    <div className="float-left"><h4>Метеостанция</h4></div>
+                    <div className="float-right">
+                        <a className="cursor-pointer" onClick={meteo.loadData.bind(meteo)}><h4>{'\u27f3'}</h4></a>
+                    </div>
                 </div>
-                <div className="card-header-info" hidden={outsideTemp.loading}>
+                <div className="card-header-info" hidden={!meteo.errorMessage.length}>
+                    <h6>{meteo.errorMessage}</h6>
+                </div>
+                <div className="card-header-info" hidden={meteo.loading}>
                     <Moment
-                        format="DD.MM.YYYY HH:mm">{outsideTemp.lastUpdate}</Moment>&nbsp;/&nbsp;{outsideTemp.value_vcc}V
+                        format="DD.MM.YYYY HH:mm">{meteo.lastUpdate}</Moment>&nbsp;/&nbsp;{meteo.value_vcc}V
                 </div>
-                <div className="card-header-info" hidden={!outsideTemp.loading}>
+                <div className="card-header-info" hidden={!meteo.loading}>
                     ...
                 </div>
             </Card.Header>
@@ -92,51 +97,51 @@ export class OutsideTempView extends Component {
                 <ListGroup>
                     <ListGroup.Item variant="primary">
                         <CommonStat
-                            value={outsideTemp.ds18b20_temperature}
-                            valueMin={outsideTemp.ds18b20_temperature_min}
-                            valueMax={outsideTemp.ds18b20_temperature_max}
-                            valueHour={outsideTemp.ds18b20_temperature_hour}
+                            value={meteo.ds18b20_temperature}
+                            valueMin={meteo.ds18b20_temperature_min}
+                            valueMax={meteo.ds18b20_temperature_max}
+                            valueHour={meteo.ds18b20_temperature_hour}
                             formatValue={"+0.0"}
                             unitName={"℃"}
-                            loading={outsideTemp.loading}
+                            loading={meteo.loading}
                             title={"Температура 1:"}
                         />
                     </ListGroup.Item>
                     <ListGroup.Item variant="primary">
                         <CommonStat
-                            value={outsideTemp.bme280_temperature}
-                            valueMin={outsideTemp.bme280_temperature_min}
-                            valueMax={outsideTemp.bme280_temperature_max}
-                            valueHour={outsideTemp.bme280_temperature_hour}
+                            value={meteo.bme280_temperature}
+                            valueMin={meteo.bme280_temperature_min}
+                            valueMax={meteo.bme280_temperature_max}
+                            valueHour={meteo.bme280_temperature_hour}
                             formatValue={"+0.0"}
                             unitName={"℃"}
-                            loading={outsideTemp.loading}
+                            loading={meteo.loading}
                             title={"Температура 2:"}
                         />
                     </ListGroup.Item>
                     <ListGroup.Item variant="primary">
                         <CommonStat
-                            value={outsideTemp.bme280_humidity}
-                            valueMin={outsideTemp.bme280_humidity_min}
-                            valueMax={outsideTemp.bme280_humidity_max}
-                            valueHour={outsideTemp.bme280_humidity_hour}
+                            value={meteo.bme280_humidity}
+                            valueMin={meteo.bme280_humidity_min}
+                            valueMax={meteo.bme280_humidity_max}
+                            valueHour={meteo.bme280_humidity_hour}
                             unitName={"%"}
-                            loading={outsideTemp.loading}
+                            loading={meteo.loading}
                             title={"Влажность:"}
                         />
                     </ListGroup.Item>
                     <ListGroup.Item variant="primary">
                         <CommonValue
-                            value={outsideTemp.bme280_pressure}
+                            value={meteo.bme280_pressure}
                             unitName={"mmHg"}
-                            loading={outsideTemp.loading}
+                            loading={meteo.loading}
                             title={"Давление:"}
                         />
                         <div>
                             <VictoryChart
                                 domainPadding={{x: 25}}>
                                 <VictoryBar
-                                    data={outsideTemp.pressureHistory}
+                                    data={meteo.pressureHistory}
                                     barRatio={1.1}
                                     labels={(d) => `${d.mmHg}`}
                                     domainPadding={{x: 0}}
@@ -155,16 +160,14 @@ export class OutsideTempView extends Component {
                     </ListGroup.Item>
                     <ListGroup.Item variant="primary">
                         <CommonValue
-                            value={outsideTemp.bh1750_light}
+                            value={meteo.bh1750_light}
                             formatValue={"0"}
                             unitName={"Lux"}
-                            loading={outsideTemp.loading}
+                            loading={meteo.loading}
                             title={"Освещенность:"}
                         />
                     </ListGroup.Item>
                 </ListGroup>
-                <Button className="mt-1" onClick={outsideTemp.loadData.bind(outsideTemp)} variant="primary"
-                        size="sm">Обновить</Button>
             </Card.Body>
         </Card>;
     }

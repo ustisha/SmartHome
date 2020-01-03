@@ -11,6 +11,7 @@ class Net
     const GATEWAY = 00;
     const OUTSIDE_TEMP = 02;
     const GREENHOUSE = 03;
+    const COLD_CHAMBER = 04;
 
     // Component ports
     const PORT_HTTP_HANDLER = 255;
@@ -21,6 +22,11 @@ class Net
     const PORT_VCC = 5;
     const PORT_VALUE = 6;
     const PORT_TEMP_CTRL = 7;
+    const PORT_LIGHT_CTRL_00 = 10;
+    const PORT_LIGHT_CTRL_01 = 11;
+    const PORT_LIGHT_CTRL_02 = 12;
+    const PORT_LIGHT_CTRL_03 = 13;
+    const PORT_LIGHT_CTRL_04 = 14;
 
     const CMD_TEMPERATURE = 1;
     const CMD_HUMIDITY = 2;

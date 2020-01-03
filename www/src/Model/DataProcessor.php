@@ -110,9 +110,10 @@ class DataProcessor implements DataProcessorInterface
         $f = function ($value) {
             return $value / 100;
         };
+        $value = $f($radioLog->getData());
         return array_merge(
-            [$key => $f($radioLog->getData())],
-            $this->commonStatProcess($radioLog, $f)
+            [$key => $value],
+            $this->commonStatProcess($radioLog, $f, $value)
         );
     }
 
@@ -128,9 +129,10 @@ class DataProcessor implements DataProcessorInterface
         $f = function ($value) {
             return $value / 100;
         };
+        $value = $f($radioLog->getData());
         return array_merge(
-            [$key => $f($radioLog->getData())],
-            $this->commonStatProcess($radioLog, $f)
+            [$key => $value],
+            $this->commonStatProcess($radioLog, $f, $value)
         );
     }
 
@@ -171,13 +173,14 @@ class DataProcessor implements DataProcessorInterface
     }
 
     /**
-     * @param RadioLog      $radioLog
-     * @param callable|null $dataCalc
+     * @param RadioLog        $radioLog
+     * @param callable|null   $dataCalc
+     * @param int|float| null $currentValue
      *
      * @return array
      * @throws Exception
      */
-    protected function commonStatProcess(RadioLog $radioLog, callable $dataCalc = null)
+    protected function commonStatProcess(RadioLog $radioLog, callable $dataCalc = null, $currentValue = null)
     {
         if ($dataCalc === null) {
             $dataCalc = function ($value) {
@@ -236,7 +239,11 @@ class DataProcessor implements DataProcessorInterface
         );
         foreach ($rows as $row) {
             if ($row->getCommand() == $radioLog->getCommand()) {
-                $data[$key . '_hour'] = $dataCalc($row->getData());
+                if ($currentValue !== null) {
+                    $data[$key . '_hour'] = $currentValue - $dataCalc($row->getData());
+                } else {
+                    $data[$key . '_hour'] = $dataCalc($row->getData());
+                }
             }
         }
 

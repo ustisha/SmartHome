@@ -8,8 +8,25 @@ meteo:
     controller: App\Controller\MeteoController::index
 
 index:
-    path: /
-    controller: App\Controller\DefaultController::index
+    path: /{reactRouting}
+    defaults: { _controller: App\Controller\DefaultController::index, reactRouting: null }
+    requirements:
+        reactRouting: "^(signin).+"
+
+user:
+    path: /user
+    controller: App\Controller\AuthController::current
+    methods: GET
+
+login:
+    path: /login
+    controller: App\Controller\AuthController::login
+    methods: POST
+
+logout:
+    path: /logout
+    controller: App\Controller\AuthController::logout
+    methods: GET
 
 log_table:
     path: /log/table/{page}
