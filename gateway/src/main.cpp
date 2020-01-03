@@ -61,19 +61,19 @@ void doRequest(const char *get) {
 
 void onReceiveNRF(Packet *p) {
     char get[100];
-    sprintf(get, "GET /lora/receive?s=%u&sp=%u&r=%u&rp=%u&cmd=%u&data=%ld HTTP/1.1",
+    sprintf(get, "GET /receive/nrf24?s=%u&sp=%u&r=%u&rp=%u&cmd=%u&data=%ld HTTP/1.1",
             p->getSender(), p->getSenderPort(), p->getReceiver(), p->getReceiverPort(), p->getCommand(),
             p->getData());
     doRequest(get);
 }
 
 void onPing() {
-    doRequest("GET /gateway/ping");
+    doRequest("GET /receive/ping");
     IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::onPing] Ram: %d\n"), freeRAM()));
 }
 
 void onReady() {
-    doRequest("GET /gateway/ready");
+    doRequest("GET /receive/ready");
     IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway::onReady] Ram: %d\n"), freeRAM()));
 }
 
