@@ -38,4 +38,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/signin, roles: ROLE_USER, host: home.ustisha.ru$ }
+        - { path: ^/data/outside, roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/signin, roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/data, roles: ROLE_USER}
+        - { path: ^/receive, ip: 192.168.10.0/24 }

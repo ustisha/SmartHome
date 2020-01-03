@@ -29,7 +29,7 @@ class RadioLog
     {
         if ($radioLog->getDirection() == RadioAbstract::DIRECTION_IN) {
             $socket = 'tcp://127.0.0.1:8111';
-            $instance = stream_socket_client($socket);
+            $instance = @stream_socket_client($socket);
             if ($instance !== false) {
                 fwrite(
                     $instance,

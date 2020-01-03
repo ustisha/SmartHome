@@ -27,11 +27,3 @@ logout:
     path: /logout
     controller: App\Controller\AuthController::logout
     methods: GET
-
-log_table:
-    path: /log/table/{page}
-    controller: App\Controller\LogController::table
-
-app_lora_receive:
-    path: /lora/receive
-    controller: App\Controller\LoraController::receive

@@ -1,5 +1,6 @@
 import {observable} from "mobx";
 import Back from "back";
+import Net from "../net/Net";
 
 export class Module {
 
@@ -8,6 +9,14 @@ export class Module {
     @observable lastUpdate = 0;
 
     @observable errorMessage = '';
+
+    static get TYPE_LORA() {
+        return 'lora';
+    }
+
+    static get TYPE_NRF24() {
+        return 'nrf24';
+    }
 
     /**
      *
@@ -27,12 +36,16 @@ export class Module {
         return undefined;
     }
 
+    get moduleType() {
+        return Module.TYPE_NRF24;
+    }
+
     get sender() {
-        return 1;
+        return Net.GATEWAY;
     }
 
     get senderPort() {
-        return 1001;
+        return Net.PORT_HTTP_HANDLER;
     }
 
     initWs() {
@@ -101,7 +114,7 @@ export class Module {
             data: data
         };
         let body = Object.keys(params).map(key => `${key}=${encodeURIComponent(params[key])}`).join('&');
-        fetch(`/${this.moduleName}/command`, {
+        fetch(`/command/${this.moduleType}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -120,7 +133,7 @@ export class Module {
 
     loadData() {
         this.loading = true;
-        fetch(`/${this.moduleName}/data`)
+        fetch(`/data/${this.moduleName}`)
         .then((resp) => {
             return resp.json();
         })

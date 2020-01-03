@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 abstract class RadioAbstract
 {
-    const TYPE_WWW = 0;
     const TYPE_LORA = 1;
     const TYPE_NRF24 = 2;
 

@@ -29,11 +29,6 @@ services:
     logout_success_handler:
         class: \App\Security\LogoutHandler
 
-    App\Radio\LoraRequest:
-        class: 'App\Radio\LoraRequest'
-        autowire: true
-        public: true
-
     App\Listener\RadioLog:
         class: 'App\Listener\RadioLog'
         arguments: []

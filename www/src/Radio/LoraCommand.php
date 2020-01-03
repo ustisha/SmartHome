@@ -4,7 +4,7 @@
 namespace App\Radio;
 
 
-class WwwRequest extends RadioAbstract
+class LoraCommand extends RadioAbstract
 {
 
     protected function getDirection()
@@ -14,6 +14,6 @@ class WwwRequest extends RadioAbstract
 
     protected function getModuleType()
     {
-        return self::TYPE_WWW;
+        return self::TYPE_LORA;
     }
 }
