@@ -58,7 +58,7 @@ class SignIn extends Component {
         const cardClass = classNames('mt-2', 'border-color-4', this.props.className);
 
         return <ModuleCore title={"Умный дом"} activeTab={0}>
-            <Container type={"info"} label={"Вход"}>
+            <Container type={"info"} label={"Вход"} fluid={true}>
                 <Row className="justify-content-md-center">
                     <Col xs lg="2"/>
                     <Col xs="6">
