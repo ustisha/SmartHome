@@ -3,20 +3,19 @@
 
 namespace App\Controller;
 
-
-use App\Model\OutsideTemp;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class DefaultController extends AbstractController
 {
 
-    public function index(OutsideTemp $outsideTemp)
+    /**
+     *
+     */
+    public function index()
     {
         return $this->render(
-            'base.html.twig',
-            [
-                'outsideTemp' => $outsideTemp,
-            ]
+            'base.html.twig'
         );
     }
 }

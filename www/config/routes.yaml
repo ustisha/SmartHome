@@ -1,18 +1,29 @@
-#meteo:
-#    path: /
-#    host: "{subdomain}.meteo.ustisha.ru"
-#    requirements:
-#        subdomain: dev
-#    controller: App\Controller\MeteoController::index
+meteo:
+    path: /
+    host: "{subdomain}.ustisha.ru"
+    defaults:
+        subdomain: meteo
+    requirements:
+        subdomain: meteo|dev.meteo
+    controller: App\Controller\MeteoController::index
 
 index:
-    path: /
-    controller: App\Controller\DefaultController::index
+    path: /{reactRouting}
+    defaults: { _controller: App\Controller\DefaultController::index, reactRouting: null }
+    requirements:
+        reactRouting: "^(signin).+"
 
-log_table:
-    path: /log/table/{page}
-    controller: App\Controller\LogController::table
+user:
+    path: /user
+    controller: App\Controller\AuthController::current
+    methods: GET
 
-app_lora_receive:
-    path: /lora/receive
-    controller: App\Controller\LoraController::receive
+login:
+    path: /login
+    controller: App\Controller\AuthController::login
+    methods: POST
+
+logout:
+    path: /logout
+    controller: App\Controller\AuthController::logout
+    methods: GET

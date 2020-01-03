@@ -2,44 +2,103 @@ import '../css/app.scss';
 
 import React, {Component} from 'react';
 import ReactDom from 'react-dom';
-import {Card, Col, Container, Row, Tab, Tabs} from "react-bootstrap";
+import {Col, Container, Row} from "react-bootstrap";
+import Outside from "./controls/outside";
+import ColdChamber from "./controls/cold-chamber";
+import {BrowserRouter as Router, Switch, Route, Link, Redirect} from "react-router-dom";
+import SignIn from "./controls/sign-in";
 
-import {OutsideTempView} from "./outside-temp/outside-temp";
-import {LogTableView} from "./controls/log-table";
+import authStore from "./stores/Auth";
+import {inject, observer, Provider} from "mobx-react";
+import {observable} from "mobx";
+import Spinner from "react-bootstrap/Spinner";
+import Home from "./controls/home";
 
-class App extends Component {
+const stores = {
+    authStore
+};
+
+@inject("authStore")
+class PrivateRoute extends Component {
     render() {
-        return (<Container>
-            <Row noGutters={true}>
-                <Col xs={5} md={3}><OutsideTempView/></Col>
-                <Col>
-                    <Tabs className="mt-1" defaultActiveKey="home" id="uncontrolled-tab-example">
-                        <Tab eventKey="home" title="Дом">
-                            FF
-                        </Tab>
-                        <Tab eventKey="greenHouse" title="Теплица">
-                            AA
-                        </Tab>
-                        <Tab eventKey="contact" title="Гараж" disabled>
-                            DD
-                        </Tab>
-                    </Tabs>
-                </Col>
-            </Row>
-            <Row noGutters={true}>
-                <Col>
-                    <Card className="mt-1">
-                        <Card.Header>
-                            <h4>События</h4>
-                        </Card.Header>
-                        <Card.Body className="log-panel">
-                            <LogTableView/>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-        </Container>);
+        return (
+            <Route
+                render={({location}) =>
+                    this.props.authStore.currentUser ? (
+                        this.props.children
+                    ) : (
+                        <Redirect
+                            to={{
+                                pathname: "/signin",
+                                state: {from: location}
+                            }}
+                        />
+                    )
+                }
+            />
+        );
     }
 }
 
-ReactDom.render(<App/>, document.getElementById('root'));
+@inject("authStore")
+@observer
+class App extends Component {
+
+    @observable loaded = false;
+
+    componentDidMount() {
+        this.props.authStore.pullUser().then(() => {
+            this.loaded = true;
+        });
+    }
+
+    render() {
+        if (!this.loaded) {
+            return <Container>
+                <Row className="justify-content-md-center mt-5">
+                    <Col xs lg="2">
+                        <Spinner animation="border" role="status">
+                            <span className="sr-only">Загрузка...</span>
+                        </Spinner>
+                    </Col>
+                </Row>
+            </Container>;
+        }
+
+        return <Router>
+            <Switch>
+                <Route path="/signin">
+                    <Container>
+                        <Row className="justify-content-md-center">
+                            <Col sm lg="2"/>
+                            <Col sm={12}>
+                                <SignIn/>
+                            </Col>
+                            <Col sm lg="2"/>
+                        </Row>
+                    </Container>
+                </Route>
+                <PrivateRoute path="/">
+                    <Container>
+                        <Row className="justify-content-md-center">
+                            <Col sm lg="2"/>
+                            <Col sm={12}>
+                                <Home/>
+                                <Outside/>
+                                <ColdChamber/>
+                            </Col>
+                            <Col sm lg="2"/>
+                        </Row>
+                    </Container>
+                </PrivateRoute>
+            </Switch>
+        </Router>;
+    }
+}
+
+ReactDom.render((
+        <Provider {...stores}>
+            <App/>
+        </Provider>),
+    document.getElementById('root')
+);

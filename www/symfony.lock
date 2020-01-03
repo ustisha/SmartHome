@@ -93,12 +93,6 @@
     "egulias/email-validator": {
         "version": "2.1.7"
     },
-    "facebook/webdriver": {
-        "version": "1.6.0"
-    },
-    "fig/link-util": {
-        "version": "1.0.0"
-    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
@@ -113,6 +107,9 @@
     },
     "pagerfanta/pagerfanta": {
         "version": "v2.1.2"
+    },
+    "php": {
+        "version": "7.1"
     },
     "phpdocumentor/reflection-common": {
         "version": "1.0.1"
@@ -134,9 +131,6 @@
     },
     "psr/log": {
         "version": "1.1.0"
-    },
-    "psr/simple-cache": {
-        "version": "1.0.1"
     },
     "sensio/framework-extra-bundle": {
         "version": "5.2",
@@ -226,6 +220,9 @@
     "symfony/dotenv": {
         "version": "v4.2.4"
     },
+    "symfony/error-handler": {
+        "version": "v4.4.2"
+    },
     "symfony/event-dispatcher": {
         "version": "v4.2.4"
     },
@@ -272,6 +269,9 @@
             "./src/Kernel.php"
         ]
     },
+    "symfony/http-client": {
+        "version": "v4.4.2"
+    },
     "symfony/http-foundation": {
         "version": "v4.2.4"
     },
@@ -292,6 +292,9 @@
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
+    },
+    "symfony/mime": {
+        "version": "v4.4.2"
     },
     "symfony/monolog-bridge": {
         "version": "v4.2.4"
@@ -315,9 +318,6 @@
     },
     "symfony/orm-pack": {
         "version": "v1.0.6"
-    },
-    "symfony/panther": {
-        "version": "v0.3.0"
     },
     "symfony/phpunit-bridge": {
         "version": "4.1",
@@ -346,6 +346,9 @@
     },
     "symfony/polyfill-php72": {
         "version": "v1.10.0"
+    },
+    "symfony/polyfill-php73": {
+        "version": "v1.13.1"
     },
     "symfony/process": {
         "version": "v4.2.4"
@@ -526,6 +529,9 @@
     },
     "white-october/pagerfanta-bundle": {
         "version": "v1.2.4"
+    },
+    "workerman/workerman": {
+        "version": "v3.5.19"
     },
     "zendframework/zend-code": {
         "version": "3.3.1"

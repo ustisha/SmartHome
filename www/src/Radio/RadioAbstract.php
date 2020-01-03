@@ -13,20 +13,28 @@ abstract class RadioAbstract
     const TYPE_NRF24 = 2;
 
     const DIRECTION_IN = 1;
-    const DIRECTION_OUR = 2;
+    const DIRECTION_OUT = 2;
 
+    /**
+     * @var RadioLog
+     */
     private $log;
 
+    /**
+     * @var EntityManagerInterface
+     */
     private $entityManager;
 
-    public function __construct(RequestStack $requestStack, EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        RequestStack $requestStack,
+        EntityManagerInterface $entityManager
+    ) {
         $request = $requestStack->getCurrentRequest();
 
         $this->log = new RadioLog();
         $this->log->setDate(new \DateTime());
         $this->log->setType($this->getModuleType());
-        $this->log->setDirection(self::DIRECTION_IN);
+        $this->log->setDirection($this->getDirection());
         $this->log->setSender($request->get('s'));
         $this->log->setSenderPort($request->get('sp'));
         $this->log->setReceiver($request->get('r'));
@@ -36,8 +44,9 @@ abstract class RadioAbstract
         $this->entityManager = $entityManager;
     }
 
-    abstract protected function getModuleType();
+    abstract protected function getDirection();
 
+    abstract protected function getModuleType();
 
     public function saveRequest()
     {

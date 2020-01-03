@@ -10,13 +10,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class MeteoController extends AbstractController
 {
 
-    public function index(OutsideTemp $outsideTemp)
+    public function index()
     {
         return $this->render(
-            'meteo.html.twig',
-            [
-                'outsideTemp' => $outsideTemp,
-            ]
+            'meteo.html.twig'
         );
     }
 }

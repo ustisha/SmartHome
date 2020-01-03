@@ -8,8 +8,10 @@ use App\Radio\RadioAbstract;
 use App\Repository\RadioLog\AggregateValue;
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Func;
+use Exception;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -74,6 +76,7 @@ class RadioLogRepository extends ServiceEntityRepository
         $qbGroup->select('MAX(rl.id) ')
             ->andWhere('rl.sender = :sender')
             ->andWhere('rl.direction = :direction')
+            ->andWhere($qbGroup->expr()->in('rl.command', [1, 2, 3, 4, 5]))
             ->andWhere($qbGroup->expr()->in('rl.sender_port', Net::ports()))
             ->groupBy('rl.sender, rl.sender_port, rl.command');
         if (count($commands)) {
@@ -90,13 +93,14 @@ class RadioLogRepository extends ServiceEntityRepository
     /**
      * @param Func     $func
      * @param int      $sender
+     * @param int      $sp
      * @param DateTime $from
      * @param DateTime $to
      * @param array    $commands
      *
      * @return Query
      */
-    protected function getAggregateQuery(Func $func, int $sender, DateTime $from, DateTime $to, array $commands = []): Query
+    protected function getAggregateQuery(Func $func, int $sender, DateTime $from, DateTime $to, array $commands = [], int $sp = null): Query
     {
         $qb = $this->createQueryBuilder('rl');
         $qb->select('rl.sender_port', 'rl.command', $func . 'AS data')
@@ -104,9 +108,15 @@ class RadioLogRepository extends ServiceEntityRepository
             ->andWhere('rl.direction = :direction')
             ->andWhere($qb->expr()->in('rl.sender_port', Net::ports()))
             ->andWhere('rl.date > :from')
-            ->andWhere('rl.date < :to')
-            ->groupBy('rl.sender, rl.sender_port, rl.command');
+            ->andWhere('rl.date < :to');
 
+        if ($sp !== null) {
+            $qb->andWhere('rl.sender_port = :sender_port')
+                ->setParameter('sender_port', $sp)
+                ->groupBy('rl.sender, rl.command');
+        } else {
+            $qb->groupBy('rl.sender, rl.sender_port, rl.command');
+        }
         if (count($commands)) {
             $qb->andWhere($qb->expr()->in('rl.command', $commands));
         }
@@ -125,9 +135,11 @@ class RadioLogRepository extends ServiceEntityRepository
      * @param DateTime $to
      * @param array    $commands
      *
+     * @param int|null $sp
+     *
      * @return AggregateValue[]|null
      */
-    public function loadMaxValues(int $sender, DateTime $from, DateTime $to, array $commands = []): array
+    public function loadMaxValues(int $sender, DateTime $from, DateTime $to, array $commands = [], int $sp = null): array
     {
         $this->getEntityManager()->getConfiguration()->addCustomHydrationMode(
             AggregateValue::class,
@@ -138,7 +150,8 @@ class RadioLogRepository extends ServiceEntityRepository
             $sender,
             $from,
             $to,
-            $commands
+            $commands,
+            $sp
         );
 
         return $query->getResult(AggregateValue::class);
@@ -146,13 +159,14 @@ class RadioLogRepository extends ServiceEntityRepository
 
     /**
      * @param int      $sender
+     * @param int      $sp
      * @param DateTime $from
      * @param DateTime $to
      * @param array    $commands
      *
      * @return AggregateValue[]|null
      */
-    public function loadMinValues(int $sender, DateTime $from, DateTime $to, array $commands = []): array
+    public function loadMinValues(int $sender, DateTime $from, DateTime $to, array $commands = [], int $sp = null): array
     {
         $this->getEntityManager()->getConfiguration()->addCustomHydrationMode(
             AggregateValue::class,
@@ -163,7 +177,8 @@ class RadioLogRepository extends ServiceEntityRepository
             $sender,
             $from,
             $to,
-            $commands
+            $commands,
+            $sp
         );
 
         return $query->getResult(AggregateValue::class);
@@ -175,9 +190,11 @@ class RadioLogRepository extends ServiceEntityRepository
      * @param DateTime $to
      * @param array    $commands
      *
+     * @param int|null $sp
+     *
      * @return AggregateValue[]|null
      */
-    public function loadAvgValues(int $sender, DateTime $from, DateTime $to, array $commands = []): array
+    public function loadAvgValues(int $sender, DateTime $from, DateTime $to, array $commands = [], int $sp = null): array
     {
         $this->getEntityManager()->getConfiguration()->addCustomHydrationMode(
             AggregateValue::class,
@@ -188,10 +205,32 @@ class RadioLogRepository extends ServiceEntityRepository
             $sender,
             $from,
             $to,
-            $commands
+            $commands,
+            $sp
         );
 
         return $query->getResult(AggregateValue::class);
+    }
+
+    /**
+     * @param int $sender
+     *
+     * @return DateTime
+     * @throws NonUniqueResultException
+     * @throws Exception
+     */
+    public function getLastUpdate(int $sender): DateTime
+    {
+        $qb = $this->createQueryBuilder('rl');
+        $qb->select($this->getEntityManager()->getExpressionBuilder()->max('rl.date') . 'AS lastUpdate')
+            ->andWhere('rl.sender = :sender')
+            ->andWhere('rl.direction = :direction');
+
+        $qb->setParameter('sender', $sender)
+            ->setParameter('direction', RadioAbstract::DIRECTION_IN);
+
+        $r = $qb->getQuery()->getSingleScalarResult();
+        return new DateTime($r);
     }
 
     // /**
