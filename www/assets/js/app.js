@@ -56,7 +56,7 @@ class App extends Component {
         if (!this.loaded) {
             return <Container>
                 <Row className="justify-content-md-center mt-5">
-                    <Col xs lg="2">
+                    <Col lg={5} md={6}>
                         <Spinner animation="border" role="status">
                             <span className="sr-only">Загрузка...</span>
                         </Spinner>
@@ -70,24 +70,20 @@ class App extends Component {
                 <Route path="/signin">
                     <Container>
                         <Row className="justify-content-md-center">
-                            <Col sm lg="2"/>
-                            <Col sm={12}>
+                            <Col lg={10} md={12}>
                                 <SignIn/>
                             </Col>
-                            <Col sm lg="2"/>
                         </Row>
                     </Container>
                 </Route>
                 <PrivateRoute path="/">
-                    <Container>
+                    <Container fluid={true}>
                         <Row className="justify-content-md-center">
-                            <Col sm lg="2"/>
-                            <Col sm={12}>
+                            <Col lg={10} md={12}>
                                 <Home/>
                                 <Outside/>
                                 <ColdChamber/>
                             </Col>
-                            <Col sm lg="2"/>
                         </Row>
                     </Container>
                 </PrivateRoute>

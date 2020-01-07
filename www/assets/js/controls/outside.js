@@ -13,7 +13,7 @@ class Outside extends Component {
 
     render() {
         return <ModuleCore title={"Метеостанция"} activeTab={0}>
-            <Container type={"info"} label={"Инфо"}>
+            <Container type={"info"} label={"Инфо"} fluid={true}>
                 <Row>
                     <Col>
                         <CommonStat

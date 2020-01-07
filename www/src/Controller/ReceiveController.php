@@ -24,18 +24,24 @@ class ReceiveController
 
     /**
      * @Route("/receive/ready", methods={"GET"}, name="receive_ready")
+     *
+     * @return Response
      */
     public function ready()
     {
         $this->logger->info("Gateway ready to receive");
+        return new Response('OK');
     }
 
     /**
      * @Route("/receive/ping", methods={"GET"}, name="receive_ping")
+     *
+     * @return Response
      */
     public function ping()
     {
         $this->logger->debug("Gateway ping");
+        return new Response('OK');
     }
 
     /**

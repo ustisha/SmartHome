@@ -75,7 +75,7 @@ class ColdChamber extends Component {
 
     render() {
         return <ModuleCore title={"Холодный отсек"}>
-            <Container label={"Инфо"}>
+            <Container label={"Инфо"} fluid={true}>
                 <Row>
                     <Col xs lg="3">
                         <CommonValue value={coldChamber.temp_controller_servo_0} formatValue={"+0.0"} unitName={"℃"} title={"Температура:"}/>
