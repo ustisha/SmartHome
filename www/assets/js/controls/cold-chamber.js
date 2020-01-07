@@ -9,6 +9,8 @@ import {observer} from "mobx-react";
 import AutoLight from "../components/auto-light";
 import {Module} from "../library/module";
 import TempController from "../components/temp-controller";
+import Net from "../net/Net";
+import TempControllerSettings from "../components/temp-controller-settings";
 
 class ColdChamberModule extends Module {
 
@@ -24,40 +26,49 @@ class ColdChamberModule extends Module {
 
     @observable value_vcc = 0;
 
+    @observable temp_controller_down_limit = 0;
+    @observable temp_controller_up_limit = 0;
     @observable temp_controller_servo_0 = 0;
     @observable temp_controller_mode = 1;
+    @observable temp_controller_timeout = 0;
 
-    @observable light_controller_relay_0 = 0;
-    @observable light_controller_mode = 1;
+    @observable light_controller_00_relay_0 = 0;
+    @observable light_controller_00_mode = 1;
 
     constructor(props) {
         super(props);
     }
 
     get moduleName() {
-        return 'coldchamber';
+        return Net.getName(this.receiver);
     }
 
     get receiver() {
-        return 4;
+        return Net.COLD_CHAMBER;
+    }
+
+    loadData() {
+        super.loadData();
+        this.sendCommand(Net.PORT_TEMP_CTRL, Net.CMD_INFO, Net.CMD_GET_VALUES);
+        this.sendCommand(Net.PORT_LIGHT_CTRL_00, Net.CMD_INFO, Net.CMD_GET_VALUES);
     }
 
     onChangeState(rp, command, data) {
         /* @debug
-        if (rp === 7) {
-            if (command === 50) {
-                this.temp_controller_servo_0 = data;
-            } else if (command === 8) {
-                this.temp_controller_mode = data;
-            }
-        }
-        if (rp === 10) {
-            if (command === 40) {
-                this.light_controller_relay_0 = data;
-            } else if (command === 8) {
-                this.light_controller_mode = data;
-            }
-        }*/
+         if (rp === 7) {
+         if (command === 50) {
+         this.temp_controller_servo_0 = data;
+         } else if (command === 8) {
+         this.temp_controller_mode = data;
+         }
+         }
+         if (rp === 10) {
+         if (command === 40) {
+         this.light_controller_relay_0 = data;
+         } else if (command === 8) {
+         this.light_controller_mode = data;
+         }
+         }*/
 
         this.sendCommand(rp, command, data);
     }
@@ -74,18 +85,33 @@ class ColdChamber extends Component {
     }
 
     render() {
-        return <ModuleCore title={"Холодный отсек"}>
+        return <ModuleCore title={"Холодный отсек"} getValues={coldChamber.loadData.bind(coldChamber)}>
             <Container label={"Инфо"} fluid={true}>
                 <Row>
-                    <Col xs lg="3">
-                        <CommonValue value={coldChamber.temp_controller_servo_0} formatValue={"+0.0"} unitName={"℃"} title={"Температура:"}/>
-                        <CommonValue value={coldChamber.temp_controller_mode} formatValue={"0.0"} unitName={"%"} title={"Влажность:"}/>
+                    <Col xs={3} lg={3}>
+                        <CommonValue value={coldChamber.bme280_temperature} formatValue={"+0.0"} unitName={"℃"} title={"Температура:"}/>
+                        <CommonValue value={coldChamber.bme280_humidity} formatValue={"0.0"} unitName={"%"} title={"Влажность:"}/>
                     </Col>
-                    <Col>
-                        <TempController module={coldChamber}/>
+                    <Col xs={6} lg={6}>
+                        <CommonValue value={coldChamber.temp_controller_down_limit}
+                                     formatValue={"+0.0"}
+                                     unitName={"℃"}
+                                     title={"Целевая температура:"}/>
+                        <TempController module={coldChamber} maxAngle={160}/>
                     </Col>
-                    <Col>
+                    <Col xs={2} lg={3}>
                         <AutoLight module={coldChamber}/>
+                    </Col>
+                </Row>
+            </Container>
+            <Container label={"Настройки"} fluid={true}>
+                <Row>
+                    <Col xs lg="3">
+                    </Col>
+                    <Col>
+                        <TempControllerSettings module={coldChamber}/>
+                    </Col>
+                    <Col>
                     </Col>
                 </Row>
             </Container>

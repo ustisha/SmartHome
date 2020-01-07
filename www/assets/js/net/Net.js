@@ -1,5 +1,16 @@
 class Net {
 
+    static components = new Map([
+       [Net.GATEWAY, 'gateway'],
+       [Net.OUTSIDE_TEMP, 'outside'],
+       [Net.GREENHOUSE, 'greenhouse'],
+       [Net.COLD_CHAMBER, 'coldchamber']
+    ]);
+
+    static getName(id) {
+        return Net.components.get(id);
+    }
+
     // Components
     static get BROADCAST() {
         return 255;
@@ -104,6 +115,10 @@ class Net {
 
     static get CMD_MODE() {
         return 8;
+    }
+
+    static get CMD_TIMEOUT() {
+        return 9;
     }
 
     // Relays

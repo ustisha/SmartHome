@@ -4,7 +4,7 @@ import {computed} from "mobx";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 import Net from "../net/Net";
-import Badge from "react-bootstrap/Badge";
+import Alert from "react-bootstrap/Alert";
 
 @observer
 class AutoLight extends Component {
@@ -18,7 +18,7 @@ class AutoLight extends Component {
     }
 
     get mode() {
-        return this.props.module.light_controller_mode;
+        return this.props.module.light_controller_00_mode;
     }
 
     set relay(r) {
@@ -27,7 +27,15 @@ class AutoLight extends Component {
     }
 
     get relay() {
-        return this.props.module.light_controller_relay_0;
+        return this.props.module.light_controller_00_relay_0;
+    }
+
+    @computed get stateName() {
+        return this.isOn ? 'ВКЛЮЧЕН' : 'ВЫКЛЮЧЕН';
+    }
+
+    @computed get stateVariant() {
+        return this.isOn ?  'warning' : 'dark';
     }
 
     @computed get isAuto() {
@@ -59,11 +67,11 @@ class AutoLight extends Component {
     }
 
     render() {
-        return <div>
-            <div className="float-left">
-                <h5>Состояние: <Badge className="p-2" variant="warning">ВКЛЮЧЕН</Badge></h5>
+        return <div className="float-left">
+            <div className="w-100">
+                <Alert className="p-2 text-center" variant={this.stateVariant}>{this.stateName}</Alert>
             </div>
-            <ButtonGroup className="float-right" size="sm" aria-label="Режим">
+            <ButtonGroup className="" size="sm" aria-label="Режим">
                 <Button variant={this.autoVariant} onClick={() => {
                     this.mode = 1
                 }}>Авто</Button>

@@ -36,6 +36,7 @@ class Net
     const CMD_VALUE = 6;
     const CMD_GET_VALUES = 7;
     const CMD_MODE = 8;
+    const CMD_TIMEOUT = 9;
     // Relays
     const CMD_RELAY_00 = 40;
     const CMD_RELAY_01 = 41;
@@ -58,10 +59,15 @@ class Net
     const CMD_SERVO_07 = 57;
     const CMD_SERVO_08 = 58;
     const CMD_SERVO_09 = 59;
-
     // Temp controller commands
     const CMD_UP_LIMIT = 10;
     const CMD_DOWN_LIMIT = 11;
+    // Light controller commands
+    const CMD_ACTIVITY_RATIO = 20;
+    const CMD_ACTIVITY_LIMIT = 21;
+    const CMD_RECALL_RATIO = 22;
+    const CMD_RECALL_TIMEOUT = 23;
+
     // Info
     const CMD_INFO = 100;
 
@@ -84,12 +90,18 @@ class Net
 
 
     static protected $componentNames = [
-        self::OUTSIDE_TEMP => 'outside'
+        self::OUTSIDE_TEMP => 'outside',
+        self::COLD_CHAMBER => 'coldchamber'
     ];
 
     static protected $portNames = [
         self::PORT_HTTP_HANDLER => 'http_handler',
         self::PORT_TEMP_CTRL => 'temp_controller',
+        self::PORT_LIGHT_CTRL_00 => 'light_controller_00',
+        self::PORT_LIGHT_CTRL_01 => 'light_controller_01',
+        self::PORT_LIGHT_CTRL_02 => 'light_controller_02',
+        self::PORT_LIGHT_CTRL_03 => 'light_controller_03',
+        self::PORT_LIGHT_CTRL_04 => 'light_controller_04',
         self::PORT_INFO => 'info',
         self::PORT_18B20 => 'ds18b20',
         self::PORT_BME280 => 'bme280',
@@ -99,12 +111,16 @@ class Net
     ];
 
     static protected $commandNames = [
-        self::CMD_VALUE => 'value',
         self::CMD_TEMPERATURE => 'temperature',
         self::CMD_HUMIDITY => 'humidity',
         self::CMD_PRESSURE => 'pressure',
         self::CMD_LIGHT => 'light',
         self::CMD_VCC => 'vcc',
+        self::CMD_VALUE => 'value',
+        self::CMD_GET_VALUES => 'get_values',
+        self::CMD_TIMEOUT => 'timeout',
+        self::CMD_UP_LIMIT => 'up_limit',
+        self::CMD_DOWN_LIMIT => 'down_limit',
         self::CMD_RELAY_00 => 'relay_0',
         self::CMD_RELAY_01 => 'relay_1',
         self::CMD_RELAY_02 => 'relay_2',
@@ -162,6 +178,11 @@ class Net
         return [
             self::PORT_HTTP_HANDLER,
             self::PORT_TEMP_CTRL,
+            self::PORT_LIGHT_CTRL_00,
+            self::PORT_LIGHT_CTRL_01,
+            self::PORT_LIGHT_CTRL_02,
+            self::PORT_LIGHT_CTRL_03,
+            self::PORT_LIGHT_CTRL_04,
             self::PORT_INFO,
             self::PORT_18B20,
             self::PORT_BME280,

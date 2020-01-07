@@ -114,7 +114,7 @@ export class Module {
             data: data
         };
         let body = Object.keys(params).map(key => `${key}=${encodeURIComponent(params[key])}`).join('&');
-        fetch(`/command/${this.moduleType}`, {
+        return fetch(`/command/${this.moduleType}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -123,11 +123,6 @@ export class Module {
         })
         .then((resp) => {
             return resp.json();
-        })
-        .then((data) => {
-
-        }).finally(() => {
-
         });
     }
 
