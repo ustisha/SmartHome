@@ -13,7 +13,7 @@ class NetComponent {
 
     struct R {
         R() {
-            enabled = false;
+            network = nullptr;
             receiver = 0;
             rport = 0;
             cmd = 0;
@@ -22,7 +22,6 @@ class NetComponent {
         }
 
         RadioInterface *network;
-        bool enabled;
         uint8_t receiver;
         uint8_t rport;
         uint8_t cmd;
@@ -39,10 +38,12 @@ public:
 
     void receiveHandle(uint16_t rp, uint8_t cmd, long data);
 
+    void sendPacket(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd, long data);
+
     void tick(uint16_t sleep = 0);
 
 protected:
-    SmartNet *net;
+    uint8_t sender;
     uint8_t sport;
     uint8_t i;
     uint8_t maxCmp;

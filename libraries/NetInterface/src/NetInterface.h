@@ -10,11 +10,13 @@ class NetInterface {
 public:
     void addNet(RadioInterface *radioInterface, NetComponent *netCmp, uint8_t receiver, uint8_t receiverPort);
 
+    void sendCommand(uint8_t cmd);
+
 protected:
-    NetComponent *netComponent;
+    NetComponent *netComponent = nullptr;
     RadioInterface *radio;
-    bool networking = false;
-    uint8_t r, rp;
+    uint8_t r;
+    uint8_t rp;
 };
 
 #endif //NETINTERFACE_H

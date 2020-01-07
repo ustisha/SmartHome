@@ -9,17 +9,25 @@ class NetComponent;
 #include <DebugLog.h>
 #include <Net.h>
 #include <NetComponent.h>
+#include <RadioInterface.h>
 
 class SmartNet {
     struct NetComponents {
-        bool enabled = false;
+        NetComponents() {
+            netComponent = nullptr;
+        }
+
         NetComponent *netComponent;
     };
 
 public:
     uint8_t sender;
 
-    SmartNet(uint16_t s, uint8_t max);
+    SmartNet(uint16_t s, uint8_t max) : components(new NetComponents[max]{}),
+                                        sender(s),
+                                        maxCmp(max) {}
+
+    void sendInfo(RadioInterface *n, long data, uint8_t cmd = CMD_INFO);
 
     void addNetComponent(NetComponent *nc);
 
@@ -27,7 +35,7 @@ public:
 
 protected:
     NetComponents *components;
-    uint8_t i;
+    uint8_t i = 0;
     uint8_t maxCmp;
 };
 

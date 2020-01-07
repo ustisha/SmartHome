@@ -5,5 +5,10 @@ void NetInterface::addNet(RadioInterface *radioInterface, NetComponent *netCmp, 
     netComponent = netCmp;
     r = receiver;
     rp = receiverPort;
-    networking = true;
+}
+
+void NetInterface::sendCommand(uint8_t cmd) {
+    if (nullptr != netComponent) {
+        netComponent->sendCommandData(radio, r, rp, cmd);
+    }
 }

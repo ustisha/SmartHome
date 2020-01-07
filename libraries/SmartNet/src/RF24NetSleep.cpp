@@ -6,7 +6,3 @@ void RF24NetSleep::sendData(Packet *p) {
     radio.txStandBy();
     radio.powerDown();
 }
-
-void RF24NetSleep::receiveData(Packet *p) {
-    RF24Net::receiveData(p);
-}

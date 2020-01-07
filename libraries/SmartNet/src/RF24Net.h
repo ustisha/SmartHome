@@ -16,22 +16,24 @@
 #define RF24_CHANNEL 46
 
 class RF24Net : public RadioInterface {
-    using RadioInterface::RadioInterface;
 
 protected:
     RF24 &radio;
     RF24Network *network;
-    void (*receiveCallback)(Packet *);
+
+    void (*receiveCallback)(Packet *) = nullptr;
 
 public:
 
-    RF24Net(SmartNet *net, uint16_t node, RF24& radio);
+    RF24Net(SmartNet *net, uint16_t node, RF24 &radio);
 
     void sendData(Packet *p) override;
 
     void receiveData(Packet *p) override;
 
-    void onReceiveFunc(void(*callback)(Packet *));
+    void onReceiveFunc(void(*callback)(Packet *)) {
+        receiveCallback = callback;
+    }
 
     void tick();
 };

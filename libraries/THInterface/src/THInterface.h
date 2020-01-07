@@ -8,7 +8,9 @@ class THInterface : public TInterface {
     using TInterface::TInterface;
 public:
 
-    float getHumidity();
+    float getHumidity() {
+        return hum;
+    }
 
 protected:
     float hum;

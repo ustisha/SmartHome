@@ -9,7 +9,7 @@
 class TInterface {
     const uint32_t DEFAULT_POLL_INTERVAL = 30000;
 public:
-    TInterface();
+    TInterface() = default;
 
     float get() {
         return temp;
@@ -19,7 +19,9 @@ public:
         return status;
     }
 
-    void setPollInterval(uint16_t tout);
+    void setPollInterval(uint16_t tout) {
+        timeout = tout * 1000;
+    }
 
     void tick(uint16_t sleep = 0);
 

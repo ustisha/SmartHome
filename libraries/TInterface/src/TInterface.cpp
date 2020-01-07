@@ -1,11 +1,4 @@
-
 #include "TInterface.h"
-
-TInterface::TInterface() = default;
-
-void TInterface::setPollInterval(uint16_t tout) {
-    timeout = tout * 1000;
-}
 
 void TInterface::tick(uint16_t sleep) {
     sleepTime += sleep;

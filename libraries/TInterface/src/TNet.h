@@ -6,9 +6,11 @@
 #include <NetComponent.h>
 
 class TNet : public NetComponent {
-    using NetComponent::NetComponent;
+
 public:
-    TNet(SmartNet *n, uint8_t sp, uint8_t max, TInterface *t);
+    TNet(SmartNet *n, uint8_t sp, uint8_t max, TInterface *t) : NetComponent(n, sp, max) {
+        temperature = t;
+    }
 
     void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd) override;
 

@@ -4,7 +4,7 @@ RF24Net::RF24Net(SmartNet *net, uint16_t node, RF24 &radio) : RadioInterface(net
 
     network = new RF24Network(radio);
 
-    status = radio.begin();
+    bool status = radio.begin();
     radio.setAutoAck(false);
     radio.setPALevel(RF24_PA_MAX);
     radio.setDataRate(RF24_250KBPS);
@@ -42,16 +42,12 @@ void RF24Net::receiveData(Packet *p) {
         return;
     }
 
-    if (receiveCallback) {
+    if (nullptr != receiveCallback) {
         IF_SERIAL_DEBUG(PSTR("[RF24Net::receiveData] Receive Callback\n"));
         receiveCallback(p);
     }
 
     smartNet->commandReceived(p);
-}
-
-void RF24Net::onReceiveFunc(void (*callback)(Packet *)) {
-    receiveCallback = callback;
 }
 
 void RF24Net::tick() {
@@ -61,6 +57,8 @@ void RF24Net::tick() {
         RF24NetworkHeader header;
         Packet p{};
         network->read(header, &p.b, Packet::PACKET_SIZE);
+        // @todo receiveData call sendData for confirmation but immediately write not working.
+        delay(10);
         receiveData(&p);
     }
 }

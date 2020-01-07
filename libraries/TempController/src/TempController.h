@@ -15,17 +15,16 @@
 #include <EEPROMvar.h>
 
 class TempController : public NetInterface {
-    const static uint32_t DEFAULT_INTERVAL = 5 * 60000;
     struct RelayControl {
         bool enabled = false;
-        Relay *relay;
+        Relay *relay{};
         uint8_t type = 0;
         float rangeOn = 0;
         float rangeOff = 0;
     };
     struct ServoControl {
         bool enabled = false;
-        Servo *servo;
+        Servo *servo{};
         uint8_t type = 0;
         int minAngle = 0;
         int maxAngle = 0;
@@ -41,35 +40,35 @@ public:
     const static uint8_t TYPE_BELOW_UP_LIMIT = B00000100;
     const static uint8_t TYPE_ABOVE_DOWN_LIMIT = B00001000;
 
-    TempController(uint8_t rMax, uint8_t sMax, TInterface *tiface, float down, float up);
+    EEPROMVar<float> downLimit;
+    EEPROMVar<float> upLimit;
+    EEPROMVar<uint8_t> init;
+    EEPROMVar<uint8_t> mode;
+    EEPROMVar<uint32_t> timeout;
+
+    TempController(TInterface *tiface, uint8_t rMax, uint8_t sMax, float down, float up);
 
     void addRelay(Relay *r, uint8_t i, uint8_t type, float rangeOn = 0.1, float rangeOff = 0.0);
 
     void addServo(Servo *s, uint8_t i, uint8_t type, int minAngle = 0, int maxAngle = 90, float ratio = 0.8);
 
-    void setTimeout(uint16_t t);
-
     void tick(uint16_t sleep = 0);
 
-    int getRelayState(uint8_t i);
+    auto getRelayState(uint8_t i) -> int;
 
     void setRelayState(uint8_t i, uint8_t state);
 
-    int getServoState(uint8_t i);
+    auto getServoState(uint8_t i) -> int;
 
     void setServoState(uint8_t i, int angle);
 
-    byte getMode();
+    void setDownLimit(float limit);
 
-    void setDownLimit(long limit);
-
-    float getDownLimit();
-
-    void setUpLimit(long limit);
-
-    float getUpLimit();
+    void setUpLimit(float limit);
 
     void setMode(uint8_t m);
+
+    void setTimeout(uint32_t t);
 
     void sendValues();
 
@@ -86,11 +85,8 @@ protected:
     TInterface *tiface;
     RelayControl *relayControl;
     ServoControl *servoControl;
-    EEPROMVar<float> downLimit, upLimit;
-    uint8_t mode;
     uint8_t relayMax;
     uint8_t servoMax;
-    uint32_t timeout = DEFAULT_INTERVAL;
     unsigned long sleepTime = 0;
     unsigned long last;
 };

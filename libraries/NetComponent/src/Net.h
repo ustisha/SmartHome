@@ -77,6 +77,11 @@ const uint8_t PORT_BH1750 = 4;
 const uint8_t PORT_VCC = 5;
 const uint8_t PORT_VALUE = 6;
 const uint8_t PORT_TEMP_CTRL = 7;
+const uint8_t PORT_LIGHT_CTRL_00 = 10;
+const uint8_t PORT_LIGHT_CTRL_01 = 11;
+const uint8_t PORT_LIGHT_CTRL_02 = 12;
+const uint8_t PORT_LIGHT_CTRL_03 = 13;
+const uint8_t PORT_LIGHT_CTRL_04 = 14;
 
 // Commands
 const uint8_t CMD_TEMPERATURE = 1;
@@ -87,6 +92,7 @@ const uint8_t CMD_VCC = 5;
 const uint8_t CMD_VALUE = 6;
 const uint8_t CMD_GET_VALUES = 7;
 const uint8_t CMD_MODE = 8;
+const uint8_t CMD_TIMEOUT = 9;
 const uint8_t CMD_RELAY_00 = 40;
 // Reserved for autocalculate relay number
 //const uint8_t CMD_RELAY_01 = 41;
@@ -112,6 +118,11 @@ const uint8_t CMD_SERVO_09 = 59;
 // Temp controller commands
 const uint8_t CMD_UP_LIMIT = 10;
 const uint8_t CMD_DOWN_LIMIT = 11;
+// Light controller commands
+const uint8_t CMD_ACTIVITY_RATIO = 20;
+const uint8_t CMD_ACTIVITY_LIMIT = 21;
+const uint8_t CMD_RECALL_RATIO = 22;
+const uint8_t CMD_RECALL_TIMEOUT = 23;
 // Info
 const uint8_t CMD_INFO = 100;
 

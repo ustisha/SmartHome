@@ -8,9 +8,11 @@
 #include <SmartNet.h>
 
 class LightSensorNet : public NetComponent {
-    using NetComponent::NetComponent;
+
 public:
-    LightSensorNet(SmartNet *n, uint8_t sp, uint8_t max, LightSensorInterface *ls);
+    LightSensorNet(SmartNet *n, uint8_t sp, uint8_t max, LightSensorInterface *ls) : NetComponent(n, sp, max) {
+        lightSensor = ls;
+    }
 
     void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd) override;
 
