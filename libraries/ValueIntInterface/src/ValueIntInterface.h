@@ -8,7 +8,10 @@ class ValueIntInterface {
 
 public:
 
-    int get();
+    int get() {
+        this->read();
+        return value;
+    }
 
 protected:
 

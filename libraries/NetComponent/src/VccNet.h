@@ -9,7 +9,9 @@
 class VccNet : public NetComponent {
     using NetComponent::NetComponent;
 public:
-    VccNet(SmartNet *n, uint8_t sp, uint8_t max, Vcc *v);
+    VccNet(SmartNet *n, uint8_t sp, uint8_t max, Vcc *v) : NetComponent(n, sp, max) {
+        vcc = v;
+    }
 
     void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd) override;
 

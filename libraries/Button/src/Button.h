@@ -1,37 +1,39 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+//#define SERIAL_DEBUG
+
 #include <Arduino.h>
+#include <DebugLog.h>
 #include <HandlerInterface.h>
 
 class Button {
-    static const uint8_t MAX = 2;
     static const uint8_t ANALOG_CONNECTED = 200;
 protected:
 
     struct Callback {
-        HandlerInterface *handlerInterface = NULL;
+        HandlerInterface *handlerInterface = nullptr;
         uint16_t press = 0;
-        bool enabled = false;
     };
 
-    Callback arr[MAX];
+    Callback *arr;
 
+    uint8_t i;
+    uint8_t maxArr;
     uint8_t pin;
     unsigned long start;
+    bool invert;
 
-    static int sortByPress(const void *elem1, const void *elem2);
-
-    uint8_t getIndex();
+    static auto sortByPress(const void *elem1, const void *elem2) -> int;
 
 public:
     static const uint16_t DEFAULT_PRESS = 50;
 
-    explicit Button(uint8_t btnPin);
+    explicit Button(uint8_t btnPin, uint8_t max = 1, bool invt = true);
 
-    bool isPressed();
+    auto isPressed() -> bool;
 
-    uint8_t addHandler(HandlerInterface *handlerInterface, uint16_t pressTime = DEFAULT_PRESS);
+    auto addHandler(HandlerInterface *handlerInterface, uint16_t pressTime = DEFAULT_PRESS) -> int8_t;
 
     void tick();
 };

@@ -10,7 +10,7 @@
 #include <BME280.h>
 
 class BME280Adapter : public THPInterface {
-    using THPInterface::THPInterface;
+
 public:
     BME280Adapter(TwoWire &wire, uint8_t address);
 

@@ -8,14 +8,14 @@
 #include <RF24Net.h>
 
 class RF24NetSleep : public RF24Net {
-    using RF24Net::RF24Net;
 
 public:
 
+    using RF24Net::RF24Net;
+
     void sendData(Packet *p) override;
 
-    void receiveData(Packet *p) override;
-
+    using RF24Net::receiveData;
 };
 
 #endif //RF24NETSLEEP_H

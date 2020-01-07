@@ -9,17 +9,14 @@ class SmartNet;
 class RadioInterface {
 public:
 
-    RadioInterface(SmartNet *net);
+    explicit RadioInterface(SmartNet *net) : smartNet(net) {}
 
     virtual void sendData(Packet *p) = 0;
 
     virtual void receiveData(Packet *p) = 0;
 
-    int getStatus();
-
 protected:
 
-    int status;
     SmartNet *smartNet;
 };
 

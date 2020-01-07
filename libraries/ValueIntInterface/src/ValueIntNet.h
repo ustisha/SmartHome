@@ -1,19 +1,21 @@
-#ifndef TEMPHUMPRESSURENET_H
-#define TEMPHUMPRESSURENET_H
+#ifndef VALUEINTNET_H
+#define VALUEINTNET_H
 
 #include <Arduino.h>
-#include <THPInterface.h>
+#include <ValueIntInterface.h>
 #include <NetComponent.h>
 
-class THPNet : public NetComponent {
-    using NetComponent::NetComponent;
+class ValueIntNet : public NetComponent {
+
 public:
-    THPNet(SmartNet *n, uint8_t sp, uint8_t max, THPInterface *thp);
+    ValueIntNet(SmartNet *n, uint8_t sp, uint8_t max, ValueIntInterface *vInt) : NetComponent(n, sp, max) {
+        valueInt = vInt;
+    }
 
     void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd) override;
 
 protected:
-    THPInterface *tempHumPressure;
+    ValueIntInterface *valueInt;
 
     /**
      * Realisation not needed.
@@ -23,4 +25,4 @@ protected:
     void receiveCommandData(uint8_t cmd, long data) override {};
 };
 
-#endif //TEMPHUMPRESSURENET_H
+#endif //VALUEINTNET_H

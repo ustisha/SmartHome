@@ -9,7 +9,9 @@ class THPInterface : public THInterface {
 
 public:
 
-    float getPressure();
+    float getPressure() {
+        return pressure;
+    }
 
 protected:
 
