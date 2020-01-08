@@ -89,8 +89,8 @@ void LightController::setMode(uint8_t m) {
     }
 }
 
-void LightController::setTimeout(uint16_t t) {
-    timeout = t * 1000;
+void LightController::setTimeout(uint32_t t) {
+    timeout = t;
     timeout.save();
     sendCommand(CMD_TIMEOUT);
 }

@@ -8,11 +8,11 @@ void LightControllerNet::sendCommandData(RadioInterface *n, uint8_t r, uint8_t r
     } else if (cmd == CMD_TIMEOUT) {
         sendPacket(n, r, rp, cmd, lightCtrl->timeout);
     } else if (cmd == CMD_ACTIVITY_RATIO) {
-        sendPacket(n, r, rp, cmd, (long) lightCtrl->activityRatio * 100);
+        sendPacket(n, r, rp, cmd, lround(lightCtrl->activityRatio * 100));
     } else if (cmd == CMD_ACTIVITY_LIMIT) {
         sendPacket(n, r, rp, cmd, lightCtrl->activityLimit);
     } else if (cmd == CMD_RECALL_RATIO) {
-        sendPacket(n, r, rp, cmd, (long) lightCtrl->recallRatio * 100);
+        sendPacket(n, r, rp, cmd, lround(lightCtrl->recallRatio * 100));
     } else if (cmd == CMD_RECALL_TIMEOUT) {
         sendPacket(n, r, rp, cmd, lightCtrl->recallTimeout);
     }
@@ -32,11 +32,11 @@ void LightControllerNet::receiveCommandData(uint8_t cmd, long data) {
     } else if (cmd == CMD_TIMEOUT) {
         lightCtrl->setTimeout(data);
     } else if (cmd == CMD_ACTIVITY_RATIO) {
-        lightCtrl->setActivityRatio((float) data / 100);
+        lightCtrl->setActivityRatio(float(data) / 100);
     } else if (cmd == CMD_ACTIVITY_LIMIT) {
         lightCtrl->setActivityLimit(data);
     } else if (cmd == CMD_RECALL_RATIO) {
-        lightCtrl->setRecallRatio((float) data / 100);
+        lightCtrl->setRecallRatio(float(data) / 100);
     } else if (cmd == CMD_RECALL_TIMEOUT) {
         lightCtrl->setRecallTimeout(data);
     }

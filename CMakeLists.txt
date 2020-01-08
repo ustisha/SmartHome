@@ -19,6 +19,7 @@ link_directories(C:\\Arduino\\libraries)
 
 # add the project directory into build
 add_subdirectory(exmaple)
+#add_subdirectory(cold-chamber)
 #add_subdirectory(outside-temp)
 #add_subdirectory(greenhouse)
 #add_subdirectory(gateway)

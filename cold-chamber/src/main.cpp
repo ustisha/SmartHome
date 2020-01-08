@@ -8,7 +8,7 @@
 #include <THPNet.h>
 #include <SmartNet.h>
 #include <RF24Net.h>
-#include <Switch.h>
+#include <PIR.h>
 #include <LightController.h>
 #include <LightControllerNet.h>
 #include <EEPROMex.h>
@@ -33,13 +33,9 @@ void printf_begin(void) {
 #define SERV1 5
 #define RELAY1 7
 
-// @todo 20 is debug value
 #define SENSOR_INTERVAL 30
-// @todo 10 is debug value
-#define POLL_INTERVAL 30
 
 const int memBase = 20;
-const float vccCorrection = 1.0 / 1.0;
 
 SmartNet *net;
 RF24Net *rf24Net;
@@ -50,7 +46,7 @@ TempController *tempController;
 TempControllerNet *tempControllerNet;
 LightController *lightController1;
 LightControllerNet *lightControllerNet1;
-Switch *pir1;
+PIR *pir1;
 Relay *r1;
 
 RF24 radio(RF24_DEFAULT_CE, RF24_DEFAULT_CSN);
@@ -83,7 +79,7 @@ void setup(void) {
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Network started\n")));
 
     bmeThp = new BME280Adapter(Wire, 0x76);
-    bmeThp->setPollInterval(POLL_INTERVAL);
+    bmeThp->setPollInterval(SENSOR_INTERVAL);
     thpNet = new THPNet(net, PORT_BME280, 3, bmeThp);
     if (bmeThp->getStatus() < 0) {
         // BME280 error
@@ -103,7 +99,7 @@ void setup(void) {
     tempControllerNet = new TempControllerNet(net, PORT_TEMP_CTRL, 1, tempController);
     tempController->addNet(rf24Net, tempControllerNet, GATEWAY, PORT_HTTP_HANDLER);
 
-    pir1 = new Switch(PIR1);
+    pir1 = new PIR(PIR1);
     r1 = new Relay(RELAY1);
     lightController1 = new LightController();
     lightController1->addRelay(r1);
