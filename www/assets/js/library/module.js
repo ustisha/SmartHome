@@ -128,7 +128,7 @@ export class Module {
 
     loadData() {
         this.loading = true;
-        fetch(`/data/${this.moduleName}`)
+        return fetch(`/data/${this.moduleName}`)
         .then((resp) => {
             return resp.json();
         })

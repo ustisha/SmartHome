@@ -32,6 +32,8 @@ class DataProcessor implements DataProcessorInterface
         $processMethod = "process$cmdMethod";
         if (method_exists($this, $processMethod)) {
             $data = $this->$processMethod($radioLog);
+        } elseif (in_array($radioLog->getCommand(), Net::getFloatCommands())) {
+            $data = $this->processFloat($radioLog);
         } else {
             $data = $this->processDefault($radioLog);
         }
@@ -74,40 +76,10 @@ class DataProcessor implements DataProcessorInterface
      *
      * @return array
      */
-    protected function floatValue(RadioLog $radioLog)
+    protected function processFloat(RadioLog $radioLog)
     {
         $key = $this->getKey($radioLog);
         return [$key => $radioLog->getData() / 100];
-    }
-
-    /**
-     * @param RadioLog $radioLog
-     *
-     * @return array
-     */
-    protected function processVcc(RadioLog $radioLog)
-    {
-        return $this->floatValue($radioLog);
-    }
-
-    /**
-     * @param RadioLog $radioLog
-     *
-     * @return array
-     */
-    protected function processUpLimit(RadioLog $radioLog)
-    {
-        return $this->floatValue($radioLog);
-    }
-
-    /**
-     * @param RadioLog $radioLog
-     *
-     * @return array
-     */
-    protected function processDownLimit(RadioLog $radioLog)
-    {
-        return $this->floatValue($radioLog);
     }
 
     /**

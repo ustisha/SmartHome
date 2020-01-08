@@ -11,6 +11,7 @@ import {Module} from "../library/module";
 import TempController from "../components/temp-controller";
 import Net from "../net/Net";
 import TempControllerSettings from "../components/temp-controller-settings";
+import AutoLightSettings from "../components/auto-light-settings";
 
 class ColdChamberModule extends Module {
 
@@ -34,6 +35,11 @@ class ColdChamberModule extends Module {
 
     @observable light_controller_00_relay_0 = 0;
     @observable light_controller_00_mode = 1;
+    @observable light_controller_00_timeout = 0;
+    @observable light_controller_00_activity_ratio = 0;
+    @observable light_controller_00_activity_limit = 0;
+    @observable light_controller_00_recall_ratio = 0;
+    @observable light_controller_00_recall_timeout = 0;
 
     constructor(props) {
         super(props);
@@ -48,9 +54,13 @@ class ColdChamberModule extends Module {
     }
 
     loadData() {
-        super.loadData();
-        this.sendCommand(Net.PORT_TEMP_CTRL, Net.CMD_INFO, Net.CMD_GET_VALUES);
-        this.sendCommand(Net.PORT_LIGHT_CTRL_00, Net.CMD_INFO, Net.CMD_GET_VALUES);
+        super.loadData().then(() => {
+            this.sendCommand(Net.PORT_TEMP_CTRL, Net.CMD_INFO, Net.CMD_GET_VALUES).then(() => {
+                this.sendCommand(Net.PORT_LIGHT_CTRL_00, Net.CMD_INFO, Net.CMD_GET_VALUES).then(() => {
+
+                }).finally();
+            })
+        });
     }
 
     onChangeState(rp, command, data) {
@@ -112,6 +122,7 @@ class ColdChamber extends Component {
                         <TempControllerSettings module={coldChamber}/>
                     </Col>
                     <Col>
+                        <AutoLightSettings module={coldChamber}/>
                     </Col>
                 </Row>
             </Container>
