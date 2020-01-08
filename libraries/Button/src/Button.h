@@ -35,7 +35,7 @@ public:
 
     auto addHandler(HandlerInterface *handlerInterface, uint16_t pressTime = DEFAULT_PRESS) -> int8_t;
 
-    void tick();
+    virtual void tick();
 };
 
 
