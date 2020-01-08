@@ -29,6 +29,12 @@ class ModuleCore extends Component {
         });
     }
 
+    getValues() {
+        if (this.props.getValues) {
+            this.props.getValues.call(this);
+        }
+    }
+
     render() {
         const cardClass = classNames('mt-2', 'border-color-4', this.props.className);
         const tabs = React.Children.map(this.props.children, (child, idx) => {
@@ -49,7 +55,9 @@ class ModuleCore extends Component {
         return <Card className={cardClass}>
             <Card.Header className={"color-3"}>
                 <div className="float-left text-color-4 pl-2">
-                    <h4 className="mb-0 mt-1">{this.props.title}</h4>
+                    <h4 className="mb-0 mt-1">
+                        {this.props.title}&nbsp;<a className="cursor-pointer" onClick={this.getValues.bind(this)}>{'\u27f3'}</a>
+                    </h4>
                 </div>
                 <div className="float-right">
                     <Nav className="justify-content-end" variant="tabs" defaultActiveKey="#first">

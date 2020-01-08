@@ -74,10 +74,40 @@ class DataProcessor implements DataProcessorInterface
      *
      * @return array
      */
-    protected function processVcc(RadioLog $radioLog)
+    protected function floatValue(RadioLog $radioLog)
     {
         $key = $this->getKey($radioLog);
         return [$key => $radioLog->getData() / 100];
+    }
+
+    /**
+     * @param RadioLog $radioLog
+     *
+     * @return array
+     */
+    protected function processVcc(RadioLog $radioLog)
+    {
+        return $this->floatValue($radioLog);
+    }
+
+    /**
+     * @param RadioLog $radioLog
+     *
+     * @return array
+     */
+    protected function processUpLimit(RadioLog $radioLog)
+    {
+        return $this->floatValue($radioLog);
+    }
+
+    /**
+     * @param RadioLog $radioLog
+     *
+     * @return array
+     */
+    protected function processDownLimit(RadioLog $radioLog)
+    {
+        return $this->floatValue($radioLog);
     }
 
     /**
