@@ -32,6 +32,8 @@ class DataProcessor implements DataProcessorInterface
         $processMethod = "process$cmdMethod";
         if (method_exists($this, $processMethod)) {
             $data = $this->$processMethod($radioLog);
+        } elseif ($radioLog->getSenderPort() >= Net::PORT_TEMP_CTRL_00 && $radioLog->getSenderPort() <= Net::PORT_LIGHT_CTRL_04) {
+            $data = $this->processArrayController($radioLog);
         } elseif (in_array($radioLog->getCommand(), Net::getFloatCommands())) {
             $data = $this->processFloat($radioLog);
         } else {
@@ -80,6 +82,29 @@ class DataProcessor implements DataProcessorInterface
     {
         $key = $this->getKey($radioLog);
         return [$key => $radioLog->getData() / 100];
+    }
+
+    /**
+     * @param RadioLog $radioLog
+     *
+     * @return array
+     */
+    protected function processArrayController(RadioLog $radioLog)
+    {
+        $key = Net::getPortName($radioLog->getSenderPort());
+        if (in_array($radioLog->getCommand(), Net::getFloatCommands())) {
+            $value = $radioLog->getData() / 100;
+        } else {
+            $value = $radioLog->getData();
+        }
+        return [
+            $key => [
+                $radioLog->getSenderPort() => [
+                    'command' => Net::getCommandName($radioLog->getCommand()),
+                    'value' => $value
+                ]
+            ]
+        ];
     }
 
     /**

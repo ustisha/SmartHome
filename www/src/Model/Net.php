@@ -21,7 +21,9 @@ class Net
     const PORT_BH1750 = 4;
     const PORT_VCC = 5;
     const PORT_VALUE = 6;
-    const PORT_TEMP_CTRL = 7;
+    const PORT_TEMP_CTRL_00 = 7;
+    const PORT_TEMP_CTRL_01 = 8;
+    const PORT_TEMP_CTRL_02 = 9;
     const PORT_LIGHT_CTRL_00 = 10;
     const PORT_LIGHT_CTRL_01 = 11;
     const PORT_LIGHT_CTRL_02 = 12;
@@ -95,12 +97,14 @@ class Net
 
     static protected $portNames = [
         self::PORT_HTTP_HANDLER => 'http_handler',
-        self::PORT_TEMP_CTRL => 'temp_controller',
-        self::PORT_LIGHT_CTRL_00 => 'light_controller_00',
-        self::PORT_LIGHT_CTRL_01 => 'light_controller_01',
-        self::PORT_LIGHT_CTRL_02 => 'light_controller_02',
-        self::PORT_LIGHT_CTRL_03 => 'light_controller_03',
-        self::PORT_LIGHT_CTRL_04 => 'light_controller_04',
+        self::PORT_TEMP_CTRL_00 => 'temp_controller',
+        self::PORT_TEMP_CTRL_01 => 'temp_controller',
+        self::PORT_TEMP_CTRL_02 => 'temp_controller',
+        self::PORT_LIGHT_CTRL_00 => 'light_controller',
+        self::PORT_LIGHT_CTRL_01 => 'light_controller',
+        self::PORT_LIGHT_CTRL_02 => 'light_controller',
+        self::PORT_LIGHT_CTRL_03 => 'light_controller',
+        self::PORT_LIGHT_CTRL_04 => 'light_controller',
         self::PORT_INFO => 'info',
         self::PORT_18B20 => 'ds18b20',
         self::PORT_BME280 => 'bme280',
@@ -194,7 +198,7 @@ class Net
     {
         return [
             self::PORT_HTTP_HANDLER,
-            self::PORT_TEMP_CTRL,
+            self::PORT_TEMP_CTRL_00,
             self::PORT_LIGHT_CTRL_00,
             self::PORT_LIGHT_CTRL_01,
             self::PORT_LIGHT_CTRL_02,

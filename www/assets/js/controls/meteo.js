@@ -12,55 +12,6 @@ import CommonValue from "../components/react-common-value";
 
 class MeteoModule extends Module {
 
-    @observable ds18b20_temperature = 0;
-    @observable ds18b20_temperature_min = 0;
-    @observable ds18b20_temperature_max = 0;
-    @observable ds18b20_temperature_hour = 0;
-
-    @observable bme280_temperature = 0;
-    @observable bme280_temperature_min = 0;
-    @observable bme280_temperature_max = 0;
-    @observable bme280_temperature_hour = 0;
-
-    @observable bme280_humidity = 0;
-    @observable bme280_humidity_min = 0;
-    @observable bme280_humidity_max = 0;
-    @observable bme280_humidity_hour = 0;
-
-    @observable bme280_pressure = 0;
-
-    @observable bh1750_light = 0;
-
-    @observable value_vcc = 0;
-
-    @observable pressureHistory = [
-        {
-            x: '12h',
-            y: 12,
-            mmHg: 0
-        }, {
-            x: '6h',
-            y: 6,
-            mmHg: 0
-        }, {
-            x: '3h',
-            y: 3,
-            mmHg: 0
-        }, {
-            x: '2h',
-            y: 2,
-            mmHg: 0
-        }, {
-            x: '1h',
-            y: 1,
-            mmHg: 0
-        }, {
-            x: '0h',
-            y: 0,
-            mmHg: 0
-        }
-    ];
-
     get moduleName() {
         return 'outside';
     }

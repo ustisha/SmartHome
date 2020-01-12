@@ -5,9 +5,10 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import Dropdown from "react-bootstrap/Dropdown";
-import {computed, observable} from "mobx";
+import {computed} from "mobx";
 import {observer} from "mobx-react";
 import Net from "../net/Net";
+import CommonValue from "./react-common-value";
 
 @observer
 class TempController extends Component {
@@ -23,7 +24,7 @@ class TempController extends Component {
     }
 
     get mode() {
-        return this.props.module.temp_controller_mode;
+        return this.props.module.temp_controller.get(this.props.port).mode;
     }
 
     set mode(m) {
@@ -31,7 +32,7 @@ class TempController extends Component {
     }
 
     get angle() {
-        return this.props.module.temp_controller_servo_0;
+        return this.props.module.temp_controller.get(this.props.port).servo_0;
     }
 
     set angle(a) {
@@ -40,6 +41,10 @@ class TempController extends Component {
 
     setPercent(percent) {
         this.angle = Math.ceil(percent * 10 * (this.maxAngle - this.minAngle) / 100);
+    }
+
+    @computed get downLimit() {
+        return this.props.module.temp_controller.get(this.props.port).down_limit;
     }
 
     @computed get anglePercent() {
@@ -59,12 +64,16 @@ class TempController extends Component {
     }
 
     onChangeState(command, data) {
-        this.props.module.onChangeState(this.props.rp || Net.PORT_TEMP_CTRL, command, data);
+        return this.props.module.onChangeState(this.props.port, command, data);
     }
 
     render() {
         const cardClass = classNames('mt-1', 'ml-1', this.props.cardClass);
         return <div>
+            <CommonValue value={this.downLimit}
+                         formatValue={"+0.0"}
+                         unitName={"℃"}
+                         title={"Целевая температура:"}/>
             <ProgressBar variant="warning" now={this.angle} label={`${this.anglePercent}%`} min={this.minAngle} max={this.maxAngle}/>
             <ButtonGroup className="mt-2" size="sm" aria-label="Управление">
                 <Button variant={"info"} disabled={this.isAuto} onClick={() => this.angle = this.maxAngle}>Открыть</Button>

@@ -61,8 +61,16 @@ class Net {
         return 6;
     }
 
-    static get PORT_TEMP_CTRL() {
+    static get PORT_TEMP_CTRL_00() {
         return 7;
+    }
+
+    static get PORT_TEMP_CTRL_01() {
+        return 8;
+    }
+
+    static get PORT_TEMP_CTRL_02() {
+        return 9;
     }
 
     static get PORT_LIGHT_CTRL_00() {

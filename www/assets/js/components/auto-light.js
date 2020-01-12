@@ -18,16 +18,17 @@ class AutoLight extends Component {
     }
 
     get mode() {
-        return this.props.module.light_controller_00_mode;
+        return this.props.module.light_controller.get(this.props.port).mode;
     }
 
     set relay(r) {
-        this.onChangeState(Net.CMD_MODE, Net.MODE_MANUAL);
-        this.onChangeState(Net.CMD_RELAY_00, r);
+        this.onChangeState(Net.CMD_MODE, Net.MODE_MANUAL).then(() => {
+            this.onChangeState(Net.CMD_RELAY_00, r);
+        });
     }
 
     get relay() {
-        return this.props.module.light_controller_00_relay_0;
+        return this.props.module.light_controller.get(this.props.port).relay_0;
     }
 
     @computed get stateName() {
@@ -35,7 +36,7 @@ class AutoLight extends Component {
     }
 
     @computed get stateVariant() {
-        return this.isOn ?  'warning' : 'dark';
+        return this.isOn ? 'warning' : 'dark';
     }
 
     @computed get isAuto() {
@@ -63,11 +64,11 @@ class AutoLight extends Component {
     }
 
     onChangeState(command, data) {
-        this.props.module.onChangeState(this.props.rp || Net.PORT_LIGHT_CTRL_00, command, data);
+        return this.props.module.onChangeState(this.props.port, command, data);
     }
 
     render() {
-        return <div className="float-left">
+        return <div className="float-right ml-2">
             <div className="w-100">
                 <Alert className="p-2 text-center" variant={this.stateVariant}>{this.stateName}</Alert>
             </div>
