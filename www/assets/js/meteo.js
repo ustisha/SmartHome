@@ -12,13 +12,13 @@ import {Meteo} from "./controls/meteo";
 @observer
 class App extends Component {
     render() {
-        return (<Container>
+        return <Container>
                 <Row className="justify-content-md-center">
                     <Col xs lg="2"/>
                     <Col xs="auto"><Meteo/></Col>
                     <Col xs lg="2"/>
                 </Row>
-            </Container>);
+            </Container>
     }
 }
 

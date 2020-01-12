@@ -21,7 +21,9 @@ class Net
     const PORT_BH1750 = 4;
     const PORT_VCC = 5;
     const PORT_VALUE = 6;
-    const PORT_TEMP_CTRL = 7;
+    const PORT_TEMP_CTRL_00 = 7;
+    const PORT_TEMP_CTRL_01 = 8;
+    const PORT_TEMP_CTRL_02 = 9;
     const PORT_LIGHT_CTRL_00 = 10;
     const PORT_LIGHT_CTRL_01 = 11;
     const PORT_LIGHT_CTRL_02 = 12;
@@ -37,6 +39,14 @@ class Net
     const CMD_GET_VALUES = 7;
     const CMD_MODE = 8;
     const CMD_TIMEOUT = 9;
+    // Temp controller commands
+    const CMD_UP_LIMIT = 10;
+    const CMD_DOWN_LIMIT = 11;
+    // Light controller commands
+    const CMD_ACTIVITY_RATIO = 20;
+    const CMD_ACTIVITY_LIMIT = 21;
+    const CMD_RECALL_RATIO = 22;
+    const CMD_RECALL_TIMEOUT = 23;
     // Relays
     const CMD_RELAY_00 = 40;
     const CMD_RELAY_01 = 41;
@@ -59,15 +69,6 @@ class Net
     const CMD_SERVO_07 = 57;
     const CMD_SERVO_08 = 58;
     const CMD_SERVO_09 = 59;
-    // Temp controller commands
-    const CMD_UP_LIMIT = 10;
-    const CMD_DOWN_LIMIT = 11;
-    // Light controller commands
-    const CMD_ACTIVITY_RATIO = 20;
-    const CMD_ACTIVITY_LIMIT = 21;
-    const CMD_RECALL_RATIO = 22;
-    const CMD_RECALL_TIMEOUT = 23;
-
     // Info
     const CMD_INFO = 100;
 
@@ -96,12 +97,14 @@ class Net
 
     static protected $portNames = [
         self::PORT_HTTP_HANDLER => 'http_handler',
-        self::PORT_TEMP_CTRL => 'temp_controller',
-        self::PORT_LIGHT_CTRL_00 => 'light_controller_00',
-        self::PORT_LIGHT_CTRL_01 => 'light_controller_01',
-        self::PORT_LIGHT_CTRL_02 => 'light_controller_02',
-        self::PORT_LIGHT_CTRL_03 => 'light_controller_03',
-        self::PORT_LIGHT_CTRL_04 => 'light_controller_04',
+        self::PORT_TEMP_CTRL_00 => 'temp_controller',
+        self::PORT_TEMP_CTRL_01 => 'temp_controller',
+        self::PORT_TEMP_CTRL_02 => 'temp_controller',
+        self::PORT_LIGHT_CTRL_00 => 'light_controller',
+        self::PORT_LIGHT_CTRL_01 => 'light_controller',
+        self::PORT_LIGHT_CTRL_02 => 'light_controller',
+        self::PORT_LIGHT_CTRL_03 => 'light_controller',
+        self::PORT_LIGHT_CTRL_04 => 'light_controller',
         self::PORT_INFO => 'info',
         self::PORT_18B20 => 'ds18b20',
         self::PORT_BME280 => 'bme280',
@@ -118,9 +121,16 @@ class Net
         self::CMD_VCC => 'vcc',
         self::CMD_VALUE => 'value',
         self::CMD_GET_VALUES => 'get_values',
+        self::CMD_MODE => 'mode',
         self::CMD_TIMEOUT => 'timeout',
         self::CMD_UP_LIMIT => 'up_limit',
         self::CMD_DOWN_LIMIT => 'down_limit',
+        // Light controller commands
+        self::CMD_ACTIVITY_RATIO => 'activity_ratio',
+        self::CMD_ACTIVITY_LIMIT => 'activity_limit',
+        self::CMD_RECALL_RATIO => 'recall_ratio',
+        self::CMD_RECALL_TIMEOUT => 'recall_timeout',
+        // Relays
         self::CMD_RELAY_00 => 'relay_0',
         self::CMD_RELAY_01 => 'relay_1',
         self::CMD_RELAY_02 => 'relay_2',
@@ -132,6 +142,7 @@ class Net
         self::CMD_RELAY_08 => 'relay_8',
         self::CMD_RELAY_09 => 'relay_9',
         self::CMD_SERVO_00 => 'servo_0',
+        // Servos
         self::CMD_SERVO_01 => 'servo_1',
         self::CMD_SERVO_02 => 'servo_2',
         self::CMD_SERVO_03 => 'servo_3',
@@ -141,9 +152,24 @@ class Net
         self::CMD_SERVO_07 => 'servo_7',
         self::CMD_SERVO_08 => 'servo_8',
         self::CMD_SERVO_09 => 'servo_9',
-        self::CMD_MODE => 'mode',
         self::CMD_INFO => 'info',
     ];
+
+    static protected $floatCommands = [
+        self::CMD_VCC,
+        self::CMD_UP_LIMIT,
+        self::CMD_DOWN_LIMIT,
+        self::CMD_ACTIVITY_RATIO,
+        self::CMD_RECALL_RATIO
+    ];
+
+    /**
+     * @return array
+     */
+    public static function getFloatCommands(): array
+    {
+        return self::$floatCommands;
+    }
 
     static public function getComponentName($id)
     {
@@ -168,16 +194,11 @@ class Net
         return false;
     }
 
-    static public function nodes()
-    {
-        return [self::GATEWAY, self::OUTSIDE_TEMP, self::GREENHOUSE];
-    }
-
     static public function ports()
     {
         return [
             self::PORT_HTTP_HANDLER,
-            self::PORT_TEMP_CTRL,
+            self::PORT_TEMP_CTRL_00,
             self::PORT_LIGHT_CTRL_00,
             self::PORT_LIGHT_CTRL_01,
             self::PORT_LIGHT_CTRL_02,
@@ -188,41 +209,6 @@ class Net
             self::PORT_BME280,
             self::PORT_BH1750,
             self::PORT_VALUE
-        ];
-    }
-
-    static public function commands()
-    {
-        return [
-            self::CMD_VALUE,
-            self::CMD_TEMPERATURE,
-            self::CMD_HUMIDITY,
-            self::CMD_PRESSURE,
-            self::CMD_LIGHT,
-            self::CMD_VCC,
-            self::CMD_INFO,
-            self::CMD_RELAY_00,
-            self::CMD_RELAY_01,
-            self::CMD_RELAY_02,
-            self::CMD_RELAY_03,
-            self::CMD_RELAY_04,
-            self::CMD_RELAY_05,
-            self::CMD_RELAY_06,
-            self::CMD_RELAY_07,
-            self::CMD_RELAY_08,
-            self::CMD_RELAY_09,
-            self::CMD_SERVO_00,
-            self::CMD_SERVO_01,
-            self::CMD_SERVO_02,
-            self::CMD_SERVO_03,
-            self::CMD_SERVO_04,
-            self::CMD_SERVO_05,
-            self::CMD_SERVO_06,
-            self::CMD_SERVO_07,
-            self::CMD_SERVO_08,
-            self::CMD_SERVO_09,
-            self::CMD_MODE,
-            self::CMD_INFO,
         ];
     }
 }

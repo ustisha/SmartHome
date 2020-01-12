@@ -60,8 +60,7 @@ class SignIn extends Component {
         return <ModuleCore title={"Умный дом"} activeTab={0}>
             <Container type={"info"} label={"Вход"} fluid={true}>
                 <Row className="justify-content-md-center">
-                    <Col xs lg="2"/>
-                    <Col xs="6">
+                    <Col lg={7} md={12}>
                         <Form className={cardClass} disabled={this.isDisabled} onSubmit={this.handleSubmit}>
                             <Form.Group as={Row} controlId="formBasicEmail">
                                 <Form.Label column sm="2"><b>Логин</b></Form.Label>
@@ -88,7 +87,6 @@ class SignIn extends Component {
                             </Button>
                         </Form>
                     </Col>
-                    <Col xs lg="2"/>
                 </Row>
             </Container>
         </ModuleCore>;

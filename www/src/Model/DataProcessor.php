@@ -32,6 +32,10 @@ class DataProcessor implements DataProcessorInterface
         $processMethod = "process$cmdMethod";
         if (method_exists($this, $processMethod)) {
             $data = $this->$processMethod($radioLog);
+        } elseif ($radioLog->getSenderPort() >= Net::PORT_TEMP_CTRL_00 && $radioLog->getSenderPort() <= Net::PORT_LIGHT_CTRL_04) {
+            $data = $this->processArrayController($radioLog);
+        } elseif (in_array($radioLog->getCommand(), Net::getFloatCommands())) {
+            $data = $this->processFloat($radioLog);
         } else {
             $data = $this->processDefault($radioLog);
         }
@@ -74,7 +78,7 @@ class DataProcessor implements DataProcessorInterface
      *
      * @return array
      */
-    protected function floatValue(RadioLog $radioLog)
+    protected function processFloat(RadioLog $radioLog)
     {
         $key = $this->getKey($radioLog);
         return [$key => $radioLog->getData() / 100];
@@ -85,29 +89,22 @@ class DataProcessor implements DataProcessorInterface
      *
      * @return array
      */
-    protected function processVcc(RadioLog $radioLog)
+    protected function processArrayController(RadioLog $radioLog)
     {
-        return $this->floatValue($radioLog);
-    }
-
-    /**
-     * @param RadioLog $radioLog
-     *
-     * @return array
-     */
-    protected function processUpLimit(RadioLog $radioLog)
-    {
-        return $this->floatValue($radioLog);
-    }
-
-    /**
-     * @param RadioLog $radioLog
-     *
-     * @return array
-     */
-    protected function processDownLimit(RadioLog $radioLog)
-    {
-        return $this->floatValue($radioLog);
+        $key = Net::getPortName($radioLog->getSenderPort());
+        if (in_array($radioLog->getCommand(), Net::getFloatCommands())) {
+            $value = $radioLog->getData() / 100;
+        } else {
+            $value = $radioLog->getData();
+        }
+        return [
+            $key => [
+                $radioLog->getSenderPort() => [
+                    'command' => Net::getCommandName($radioLog->getCommand()),
+                    'value' => $value
+                ]
+            ]
+        ];
     }
 
     /**

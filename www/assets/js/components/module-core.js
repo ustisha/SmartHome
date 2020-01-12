@@ -4,11 +4,16 @@ import Nav from "react-bootstrap/Nav";
 import classNames from "classnames";
 import {observer} from "mobx-react";
 import {observable} from "mobx";
+import Badge from "react-bootstrap/Badge";
 
 @observer
 class ModuleCore extends Component {
 
     controls;
+
+    get connectionError() {
+        return this.props.errors;
+    }
 
     onTabClick(selected) {
         this.controls.forEach(function(ctrl, idx) {
@@ -56,7 +61,9 @@ class ModuleCore extends Component {
             <Card.Header className={"color-3"}>
                 <div className="float-left text-color-4 pl-2">
                     <h4 className="mb-0 mt-1">
-                        {this.props.title}&nbsp;<a className="cursor-pointer" onClick={this.getValues.bind(this)}>{'\u27f3'}</a>
+                        {this.props.title}
+                        <a className="ml-3 cursor-pointer" onClick={this.getValues.bind(this)}>{'\u27f3'}</a>
+                        <Badge className="ml-4" variant="warning">{this.connectionError}</Badge>
                     </h4>
                 </div>
                 <div className="float-right">

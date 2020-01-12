@@ -12,27 +12,6 @@ import CommonValue from "../components/react-common-value";
 
 class OutsideModule extends Module {
 
-    @observable ds18b20_temperature = 0;
-    @observable ds18b20_temperature_min = 0;
-    @observable ds18b20_temperature_max = 0;
-    @observable ds18b20_temperature_hour = 0;
-
-    @observable bme280_temperature = 0;
-    @observable bme280_temperature_min = 0;
-    @observable bme280_temperature_max = 0;
-    @observable bme280_temperature_hour = 0;
-
-    @observable bme280_humidity = 0;
-    @observable bme280_humidity_min = 0;
-    @observable bme280_humidity_max = 0;
-    @observable bme280_humidity_hour = 0;
-
-    @observable bme280_pressure = 0;
-
-    @observable bh1750_light = 0;
-
-    @observable value_vcc = 0;
-
     constructor(props) {
         super(props);
     }

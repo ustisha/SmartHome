@@ -61,8 +61,16 @@ class Net {
         return 6;
     }
 
-    static get PORT_TEMP_CTRL() {
+    static get PORT_TEMP_CTRL_00() {
         return 7;
+    }
+
+    static get PORT_TEMP_CTRL_01() {
+        return 8;
+    }
+
+    static get PORT_TEMP_CTRL_02() {
+        return 9;
     }
 
     static get PORT_LIGHT_CTRL_00() {
@@ -85,6 +93,7 @@ class Net {
         return 14;
     }
 
+    // Commands.
     static get CMD_TEMPERATURE() {
         return 1;
     }
@@ -117,8 +126,26 @@ class Net {
         return 8;
     }
 
+    // Light and Temp controllers.
     static get CMD_TIMEOUT() {
         return 9;
+    }
+
+    // Light controller.
+    static get ACTIVITY_RATIO() {
+        return 20;
+    }
+
+    static get ACTIVITY_LIMIT() {
+        return 21;
+    }
+
+    static get RECALL_RATIO() {
+        return 22;
+    }
+
+    static get RECALL_TIMEOUT() {
+        return 23;
     }
 
     // Relays

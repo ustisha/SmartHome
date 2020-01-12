@@ -4,36 +4,17 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import CommonValue from "../components/react-common-value";
-import {observable} from "mobx";
 import {observer} from "mobx-react";
 import AutoLight from "../components/auto-light";
 import {Module} from "../library/module";
 import TempController from "../components/temp-controller";
 import Net from "../net/Net";
 import TempControllerSettings from "../components/temp-controller-settings";
+import AutoLightSettings from "../components/auto-light-settings";
+import {LightControllerStore} from "../stores/LightController";
+import {TempControllerStore} from "../stores/TempController";
 
 class ColdChamberModule extends Module {
-
-    @observable bme280_temperature = 0;
-    @observable bme280_temperature_min = 0;
-    @observable bme280_temperature_max = 0;
-    @observable bme280_temperature_hour = 0;
-
-    @observable bme280_humidity = 0;
-    @observable bme280_humidity_min = 0;
-    @observable bme280_humidity_max = 0;
-    @observable bme280_humidity_hour = 0;
-
-    @observable value_vcc = 0;
-
-    @observable temp_controller_down_limit = 0;
-    @observable temp_controller_up_limit = 0;
-    @observable temp_controller_servo_0 = 0;
-    @observable temp_controller_mode = 1;
-    @observable temp_controller_timeout = 0;
-
-    @observable light_controller_00_relay_0 = 0;
-    @observable light_controller_00_mode = 1;
 
     constructor(props) {
         super(props);
@@ -48,34 +29,27 @@ class ColdChamberModule extends Module {
     }
 
     loadData() {
-        super.loadData();
-        this.sendCommand(Net.PORT_TEMP_CTRL, Net.CMD_INFO, Net.CMD_GET_VALUES);
-        this.sendCommand(Net.PORT_LIGHT_CTRL_00, Net.CMD_INFO, Net.CMD_GET_VALUES);
+        super.loadData().then(() => {
+            this.sendCommand(Net.PORT_TEMP_CTRL_00, Net.CMD_INFO, Net.CMD_GET_VALUES).then(() => {
+                this.sendCommand(Net.PORT_LIGHT_CTRL_00, Net.CMD_INFO, Net.CMD_GET_VALUES).then(() => {
+                    this.sendCommand(Net.PORT_LIGHT_CTRL_01, Net.CMD_INFO, Net.CMD_GET_VALUES).finally();
+                })
+            })
+        });
     }
 
     onChangeState(rp, command, data) {
-        /* @debug
-         if (rp === 7) {
-         if (command === 50) {
-         this.temp_controller_servo_0 = data;
-         } else if (command === 8) {
-         this.temp_controller_mode = data;
-         }
-         }
-         if (rp === 10) {
-         if (command === 40) {
-         this.light_controller_relay_0 = data;
-         } else if (command === 8) {
-         this.light_controller_mode = data;
-         }
-         }*/
-
-        this.sendCommand(rp, command, data);
+        return this.sendCommand(rp, command, data).finally();
     }
 
 }
 
 const coldChamber = new ColdChamberModule({});
+coldChamber.addMapProcessor(Net.PORT_TEMP_CTRL_00, Module.TEMP_CTRL_MAP, new TempControllerStore());
+coldChamber.addMapProcessor(Net.PORT_LIGHT_CTRL_00, Module.LIGHT_CTRL_MAP, new LightControllerStore());
+coldChamber.addMapProcessor(Net.PORT_LIGHT_CTRL_01, Module.LIGHT_CTRL_MAP, new LightControllerStore());
+
+window._COLD_CHAMBER_ = coldChamber;
 
 @observer
 class ColdChamber extends Component {
@@ -85,33 +59,32 @@ class ColdChamber extends Component {
     }
 
     render() {
-        return <ModuleCore title={"Холодный отсек"} getValues={coldChamber.loadData.bind(coldChamber)}>
+        return <ModuleCore title={"Холодный отсек"} errors={coldChamber.errorMessage} getValues={coldChamber.loadData.bind(coldChamber)}>
             <Container label={"Инфо"} fluid={true}>
                 <Row>
                     <Col xs={3} lg={3}>
                         <CommonValue value={coldChamber.bme280_temperature} formatValue={"+0.0"} unitName={"℃"} title={"Температура:"}/>
                         <CommonValue value={coldChamber.bme280_humidity} formatValue={"0.0"} unitName={"%"} title={"Влажность:"}/>
                     </Col>
-                    <Col xs={6} lg={6}>
-                        <CommonValue value={coldChamber.temp_controller_down_limit}
-                                     formatValue={"+0.0"}
-                                     unitName={"℃"}
-                                     title={"Целевая температура:"}/>
-                        <TempController module={coldChamber} maxAngle={160}/>
+                    <Col xs={6} lg={5}>
+                        <TempController module={coldChamber} port={Net.PORT_TEMP_CTRL_00} minAngle={18} maxAngle={155}/>
                     </Col>
-                    <Col xs={2} lg={3}>
-                        <AutoLight module={coldChamber}/>
+                    <Col xs={2} lg={4}>
+                        <AutoLight module={coldChamber} port={Net.PORT_LIGHT_CTRL_01}/>
+                        <AutoLight module={coldChamber} port={Net.PORT_LIGHT_CTRL_00}/>
                     </Col>
                 </Row>
             </Container>
             <Container label={"Настройки"} fluid={true}>
                 <Row>
-                    <Col xs lg="3">
+                    <Col xs={3} lg={3}>
+                        <TempControllerSettings module={coldChamber} port={Net.PORT_TEMP_CTRL_00}/>
                     </Col>
-                    <Col>
-                        <TempControllerSettings module={coldChamber}/>
+                    <Col xs={4} lg={4}>
+                        <AutoLightSettings module={coldChamber} port={Net.PORT_LIGHT_CTRL_00} title={"Освещение камера"}/>
                     </Col>
-                    <Col>
+                    <Col xs={4} lg={4}>
+                        <AutoLightSettings module={coldChamber} port={Net.PORT_LIGHT_CTRL_01} title={"Освещение подвал"}/>
                     </Col>
                 </Row>
             </Container>

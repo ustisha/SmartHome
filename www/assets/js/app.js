@@ -21,22 +21,20 @@ const stores = {
 @inject("authStore")
 class PrivateRoute extends Component {
     render() {
-        return (
-            <Route
-                render={({location}) =>
-                    this.props.authStore.currentUser ? (
-                        this.props.children
-                    ) : (
-                        <Redirect
-                            to={{
-                                pathname: "/signin",
-                                state: {from: location}
-                            }}
-                        />
-                    )
-                }
-            />
-        );
+        return <Route
+            render={({location}) =>
+                this.props.authStore.currentUser ? (
+                    this.props.children
+                ) : (
+                    <Redirect
+                        to={{
+                            pathname: "/signin",
+                            state: {from: location}
+                        }}
+                    />
+                )
+            }
+        />
     }
 }
 
