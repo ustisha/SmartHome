@@ -65,6 +65,18 @@ export class Module {
      */
     @observable temp_controller = new Map([]);
 
+    /**
+     *
+     * @type {number}
+     */
+    @observable bh1750_light = 0;
+
+    /**
+     *
+     * @type {number}
+     */
+    @observable value_vcc = 0;
+
     static get TYPE_LORA() {
         return 'lora';
     }

@@ -40,7 +40,7 @@ class TempController extends Component {
     }
 
     setPercent(percent) {
-        this.angle = Math.ceil(percent * 10 * (this.maxAngle - this.minAngle) / 100);
+        this.angle = Math.ceil(percent * this.maxAngle / 100);
     }
 
     @computed get downLimit() {
@@ -48,7 +48,7 @@ class TempController extends Component {
     }
 
     @computed get anglePercent() {
-        return Math.ceil(this.angle * 100 / (this.maxAngle - this.minAngle));
+        return Math.ceil(this.angle * 100 / this.maxAngle);
     }
 
     @computed get isAuto() {
@@ -82,7 +82,7 @@ class TempController extends Component {
                         const angleText = ((i + 1) * 10).toString() + '%';
                         return <Dropdown.Item
                             key={`angle-item-${i + 1}`}
-                            eventKey={i + 1}
+                            eventKey={(i + 1) * 10}
                             onSelect={this.setPercent.bind(this)}>Угол открытия {angleText}</Dropdown.Item>
                     })}
                 </DropdownButton>

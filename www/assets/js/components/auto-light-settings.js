@@ -54,21 +54,21 @@ class AutoLightSettings extends Component {
 
     sendValue(cmd, value) {
         this.inProcess = true;
-        this.props.module.sendCommand(Net.PORT_LIGHT_CTRL_00, cmd, parseInt(value.toString())).then(() => {
+        this.props.module.sendCommand(this.props.port, cmd, parseInt(value.toString())).then(() => {
 
         });
     }
 
     sendFloatValue(cmd, value) {
         this.inProcess = true;
-        this.props.module.sendCommand(Net.PORT_LIGHT_CTRL_00, cmd, parseFloat(value.toString()) * 100).then(() => {
+        this.props.module.sendCommand(this.props.port, cmd, parseFloat(value.toString()) * 100).then(() => {
 
         });
     }
 
     sendSecondValue(cmd, value) {
         this.inProcess = true;
-        this.props.module.sendCommand(Net.PORT_LIGHT_CTRL_00, cmd, value * 1000).then(() => {
+        this.props.module.sendCommand(this.props.port, cmd, value * 1000).then(() => {
 
         });
     }
