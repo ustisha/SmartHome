@@ -9,6 +9,9 @@
         {% endblock %}
     </head>
     <body>
+    {% if app.environment == 'prod' %}
+        {% include './meteo/analytic.html.twig' ignore missing %}
+    {% endif %}
     <div id="root"></div>
     {% block javascripts %}
         {{ encore_entry_script_tags('meteo') }}
