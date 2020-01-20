@@ -108,6 +108,14 @@ export class Module {
         this.initWs();
     }
 
+    get backOptions() {
+        return {
+            retries: Infinity,
+            maxDelay: 2000,
+            factor: 2,
+        };
+    }
+
     get moduleName() {
         return undefined;
     }
@@ -145,7 +153,7 @@ export class Module {
     }
 
     onWsClose() {
-        let back = this.attempt || (this.attempt = new Back());
+        let back = this.attempt || (this.attempt = new Back(this.backOptions));
         return back.backoff(function(fail) {
             if (fail) {
                 process.exit(1);
