@@ -15,11 +15,10 @@ project(SmartHome C CXX)
 # add libraries to project
 link_directories(${ARDUINO_SDK_PATH}/libraries)
 link_directories(${CMAKE_SOURCE_DIR}/libraries)
-link_directories(C:\\Arduino\\libraries)
 
 # add the project directory into build
-add_subdirectory(exmaple)
-#add_subdirectory(cold-chamber)
-#add_subdirectory(outside-temp)
-#add_subdirectory(greenhouse)
-#add_subdirectory(gateway)
+#add_subdirectory(arduino/exmaple)
+add_subdirectory(arduino/cold-chamber)
+#add_subdirectory(arduino/outside-temp)
+#add_subdirectory(arduino/greenhouse)
+#add_subdirectory(arduino/gateway)

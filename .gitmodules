@@ -40,3 +40,9 @@
 [submodule "libraries/EEPROMEx"]
 	path = libraries/EEPROMEx
 	url = https://github.com/thijse/Arduino-EEPROMEx
+[submodule "platform/megaavr"]
+	path = platform/megaavr
+	url = https://github.com/arduino/ArduinoCore-megaavr.git
+[submodule "platform/core-api"]
+	path = platform/core-api
+	url = https://github.com/arduino/ArduinoCore-API
