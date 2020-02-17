@@ -7,8 +7,8 @@ Button::Button(uint8_t btnPin, uint8_t max, bool invt) : arr(new Callback[max]{}
                                                          pin(btnPin),
                                                          i(0),
                                                          start(0) {
+    digitalWrite(pin, invert ? HIGH : LOW);
     pinMode(pin, INPUT);
-    digitalWrite(pin, HIGH);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Button] Pin: %i, Inversion: %d\n"), pin, (int) invert));
 }
 

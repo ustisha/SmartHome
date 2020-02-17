@@ -53,6 +53,8 @@ public:
 
     void setRecallTimeout(uint16_t t);
 
+    auto getOffTime() -> long;
+
     void sendValues();
 
     void call(uint8_t idx) override;

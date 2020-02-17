@@ -15,6 +15,8 @@ void LightControllerNet::sendCommandData(RadioInterface *n, uint8_t r, uint8_t r
         sendPacket(n, r, rp, cmd, lround(lightCtrl->recallRatio * 100));
     } else if (cmd == CMD_RECALL_TIMEOUT) {
         sendPacket(n, r, rp, cmd, lightCtrl->recallTimeout);
+    } else if (cmd == CMD_TIME_LEFT) {
+        sendPacket(n, r, rp, cmd, lightCtrl->getOffTime());
     }
 }
 
@@ -39,5 +41,7 @@ void LightControllerNet::receiveCommandData(uint8_t cmd, long data) {
         lightCtrl->setRecallRatio(float(data) / 100);
     } else if (cmd == CMD_RECALL_TIMEOUT) {
         lightCtrl->setRecallTimeout(data);
+    } else if (cmd == CMD_CALL) {
+        lightCtrl->call(data);
     }
 }
