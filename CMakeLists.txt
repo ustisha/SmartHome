@@ -18,7 +18,8 @@ link_directories(${CMAKE_SOURCE_DIR}/libraries)
 
 # add the project directory into build
 #add_subdirectory(arduino/exmaple)
-add_subdirectory(arduino/cold-chamber)
+#add_subdirectory(arduino/cold-chamber)
+#add_subdirectory(arduino/bathroom)
 #add_subdirectory(arduino/outside-temp)
 #add_subdirectory(arduino/greenhouse)
 #add_subdirectory(arduino/gateway)
