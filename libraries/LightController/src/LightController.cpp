@@ -49,33 +49,51 @@ LightController::LightController() : timeout(60 * 1000),
 #endif
 }
 
-void LightController::addSwitch(Switch *s) {
-    s->addHandler(this);
-    switchers[switchIdx++] = s;
+void LightController::addPir(PIR *pir) {
+    pir->addHandler(this, TYPE_PIR);
+    pirs[pirIdx++] = pir;
+    IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::addPir] PIR sensor added. Idx: %u\n"), pirIdx));
 }
 
-void LightController::call(uint8_t idx) {
-    if (mode == MODE_MANUAL) {
-        return;
-    }
-    uint32_t newTime = 0;
-    newTime = millis() + timeout;
-    if (offTime != 0 && (millis() - offTime) < recallTimeout) {
-        newTime += lround(timeout * recallRatio);
-        IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Recall raise\n")));
-    } else if (activity >= 1) {
-        if (activity > activityLimit) {
-            activity = activityLimit;
+void LightController::addButton(Button *btn) {
+    btn->addHandler(this, TYPE_AUTO);
+    btn->addHandler(this, TYPE_ON, Button::PRESSTIME_2SEC);
+    btn->addHandler(this, TYPE_OFF, Button::PRESSTIME_4SEC);
+    modeButton = btn;
+    IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::addButton] Control button added.\n")));
+}
+
+void LightController::call(uint8_t type, uint8_t idx) {
+    IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Type: %u, Index: %u \n"), type, idx));
+    if (type == TYPE_AUTO) {
+        setMode(MODE_AUTO);
+        this->call(TYPE_PIR, 0);
+    } else if (type == TYPE_ON) {
+        setMode(MODE_MANUAL);
+        setRelayState(RELAY_ON);
+    } else if (type == TYPE_OFF) {
+        setMode(MODE_MANUAL);
+        setRelayState(RELAY_OFF);
+    } else if (type == TYPE_PIR && mode == MODE_AUTO) {
+        uint32_t newTime = 0;
+        newTime = millis() + timeout;
+        if (offTime != 0 && (millis() - offTime) < recallTimeout) {
+            newTime += lround(timeout * recallRatio);
+            IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Recall raise\n")));
+        } else if (activity >= 1) {
+            if (activity > activityLimit) {
+                activity = activityLimit;
+            }
+            newTime += lround(timeout * activityRatio * activity);
+            IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Activity increase\n")));
         }
-        newTime += lround(timeout * activityRatio * activity);
-        IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Activity increase\n")));
+
+        // Use max time already set or new calculated.
+        timeOff = max(timeOff, newTime);
+
+        activity++;
+        setRelayState(RELAY_ON);
     }
-
-    // Use max time already set or new calculated.
-    timeOff = max(timeOff, newTime);
-
-    activity++;
-    setRelayState(RELAY_ON);
 }
 
 void LightController::setMode(uint8_t m) {
@@ -138,12 +156,15 @@ auto LightController::getOffTime() -> long {
 }
 
 void LightController::tick() {
+    if (modeButton != nullptr) {
+        modeButton->tick();
+    }
+
     if (mode == MODE_MANUAL) {
         return;
     }
-
-    for (uint8_t b = 0; b < switchIdx; b++) {
-        switchers[b]->tick();
+    for (uint8_t b = 0; b < pirIdx; b++) {
+        pirs[b]->tick();
     }
     unsigned long m = millis();
 

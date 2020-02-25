@@ -98,7 +98,8 @@ void setup(void) {
     serv1->attach(SERV1, 680, 2400);
 
     tempController = new TempController(bmeThp, 0, 1, 20.0, 30.0);
-    tempController->addServo(serv1, 0, TempController::TYPE_ABOVE_DOWN_LIMIT, 18, 155, 2.4);
+    tempController->addServo(serv1, 0, TempController::TYPE_ABOVE_DOWN_LIMIT | TempController::TYPE_TEMPERATURE,
+            18, 155, 2.4);
     tempControllerNet = new TempControllerNet(net, PORT_TEMP_CTRL, 1, tempController);
     tempController->addNet(rf24Net, tempControllerNet, GATEWAY, PORT_HTTP_HANDLER);
 

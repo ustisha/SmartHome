@@ -21,7 +21,7 @@ void Switch::tick() {
             }
             // Press time reached.
             if (!wait && arr[i].handlerInterface != nullptr && (m - start) >= arr[i].press) {
-                arr[i].handlerInterface->call(i);
+                arr[i].handlerInterface->call(arr[i].type, arr[i].idx);
                 IF_SERIAL_DEBUG(printf_P(PSTR("[Switch::tick] Handler called: %i\n"), i));
                 break;
             }

@@ -1,6 +1,6 @@
 #include "TempController.h"
 
-TempController::TempController(TInterface *tiface, uint8_t rMax, uint8_t sMax, float down, float up) :
+TempController::TempController(THInterface *tiface, uint8_t rMax, uint8_t sMax, float down, float up) :
         relayControl(new RelayControl[rMax]{}),
         servoControl(new ServoControl[sMax]{}),
         relayMax(rMax),
@@ -80,12 +80,36 @@ void TempController::addServo(Servo *s, uint8_t i, uint8_t type, int minAngle, i
 
     IF_SERIAL_DEBUG(
             printf_P(PSTR(
-                    "[TempController::addServo] Idx: %i, Mode: %d, Min angle: %i,  Max angle: %i,Ratio: %s\n"),
+                    "[TempController::addServo] Idx: %i, Mode: %d, Min angle: %i,  Max angle: %i, Ratio: %s\n"),
                      i, (int) type, minAngle, maxAngle, ratioBuf));
 #endif
 }
 
+void TempController::addServoButton(uint8_t i, Button *btn) {
+    btn->addHandler(this, HANDLER_SERVO_AUTO, Button::PRESSTIME_DEFAULT, i);
+    btn->addHandler(this, HANDLER_SERVO_OPEN, Button::PRESSTIME_2SEC, i);
+    btn->addHandler(this, HANDLER_SERVO_CLOSED, Button::PRESSTIME_4SEC, i);
+    servoControl[i].button = btn;
+}
+
+void TempController::call(uint8_t type, uint8_t idx) {
+    IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::call] Type: %u, Index: %u \n"), type, idx));
+    if (type == HANDLER_SERVO_AUTO) {
+        setMode(MODE_AUTO);
+    } else if (type == HANDLER_SERVO_OPEN) {
+        setServoState(idx, servoControl[idx].maxAngle);
+    } else if (type == HANDLER_SERVO_CLOSED) {
+        setServoState(idx, servoControl[idx].minAngle);
+    }
+}
+
 void TempController::tick(uint16_t sleep) {
+    for (int i = 0; i < servoMax; ++i) {
+        if (servoControl[i].enabled && servoControl[i].button != nullptr) {
+            servoControl[i].button->tick();
+        }
+    }
+
     sleepTime += sleep;
     unsigned long m;
     m = millis() + sleepTime;
@@ -99,42 +123,61 @@ void TempController::control() {
     if (mode != MODE_AUTO) {
         return;
     }
+
+    float value = 0;
     for (int i = 0; i < relayMax; ++i) {
         if (relayControl[i].enabled) {
+
+            if (relayControl[i].type & TYPE_TEMPERATURE) {
+                value = tiface->get();
+            } else if (relayControl[i].type & TYPE_HUMIDITY) {
+                value = tiface->getHumidity();
+            }
+
             IF_SERIAL_DEBUG(printf_P(PSTR("[TempController::control] Relay idx: %i\n"), i));
             if ((relayControl[i].type & TYPE_BELOW_DOWN_LIMIT &&
-                 tiface->get() <= (downLimit - relayControl[i].rangeOn)) ||
+                 value <= (downLimit - relayControl[i].rangeOn)) ||
                 (relayControl[i].type & TYPE_ABOVE_DOWN_LIMIT &&
-                 tiface->get() >= (downLimit - relayControl[i].rangeOn))) {
+                 value >= (downLimit - relayControl[i].rangeOn))) {
                 relayOn(i);
             } else if ((relayControl[i].type & TYPE_BELOW_DOWN_LIMIT &&
-                        tiface->get() >= (downLimit - relayControl[i].rangeOff)) ||
+                        value >= (downLimit - relayControl[i].rangeOff)) ||
                        (relayControl[i].type & TYPE_ABOVE_DOWN_LIMIT &&
-                        tiface->get() >= (downLimit - relayControl[i].rangeOff))) {
+                        value >= (downLimit - relayControl[i].rangeOff))) {
                 relayOff(i);
             }
 
-            if ((relayControl[i].type & TYPE_ABOVE_UP_LIMIT && tiface->get() >= (upLimit + relayControl[i].rangeOn)) ||
-                (relayControl[i].type & TYPE_BELOW_UP_LIMIT) && tiface->get() <= (upLimit + relayControl[i].rangeOn)) {
+            if ((relayControl[i].type & TYPE_ABOVE_UP_LIMIT && value >= (upLimit + relayControl[i].rangeOn)) ||
+                (relayControl[i].type & TYPE_BELOW_UP_LIMIT) && value <= (upLimit + relayControl[i].rangeOn)) {
                 relayOn(i);
             } else if ((relayControl[i].type & TYPE_ABOVE_UP_LIMIT &&
-                        tiface->get() <= (upLimit + relayControl[i].rangeOff)) ||
+                        value <= (upLimit + relayControl[i].rangeOff)) ||
                        (relayControl[i].type & TYPE_BELOW_UP_LIMIT &&
-                        tiface->get() >= (upLimit + relayControl[i].rangeOff))) {
+                        value >= (upLimit + relayControl[i].rangeOff))) {
                 relayOff(i);
             }
         }
     }
     for (int i = 0; i < servoMax; ++i) {
         if (servoControl[i].enabled) {
-            int angle = 0;
-            if ((servoControl[i].type & TYPE_BELOW_DOWN_LIMIT && tiface->get() < downLimit) ||
-                (servoControl[i].type & TYPE_ABOVE_DOWN_LIMIT && tiface->get() > downLimit)) {
-                angle = round(abs(tiface->get() - downLimit) * 10 * servoControl[i].ratio);
+
+            if (servoControl[i].type & TYPE_TEMPERATURE) {
+                value = tiface->get();
+            } else if (servoControl[i].type & TYPE_HUMIDITY) {
+                value = tiface->getHumidity();
             }
-            if ((servoControl[i].type & TYPE_ABOVE_UP_LIMIT && tiface->get() > upLimit) ||
-                (servoControl[i].type & TYPE_BELOW_UP_LIMIT && tiface->get() < upLimit)) {
-                angle = round(abs(tiface->get() - upLimit) * 10 * servoControl[i].ratio);
+
+            int angle = 0;
+            int diff;
+            if ((servoControl[i].type & TYPE_BELOW_DOWN_LIMIT && value < downLimit) ||
+                (servoControl[i].type & TYPE_ABOVE_DOWN_LIMIT && value > downLimit)) {
+                diff = abs(value - downLimit);
+                angle = round(diff * diff * servoControl[i].ratio);
+            }
+            if ((servoControl[i].type & TYPE_ABOVE_UP_LIMIT && value > upLimit) ||
+                (servoControl[i].type & TYPE_BELOW_UP_LIMIT && value < upLimit)) {
+                diff = abs(value - upLimit);
+                angle = round( diff * diff * servoControl[i].ratio);
             }
             servoWrite(i, angle);
         }

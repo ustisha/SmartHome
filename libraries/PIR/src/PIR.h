@@ -1,6 +1,8 @@
 #ifndef PIR_H
 #define PIR_H
 
+//#define SERIAL_DEBUG
+
 #include <Arduino.h>
 #include <DebugLog.h>
 #include <Switch.h>

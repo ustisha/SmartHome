@@ -6,7 +6,7 @@
 class HandlerInterface {
 
 public:
-    virtual void call(uint8_t idx) = 0;
+    virtual void call(uint8_t type, uint8_t idx) = 0;
 
 };
 

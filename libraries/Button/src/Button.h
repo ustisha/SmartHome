@@ -13,7 +13,9 @@ protected:
 
     struct Callback {
         HandlerInterface *handlerInterface = nullptr;
+        uint8_t type = 0;
         uint16_t press = 0;
+        uint8_t idx = 0;
     };
 
     Callback *arr;
@@ -27,13 +29,15 @@ protected:
     static auto sortByPress(const void *elem1, const void *elem2) -> int;
 
 public:
-    static const uint16_t DEFAULT_PRESS = 50;
+    static const uint16_t PRESSTIME_DEFAULT = 50;
+    static const uint16_t PRESSTIME_2SEC = 2000;
+    static const uint16_t PRESSTIME_4SEC = 4000;
 
     explicit Button(uint8_t btnPin, uint8_t max = 1, bool invt = true);
 
     auto isPressed() -> bool;
 
-    auto addHandler(HandlerInterface *handlerInterface, uint16_t pressTime = DEFAULT_PRESS) -> int8_t;
+    auto addHandler(HandlerInterface *handlerInterface, uint8_t t = 0, uint16_t pressTime = PRESSTIME_DEFAULT, uint8_t i = 0) -> int8_t;
 
     virtual void tick();
 };

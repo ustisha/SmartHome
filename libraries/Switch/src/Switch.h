@@ -1,6 +1,8 @@
 #ifndef SWITCH_H
 #define SWITCH_H
 
+//#define SERIAL_DEBUG
+
 #include <Arduino.h>
 #include <DebugLog.h>
 #include <Button.h>

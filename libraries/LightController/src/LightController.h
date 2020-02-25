@@ -5,19 +5,20 @@
 
 #include <Arduino.h>
 #include <DebugLog.h>
-#include <Switch.h>
+#include <Button.h>
+#include <PIR.h>
 #include <Relay.h>
 #include <Format.h>
 #include <EEPROMVar.h>
 #include <NetInterface.h>
 
 class LightController : public NetInterface, virtual public HandlerInterface  {
-    static const uint8_t MAX_SWITCHERS = 2;
-
+    static const uint8_t MAX_PIRS = 2;
+    static const uint8_t TYPE_PIR = 0;
+    static const uint8_t TYPE_ON = 1;
+    static const uint8_t TYPE_OFF = 2;
+    static const uint8_t TYPE_AUTO = 3;
 public:
-
-    Switch *switchers[MAX_SWITCHERS]{};
-    Relay *relay{};
 
     EEPROMVar<uint16_t> timeout;
     EEPROMVar<uint16_t> recallTimeout;
@@ -33,7 +34,9 @@ public:
         relay = r;
     }
 
-    void addSwitch(Switch *s);
+    void addPir(PIR *pir);
+
+    void addButton(Button *btn);
 
     auto getRelayState() -> int {
         return relay->isOn() ? RELAY_ON : RELAY_OFF;
@@ -57,16 +60,20 @@ public:
 
     void sendValues();
 
-    void call(uint8_t idx) override;
+    void call(uint8_t type, uint8_t idx) override;
 
     void tick();
 
 protected:
 
+    PIR *pirs[MAX_PIRS]{};
+    Relay *relay{};
+    Button *modeButton = nullptr;
+
     unsigned long offTime;
     unsigned long timeOff;
     uint8_t activity;
-    uint8_t switchIdx = 0;
+    uint8_t pirIdx = 0;
 
     void setRelayState(uint8_t state);
 };

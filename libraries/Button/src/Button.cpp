@@ -16,13 +16,15 @@ auto Button::sortByPress(const void *elem1, const void *elem2) -> int {
     return ((Callback *) elem1)->press < ((Callback *) elem2)->press ? 1 : -1;
 }
 
-auto Button::addHandler(HandlerInterface *handlerInterface, uint16_t pressTime) -> int8_t {
+auto Button::addHandler(HandlerInterface *handlerInterface, uint8_t t, uint16_t pressTime, uint8_t idx) -> int8_t {
     if (i >= maxArr) {
         IF_SERIAL_DEBUG(PSTR("[Button::addHandler] limit reached\n"));
         return -1;
     }
     arr[i].handlerInterface = handlerInterface;
+    arr[i].type = t;
     arr[i].press = pressTime;
+    arr[i].idx = idx;
     qsort(arr, maxArr, sizeof(Callback), Button::sortByPress);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Button::addHandler] Idx: %i\n"), i));
     return i++;
@@ -51,7 +53,7 @@ void Button::tick() {
         IF_SERIAL_DEBUG(printf_P(PSTR("[Button::tick] Released\n")));
         for (uint8_t i = 0; i < maxArr; i++) {
             if (arr[i].handlerInterface != nullptr && (m - start) >= arr[i].press) {
-                arr[i].handlerInterface->call(i);
+                arr[i].handlerInterface->call(arr[i].type, arr[i].idx);
                 IF_SERIAL_DEBUG(printf_P(PSTR("[Button::tick] Handler called: %i\n"), i));
                 break;
             }

@@ -42,6 +42,6 @@ void LightControllerNet::receiveCommandData(uint8_t cmd, long data) {
     } else if (cmd == CMD_RECALL_TIMEOUT) {
         lightCtrl->setRecallTimeout(data);
     } else if (cmd == CMD_CALL) {
-        lightCtrl->call(data);
+        lightCtrl->call(data, 0);
     }
 }
