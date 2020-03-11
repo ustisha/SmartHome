@@ -2,15 +2,13 @@
 
 #include <DebugLog.h>
 #include <SPI.h>
-#include <Servo.h>
+#include <DisplaySH1106.h>
 #include <DHTAdapter.h>
 #include <THNet.h>
 #include <SmartNet.h>
 #include <RF24Net.h>
 #include <Button.h>
 #include <PIR.h>
-#include <TempController.h>
-#include <TempControllerNet.h>
 #include <LightController.h>
 #include <LightControllerNet.h>
 #include <EEPROMex.h>
@@ -32,26 +30,28 @@ void printf_begin(void) {
 #define BUTTON1 A0
 #define BUTTON2 A1
 #define PIR1 A2
-#define RELAY1 6
+#define PIR2 A3
+#define RELAY1 3
+#define RELAY2 4
 #define DHT22 5
-#define SERV1 3
+#define TFT_CS 10
+#define TFT_RST 7 // Or set to -1 and connect to Arduino RESET pin
+#define TFT_DC 6
 
 #define SENSOR_INTERVAL 30
 
 const int memBase = 20;
 
+DisplaySH1106 *oled;
 SmartNet *net;
 RF24Net *rf24Net;
 DHTAdapter *dht22;
 THNet *thNet;
-Servo *serv1;
-TempController *tempController1;
-TempControllerNet *tempControllerNet1;
-LightController *lightController1;
-LightControllerNet *lightControllerNet1;
-PIR *pir1;
-Relay *r1;
-Button *btnLight1, *btnServo1;
+LightController *lightController1, *lightController2;
+LightControllerNet *lightControllerNet1, *lightControllerNet2;
+PIR *pir1, *pir2;
+Relay *r1, *r2;
+Button *btnLight1, *btnLight2;
 
 RF24 radio(RF24_DEFAULT_CE, RF24_DEFAULT_CSN);
 
@@ -74,16 +74,21 @@ void setup(void) {
 
     EEPROM.setMemPool(memBase, EEPROMSizeATmega328);
 
-    SPI.begin();
     net = new SmartNet(BATHROOM, 4);
     rf24Net = new RF24Net(net, BATHROOM, radio);
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Radio initialized\n")));
 
     // Info network started
     net->sendInfo(rf24Net, INFO_NETWORK_STARTED);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Network started\n")));
 
+    oled = new DisplaySH1106(TFT_CS, TFT_DC, TFT_RST);
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Display initialized\n")));
+    net->sendInfo(rf24Net, INFO_DISPLAY_INIT_COMPLETED);
+
     dht22 = new DHTAdapter(DHT22, DHT_TYPE_22);
     dht22->setPollInterval(SENSOR_INTERVAL);
+    oled->addModule(dht22);
     thNet = new THNet(net, PORT_DHT22, 2, dht22);
     thNet->addReceiver(rf24Net, GATEWAY, PORT_HTTP_HANDLER, CMD_TEMPERATURE, SENSOR_INTERVAL);
     thNet->addReceiver(rf24Net, GATEWAY, PORT_HTTP_HANDLER, CMD_HUMIDITY, SENSOR_INTERVAL);
@@ -98,17 +103,18 @@ void setup(void) {
     lightControllerNet1 = new LightControllerNet(net, PORT_LIGHT_CTRL_00, 1, lightController1);
     lightController1->addNet(rf24Net, lightControllerNet1, GATEWAY, PORT_HTTP_HANDLER);
 
-    int8_t serv1Idx = 0;
-    btnServo1 = new Button(BUTTON2, 3);
-    serv1 = new Servo();
-    serv1->attach(SERV1, 680, 2400);
-    tempController1 = new TempController(dht22, 0, 1, 70.0, 100.0);
-    tempController1->addServo(serv1, serv1Idx,
-                             TempController::TYPE_ABOVE_DOWN_LIMIT | TempController::TYPE_HUMIDITY,
-                                         0, 90, 2.4);
-    tempController1->addServoButton(serv1Idx, btnServo1);
-    tempControllerNet1 = new TempControllerNet(net, PORT_TEMP_CTRL, 1, tempController1);
-    tempController1->addNet(rf24Net, tempControllerNet1, GATEWAY, PORT_HTTP_HANDLER);
+    btnLight2 = new Button(BUTTON2, 3);
+    pir2 = new PIR(PIR2, 1);
+    r2 = new Relay(RELAY2, false);
+    lightController2 = new LightController();
+    lightController2->addRelay(r2);
+    lightController2->addPir(pir2);
+    lightController2->addButton(btnLight2);
+    lightControllerNet2 = new LightControllerNet(net, PORT_LIGHT_CTRL_01, 1, lightController2);
+    lightController2->addNet(rf24Net, lightControllerNet2, GATEWAY, PORT_HTTP_HANDLER);
+
+    oled->addModule(lightController2);
+    oled->addModule(lightController1);
 
     net->sendInfo(rf24Net, INFO_SETUP_COMPLETED);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Setup completed. Ram: %d\n"), freeRAM()));
@@ -125,7 +131,7 @@ void loop(void) {
 
     lightController1->tick();
     lightControllerNet1->tick();
-    tempController1->tick();
-    tempControllerNet1->tick();
+    lightController2->tick();
+    lightControllerNet2->tick();
 }
 
