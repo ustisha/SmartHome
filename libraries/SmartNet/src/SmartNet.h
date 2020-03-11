@@ -8,7 +8,6 @@ class NetComponent;
 #include <Arduino.h>
 #include <DebugLog.h>
 #include <Net.h>
-#include <NetComponent.h>
 #include <RadioInterface.h>
 
 class SmartNet {

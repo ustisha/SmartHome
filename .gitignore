@@ -1,3 +1,4 @@
 .idea
 cmake-build-*
 composer.phar
+/libraries/U8g2lib/src/

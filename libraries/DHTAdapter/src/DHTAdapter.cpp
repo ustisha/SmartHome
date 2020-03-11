@@ -14,6 +14,7 @@ void DHTAdapter::tick() {
     THInterface::tick();
     if (reading && dht->measure(&temp, &hum)) {
         reading = false;
+        render();
 
 #ifdef SERIAL_DEBUG
         char tBuf[8]{};

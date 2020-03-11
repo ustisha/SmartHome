@@ -5,7 +5,6 @@
 #include <THInterface.h>
 
 class THPInterface : public THInterface {
-    using THInterface::THInterface;
 
 public:
 
@@ -15,7 +14,7 @@ public:
 
 protected:
 
-    float pressure;
+    float pressure{};
 
 };
 

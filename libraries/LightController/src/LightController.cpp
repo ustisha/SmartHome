@@ -100,6 +100,7 @@ void LightController::setMode(uint8_t m) {
     mode = m;
     mode.save();
     sendCommand(CMD_MODE);
+    render();
     if (mode == MODE_AUTO) {
         setRelayState(RELAY_OFF);
         activity = 0;
@@ -144,6 +145,7 @@ void LightController::setRelayState(uint8_t state) {
         relay->off();
     }
     sendCommand(CMD_RELAY_00);
+    render();
 }
 
 void LightController::setState(uint8_t state) {
@@ -152,7 +154,7 @@ void LightController::setState(uint8_t state) {
 }
 
 auto LightController::getOffTime() -> long {
-    return lround((timeOff - millis()) / 1000);
+    return timeOff > 0 ? lround((timeOff - millis()) / 1000) : 0;
 }
 
 void LightController::tick() {
@@ -170,15 +172,19 @@ void LightController::tick() {
 
     if (timeOff != 0 && (m % 1000) == 0) {
         sendCommand(CMD_TIME_LEFT);
-        IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::tick] Left: %ld\n"), getOffTime()));
+        render();
+#ifdef SERIAL_DEBUG
+        long off = getOffTime();
+        IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::tick] Left: %ld\n"), off));
+#endif
     }
 
     if (timeOff != 0 && m > timeOff) {
         IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::tick] Reset values\n")));
-        setRelayState(RELAY_OFF);
         activity = 0;
         timeOff = 0;
         offTime = m;
+        setRelayState(RELAY_OFF);
     }
 }
 

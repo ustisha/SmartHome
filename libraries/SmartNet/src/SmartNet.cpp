@@ -1,4 +1,5 @@
 #include "SmartNet.h"
+#include <NetComponent.h>
 
 void SmartNet::addNetComponent(NetComponent *nc) {
     if (i >= maxCmp) {

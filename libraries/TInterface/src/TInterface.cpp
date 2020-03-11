@@ -8,6 +8,7 @@ void TInterface::tick(uint16_t sleep) {
         last += timeout;
         IF_SERIAL_DEBUG(printf_P(PSTR("[TInterface::tick] Read sensor\n")));
         read();
+        render();
     }
     // @todo Проверить как работает таймер при переполнении millis();
     /*if (m < last) {

@@ -11,8 +11,9 @@
 #include <Format.h>
 #include <EEPROMVar.h>
 #include <NetInterface.h>
+#include <DisplayHandler.h>
 
-class LightController : public NetInterface, virtual public HandlerInterface  {
+class LightController : public NetInterface, public DisplayHandler, virtual public HandlerInterface {
     static const uint8_t MAX_PIRS = 2;
     static const uint8_t TYPE_PIR = 0;
     static const uint8_t TYPE_ON = 1;

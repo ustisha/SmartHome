@@ -46,3 +46,12 @@
 [submodule "platform/core-api"]
 	path = platform/core-api
 	url = https://github.com/arduino/ArduinoCore-API
+[submodule "libraries/Adafruit_ST7735"]
+	path = libraries/Adafruit_ST7735
+	url = https://github.com/adafruit/Adafruit-ST7735-Library
+[submodule "libraries/Adafruit_GFX"]
+	path = libraries/Adafruit_GFX
+	url = https://github.com/adafruit/Adafruit-GFX-Library
+[submodule "libraries/U8g2lib"]
+	path = libraries/U8g2lib
+	url = https://github.com/olikraus/u8g2

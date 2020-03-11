@@ -142,6 +142,7 @@ const uint8_t MODE_AUTO = 1;
 const uint8_t MODE_MANUAL = 2;
 
 const uint8_t INFO_NETWORK_STARTED = 1;
+const uint8_t INFO_DISPLAY_INIT_COMPLETED = 2;
 const uint8_t INFO_SETUP_COMPLETED = 9;
 const uint8_t INFO_ERROR_DS18B20 = 20;
 const uint8_t INFO_ERROR_BME280 = 21;

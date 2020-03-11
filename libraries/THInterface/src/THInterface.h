@@ -5,7 +5,7 @@
 #include <TInterface.h>
 
 class THInterface : public TInterface {
-    using TInterface::TInterface;
+
 public:
 
     float getHumidity() {
@@ -13,7 +13,7 @@ public:
     }
 
 protected:
-    float hum;
+    float hum{};
 };
 
 #endif //TEMPHUM_H

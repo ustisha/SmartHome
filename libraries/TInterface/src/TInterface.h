@@ -5,8 +5,9 @@
 
 #include <Arduino.h>
 #include <DebugLog.h>
+#include <DisplayHandler.h>
 
-class TInterface {
+class TInterface: public DisplayHandler {
     const uint32_t DEFAULT_POLL_INTERVAL = 30000;
 public:
     TInterface() = default;
