@@ -66,7 +66,9 @@ void LightController::addButton(Button *btn) {
 void LightController::call(uint8_t type, uint8_t idx) {
     IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Type: %u, Index: %u \n"), type, idx));
     if (type == TYPE_AUTO) {
-        setMode(MODE_AUTO);
+        if (mode != MODE_AUTO) {
+            setMode(MODE_AUTO);
+        }
         this->call(TYPE_PIR, 0);
     } else if (type == TYPE_ON) {
         setMode(MODE_MANUAL);
