@@ -12,8 +12,8 @@ void DisplaySH1106::render() {
     display->firstPage();
     do {
         for (int i = 0; i < thIdx; ++i) {
-            humInfo(64, 53, th[i]->getHumidity());
-            tempInfo(64, 64, th[i]->get());
+            humInfo(84, 53, th[i]->getHumidity());
+            tempInfo(84, 64, th[i]->get());
         }
         for (int i = 0; i < lIdx; ++i) {
             lightInfo(i * 64, 0, light[i], ledBitsXBM, ledOnBitsXBM);
