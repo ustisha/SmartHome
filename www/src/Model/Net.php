@@ -9,6 +9,7 @@ class Net
     // Components
     const BROADCAST = 255;
     const GATEWAY = 00;
+    const BATHROOM = 01;
     const OUTSIDE_TEMP = 02;
     const GREENHOUSE = 03;
     const COLD_CHAMBER = 04;
@@ -92,7 +93,8 @@ class Net
 
     static protected $componentNames = [
         self::OUTSIDE_TEMP => 'outside',
-        self::COLD_CHAMBER => 'coldchamber'
+        self::COLD_CHAMBER => 'coldchamber',
+        self::BATHROOM => 'bathroom'
     ];
 
     static protected $portNames = [

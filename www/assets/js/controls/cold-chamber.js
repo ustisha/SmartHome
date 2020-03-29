@@ -49,8 +49,6 @@ coldChamber.addMapProcessor(Net.PORT_TEMP_CTRL_00, Module.TEMP_CTRL_MAP, new Tem
 coldChamber.addMapProcessor(Net.PORT_LIGHT_CTRL_00, Module.LIGHT_CTRL_MAP, new LightControllerStore());
 coldChamber.addMapProcessor(Net.PORT_LIGHT_CTRL_01, Module.LIGHT_CTRL_MAP, new LightControllerStore());
 
-window._COLD_CHAMBER_ = coldChamber;
-
 @observer
 class ColdChamber extends Component {
 
@@ -70,7 +68,9 @@ class ColdChamber extends Component {
                         <TempController module={coldChamber} port={Net.PORT_TEMP_CTRL_00} minAngle={18} maxAngle={155}/>
                     </Col>
                     <Col xs={2} lg={4}>
+                        {/* Камера */}
                         <AutoLight module={coldChamber} port={Net.PORT_LIGHT_CTRL_01}/>
+                        {/* Подвал */}
                         <AutoLight module={coldChamber} port={Net.PORT_LIGHT_CTRL_00}/>
                     </Col>
                 </Row>

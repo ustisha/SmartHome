@@ -2,6 +2,7 @@ class Net {
 
     static components = new Map([
        [Net.GATEWAY, 'gateway'],
+       [Net.BATHROOM, 'bathroom'],
        [Net.OUTSIDE_TEMP, 'outside'],
        [Net.GREENHOUSE, 'greenhouse'],
        [Net.COLD_CHAMBER, 'coldchamber']
@@ -18,6 +19,10 @@ class Net {
 
     static get GATEWAY() {
         return 0;
+    }
+
+    static get BATHROOM() {
+        return 1;
     }
 
     static get OUTSIDE_TEMP() {

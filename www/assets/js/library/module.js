@@ -146,9 +146,6 @@ export class Module {
 
     onWsOpen() {
         this.errorMessage = '';
-        if (this.attempt) {
-            this.attempt.close();
-        }
         this.loadData();
     }
 
@@ -164,7 +161,7 @@ export class Module {
     }
 
     onWsError() {
-        this.errorMessage = 'Ошибка подключения!';
+
     }
 
     /**

@@ -30,4 +30,14 @@ class DataController extends AbstractController
     {
         return $this->json([]);
     }
+
+    /**
+     * @Route("/data/bathroom", methods={"GET"}, name="data_bathroom")
+     *
+     * @return JsonResponse
+     */
+    public function bathroom()
+    {
+        return $this->json([]);
+    }
 }

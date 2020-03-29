@@ -76,7 +76,6 @@ class RadioLogRepository extends ServiceEntityRepository
         $qbGroup->select('MAX(rl.id) ')
             ->andWhere('rl.sender = :sender')
             ->andWhere('rl.direction = :direction')
-            ->andWhere($qbGroup->expr()->in('rl.command', [1, 2, 3, 4, 5]))
             ->andWhere($qbGroup->expr()->in('rl.sender_port', Net::ports()))
             ->groupBy('rl.sender, rl.sender_port, rl.command');
         if (count($commands)) {
