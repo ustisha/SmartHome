@@ -1,0 +1,17 @@
+[Unit]
+Description=Smarthome process initialize
+Wants=multi-user.target
+Requires=network-online.target apache2.service
+After=mysql.service apache2.service
+
+[Service]
+User=root
+WorkingDirectory=/var/www/home.ustisha.ru/systemd/smarthome
+ExecStart=/bin/bash start.sh > /dev/null 2>/dev/null
+ExecStop=/bin/bash stop.sh > /dev/null 2>/dev/null
+ExecReload=/bin/bash restart.sh > /dev/null 2>/dev/null
+Type=forking
+KillMode=none
+
+[Install]
+WantedBy=multi-user.target
