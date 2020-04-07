@@ -11,6 +11,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Func;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Exception;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
@@ -71,22 +72,25 @@ class RadioLogRepository extends ServiceEntityRepository
      */
     public function senderLog(int $sender, array $commands = [])
     {
-        $qb = $this->createQueryBuilder('l');
-        $qbGroup = $this->createQueryBuilder('rl');
-        $qbGroup->select('MAX(rl.id) ')
-            ->andWhere('rl.sender = :sender')
-            ->andWhere('rl.direction = :direction')
-            ->andWhere($qbGroup->expr()->in('rl.sender_port', Net::ports()))
-            ->groupBy('rl.sender, rl.sender_port, rl.command');
-        if (count($commands)) {
-            $qbGroup->andWhere($qb->expr()->in('rl.command', $commands));
-        }
+        $sql = "SELECT r.*
+                FROM radio_log r
+                INNER JOIN (SELECT MAX(r1.id) AS maxId
+                            FROM radio_log r1
+                            WHERE r1.sender = :sender
+                                AND r1.direction = :direction
+                                AND r1.command IN (:commands)
+                                GROUP BY r1.sender, r1.sender_port, r1.command
+                            ) m ON r.id = m.maxId";
 
-        $qb->setParameter('sender', $sender)
-            ->setParameter('direction', RadioAbstract::DIRECTION_IN);
-        $qb->andWhere($qb->expr()->in('l.id', $qbGroup->getDQL()));
+        $rsm = new ResultSetMappingBuilder($this->getEntityManager());
+        $rsm->addRootEntityFromClassMetadata('App\Entity\RadioLog', 'r');
 
-        return $qb->getQuery()->execute();
+        $query = $this->getEntityManager()->createNativeQuery($sql, $rsm);
+        $query->setParameter('sender', $sender)
+            ->setParameter('direction', RadioAbstract::DIRECTION_IN)
+            ->setParameter('commands', $commands);
+
+        return $query->getResult();
     }
 
     /**
@@ -105,7 +109,6 @@ class RadioLogRepository extends ServiceEntityRepository
         $qb->select('rl.sender_port', 'rl.command', $func . 'AS data')
             ->andWhere('rl.sender = :sender')
             ->andWhere('rl.direction = :direction')
-            ->andWhere($qb->expr()->in('rl.sender_port', Net::ports()))
             ->andWhere('rl.date > :from')
             ->andWhere('rl.date < :to');
 
