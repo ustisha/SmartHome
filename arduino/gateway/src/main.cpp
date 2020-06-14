@@ -152,7 +152,7 @@ int onWWWRequest(char *queryString, int resultsMaxCt) {
         } else if (0 == strcmp(var, cmd)) {
             p.setCommand(atoi(value));
         } else if (0 == strcmp(var, data)) {
-            p.setData(atoi(value));
+            p.setData(atol(value));
         }
     }
     rf24Net->sendData(&p);
