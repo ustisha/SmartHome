@@ -14,20 +14,21 @@
 #include <DisplayHandler.h>
 
 class LightController : public NetInterface, public DisplayHandler, virtual public HandlerInterface {
-    static const uint8_t MAX_PIRS = 2;
+    static const uint8_t MAX_PIRS = 1;
     static const uint8_t TYPE_PIR = 0;
     static const uint8_t TYPE_ON = 1;
     static const uint8_t TYPE_OFF = 2;
     static const uint8_t TYPE_AUTO = 3;
 public:
 
-    EEPROMVar<uint16_t> timeout;
+    EEPROMVar<uint32_t> timeout;
     EEPROMVar<uint16_t> recallTimeout;
     EEPROMVar<uint16_t> activityLimit;
     EEPROMVar<float> activityRatio;
     EEPROMVar<float> recallRatio;
     EEPROMVar<uint8_t> mode;
     EEPROMVar<uint8_t> init;
+    EEPROMVar<uint8_t> energyLvl;
 
     explicit LightController();
 
@@ -46,6 +47,8 @@ public:
     void setState(uint8_t state);
 
     void setMode(uint8_t m);
+
+    void setEnergyLevel(uint8_t lvl);
 
     void setTimeout(uint32_t t);
 
@@ -75,6 +78,8 @@ protected:
     unsigned long timeOff;
     uint8_t activity;
     uint8_t pirIdx = 0;
+
+    void resetValues();
 
     void setRelayState(uint8_t state);
 };

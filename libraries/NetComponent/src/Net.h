@@ -127,6 +127,7 @@ const uint8_t CMD_RECALL_RATIO = 22;
 const uint8_t CMD_RECALL_TIMEOUT = 23;
 const uint8_t CMD_TIME_LEFT = 24;
 const uint8_t CMD_CALL = 25;
+const uint8_t CMD_ENERGY_LEVEL = 30;
 // Info
 const uint8_t CMD_INFO = 100;
 
@@ -140,6 +141,10 @@ const uint8_t SERVO_ANGLE = 1;
 
 const uint8_t MODE_AUTO = 1;
 const uint8_t MODE_MANUAL = 2;
+
+const uint8_t ENERGY_LVL_OFF = 0;
+const uint8_t ENERGY_LVL1 = 1;
+const uint8_t ENERGY_LVL2 = 2;
 
 const uint8_t INFO_NETWORK_STARTED = 1;
 const uint8_t INFO_DISPLAY_INIT_COMPLETED = 2;

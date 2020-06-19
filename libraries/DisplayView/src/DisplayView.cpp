@@ -65,4 +65,10 @@ DisplayView::lightInfo(const uint8_t x, const uint8_t y, LightController *light,
             display->print("OFF");
         }
     }
+    if (light->energyLvl) {
+        display->setCursor(x + 5, 10);
+        display->setDrawColor(1);
+        display->print("E");
+        display->print(light->energyLvl);
+    }
 }

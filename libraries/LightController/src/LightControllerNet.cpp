@@ -17,6 +17,8 @@ void LightControllerNet::sendCommandData(RadioInterface *n, uint8_t r, uint8_t r
         sendPacket(n, r, rp, cmd, lightCtrl->recallTimeout);
     } else if (cmd == CMD_TIME_LEFT) {
         sendPacket(n, r, rp, cmd, lightCtrl->getOffTime());
+    } else if (cmd == CMD_ENERGY_LEVEL) {
+        sendPacket(n, r, rp, cmd, lightCtrl->energyLvl);
     }
 }
 
@@ -43,5 +45,7 @@ void LightControllerNet::receiveCommandData(uint8_t cmd, long data) {
         lightCtrl->setRecallTimeout(data);
     } else if (cmd == CMD_CALL) {
         lightCtrl->call(data, 0);
+    } else if (cmd == CMD_ENERGY_LEVEL) {
+        lightCtrl->setEnergyLevel(data);
     }
 }

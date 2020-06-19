@@ -30,6 +30,7 @@ protected:
 
 public:
     static const uint16_t PRESSTIME_DEFAULT = 50;
+    static const uint16_t PRESSTIME_1SEC = 1000;
     static const uint16_t PRESSTIME_2SEC = 2000;
     static const uint16_t PRESSTIME_4SEC = 4000;
 

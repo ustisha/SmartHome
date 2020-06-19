@@ -9,7 +9,8 @@ LightController::LightController() : timeout(60 * 1000),
                                      init(0),
                                      offTime(0),
                                      timeOff(0),
-                                     activity(0) {
+                                     activity(0),
+                                     energyLvl(ENERGY_LVL_OFF) {
 
     init.restore();
     if (init != 1) {
@@ -19,6 +20,7 @@ LightController::LightController() : timeout(60 * 1000),
         activityLimit.save();
         recallRatio.save();
         recallTimeout.save();
+        energyLvl.save();
 
         init = 1;
         init.save();
@@ -30,6 +32,7 @@ LightController::LightController() : timeout(60 * 1000),
         activityLimit.restore();
         recallRatio.restore();
         recallTimeout.restore();
+        energyLvl.restore();
 
         IF_SERIAL_DEBUG(printf_P(PSTR("[LightController] Restore values\n")));
     }
@@ -57,8 +60,8 @@ void LightController::addPir(PIR *pir) {
 
 void LightController::addButton(Button *btn) {
     btn->addHandler(this, TYPE_AUTO);
-    btn->addHandler(this, TYPE_ON, Button::PRESSTIME_2SEC);
-    btn->addHandler(this, TYPE_OFF, Button::PRESSTIME_4SEC);
+    btn->addHandler(this, TYPE_ON, Button::PRESSTIME_1SEC);
+    btn->addHandler(this, TYPE_OFF, Button::PRESSTIME_2SEC);
     modeButton = btn;
     IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::addButton] Control button added.\n")));
 }
@@ -66,10 +69,8 @@ void LightController::addButton(Button *btn) {
 void LightController::call(uint8_t type, uint8_t idx) {
     IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Type: %u, Index: %u \n"), type, idx));
     if (type == TYPE_AUTO) {
-        if (mode != MODE_AUTO) {
-            setMode(MODE_AUTO);
-        }
-        this->call(TYPE_PIR, 0);
+        setMode(MODE_AUTO);
+        setRelayState(RELAY_OFF);
     } else if (type == TYPE_ON) {
         setMode(MODE_MANUAL);
         setRelayState(RELAY_ON);
@@ -77,8 +78,14 @@ void LightController::call(uint8_t type, uint8_t idx) {
         setMode(MODE_MANUAL);
         setRelayState(RELAY_OFF);
     } else if (type == TYPE_PIR && mode == MODE_AUTO) {
-        uint32_t newTime = 0;
-        newTime = millis() + timeout;
+
+        if (energyLvl) {
+            // Calc timeout in energy efficient mode
+            timeout = lround(timeout / (energyLvl + 1));
+            IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Energy efficient. Mode: %u\n"), energyLvl));
+        }
+
+        uint32_t newTime = millis() + timeout;
         if (offTime != 0 && (millis() - offTime) < recallTimeout) {
             newTime += lround(timeout * recallRatio);
             IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Recall raise\n")));
@@ -86,7 +93,7 @@ void LightController::call(uint8_t type, uint8_t idx) {
             if (activity > activityLimit) {
                 activity = activityLimit;
             }
-            newTime += lround(timeout * activityRatio * activity);
+            newTime += lround(timeout * activityRatio * (float) activity);
             IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Activity increase\n")));
         }
 
@@ -104,10 +111,27 @@ void LightController::setMode(uint8_t m) {
     sendCommand(CMD_MODE);
     render();
     if (mode == MODE_AUTO) {
-        setRelayState(RELAY_OFF);
-        activity = 0;
-        timeOff = 0;
+        resetValues();
     }
+}
+
+void LightController::setEnergyLevel(uint8_t lvl) {
+    energyLvl = lvl;
+    energyLvl.save();
+    sendCommand(CMD_ENERGY_LEVEL);
+    if (energyLvl == ENERGY_LVL2) {
+        setMode(MODE_AUTO);
+    }
+    render();
+}
+
+void LightController::resetValues() {
+    setRelayState(RELAY_OFF);
+    activity = 0;
+    timeOff = 0;
+    offTime = millis();
+    render();
+    IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::tick] Reset values\n")));
 }
 
 void LightController::setTimeout(uint32_t t) {
@@ -135,7 +159,7 @@ void LightController::setRecallRatio(float ratio) {
 }
 
 void LightController::setRecallTimeout(uint16_t t) {
-    recallTimeout = t * 1000;
+    recallTimeout = t;
     recallTimeout.save();
     sendCommand(CMD_RECALL_TIMEOUT);
 }
@@ -172,21 +196,20 @@ void LightController::tick() {
     }
     unsigned long m = millis();
 
-    if (timeOff != 0 && (m % 1000) == 0) {
-        sendCommand(CMD_TIME_LEFT);
-        render();
+    if (timeOff != 0) {
+        if (((timeOff - m) % 10000) == 0) {
+            sendCommand(CMD_TIME_LEFT);
+        }
+        if ((m % 1000) == 0) {
+            render();
 #ifdef SERIAL_DEBUG
-        long off = getOffTime();
-        IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::tick] Left: %ld\n"), off));
+            long off = getOffTime();
+            IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::tick] Left: %ld\n"), off));
 #endif
-    }
-
-    if (timeOff != 0 && m > timeOff) {
-        IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::tick] Reset values\n")));
-        activity = 0;
-        timeOff = 0;
-        offTime = m;
-        setRelayState(RELAY_OFF);
+        }
+        if (m > timeOff) {
+            resetValues();
+        }
     }
 }
 
@@ -198,4 +221,5 @@ void LightController::sendValues() {
     sendCommand(CMD_ACTIVITY_LIMIT);
     sendCommand(CMD_RECALL_RATIO);
     sendCommand(CMD_RECALL_TIMEOUT);
+    sendCommand(CMD_ENERGY_LEVEL);
 }
