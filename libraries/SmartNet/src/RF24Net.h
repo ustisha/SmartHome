@@ -11,6 +11,13 @@
 #include <SmartNet.h>
 #include <Format.h>
 
+/**
+ * Recommended settings for RF24Network_config.h to save RAM.
+ *
+ * #define DISABLE_FRAGMENTATION
+ * #define MAIN_BUFFER_SIZE 72 + 10
+ */
+
 #define RF24_DEFAULT_CE 8
 #define RF24_DEFAULT_CSN 9
 #define RF24_CHANNEL 46
