@@ -55,3 +55,6 @@
 [submodule "libraries/U8g2lib"]
 	path = libraries/U8g2lib
 	url = https://github.com/olikraus/u8g2
+[submodule "libraries/DHT_nonblocking"]
+	path = libraries/DHT_nonblocking
+	url = https://github.com/olewolf/DHT_nonblocking
