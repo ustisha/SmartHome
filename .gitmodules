@@ -1,6 +1,3 @@
-[submodule "libraries/BH1750"]
-	path = libraries/BH1750
-	url = https://github.com/claws/BH1750
 [submodule "libraries/DallasTemperature"]
 	path = libraries/DallasTemperature
 	url = https://github.com/milesburton/Arduino-Temperature-Control-Library
@@ -58,3 +55,6 @@
 [submodule "libraries/DHT_nonblocking"]
 	path = libraries/DHT_nonblocking
 	url = https://github.com/olewolf/DHT_nonblocking
+[submodule "libraries/BH1750"]
+	path = libraries/BH1750
+	url = https://github.com/ustisha/BH1750
