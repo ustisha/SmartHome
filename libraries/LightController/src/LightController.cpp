@@ -78,15 +78,14 @@ void LightController::call(uint8_t type, uint8_t idx) {
         setMode(MODE_MANUAL);
         setRelayState(RELAY_OFF);
     } else if (type == TYPE_PIR && mode == MODE_AUTO) {
-
+        unsigned long m = millis();
         if (energyLvl) {
             // Calc timeout in energy efficient mode
             timeout = lround(timeout / (energyLvl + 1));
             IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Energy efficient. Mode: %u\n"), energyLvl));
         }
-
-        uint32_t newTime = millis() + timeout;
-        if (offTime != 0 && (millis() - offTime) < recallTimeout) {
+        uint32_t newTime = m + timeout;
+        if (offTime != 0 && (m - offTime) < recallTimeout) {
             newTime += lround(timeout * recallRatio);
             IF_SERIAL_DEBUG(printf_P(PSTR("[LightController::call] Recall raise\n")));
         } else if (activity >= 1) {
