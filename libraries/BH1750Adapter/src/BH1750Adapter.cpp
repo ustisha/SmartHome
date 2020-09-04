@@ -1,8 +1,8 @@
 #include "BH1750Adapter.h"
 
-BH1750Adapter::BH1750Adapter() {
+BH1750Adapter::BH1750Adapter(BH1750Adapter::BHMode mode) {
     bh = new BH1750();
-    status = (int) bh->begin();
+    status = (int) bh->begin(mode);
 }
 
 void BH1750Adapter::read() {

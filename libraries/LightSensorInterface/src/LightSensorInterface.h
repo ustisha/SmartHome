@@ -4,8 +4,6 @@
 class LightSensorInterface {
 public:
 
-    virtual ~LightSensorInterface() = default;
-
     virtual void read() = 0;
 
     float get();

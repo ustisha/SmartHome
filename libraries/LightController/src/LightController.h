@@ -9,6 +9,7 @@
 #include <PIR.h>
 #include <Relay.h>
 #include <Format.h>
+#include <EEPROMex.h>
 #include <EEPROMVar.h>
 #include <NetInterface.h>
 #include <DisplayHandler.h>

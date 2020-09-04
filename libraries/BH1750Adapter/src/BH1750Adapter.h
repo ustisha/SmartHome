@@ -9,14 +9,13 @@
 #include <LightSensorInterface.h>
 
 class BH1750Adapter : public LightSensorInterface {
-    using LightSensorInterface::LightSensorInterface;
+    typedef BH1750::Mode BHMode;
 public:
-
-    explicit BH1750Adapter();
+    explicit BH1750Adapter(BHMode mode);
 
     void read() override;
 
-    int getStatus();
+    auto getStatus() -> int;
 
 protected:
     BH1750 *bh;

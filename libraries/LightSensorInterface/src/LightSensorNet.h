@@ -5,7 +5,6 @@
 #include <DebugLog.h>
 #include <NetComponent.h>
 #include <LightSensorInterface.h>
-#include <SmartNet.h>
 
 class LightSensorNet : public NetComponent {
 
