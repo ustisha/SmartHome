@@ -1,3 +1,6 @@
+# Use with 'arduino/main-display'
+#set(ARDUINO_CPU atmega2560)
+
 set(CMAKE_TOOLCHAIN_FILE arduino-cmake/cmake/ArduinoToolchain.cmake) # Arduino Toolchain
 
 set(ARDUINO_C_FLAGS "-s -Os -w -ffunction-sections -fdata-sections -MMD")
@@ -23,6 +26,7 @@ link_directories(${CMAKE_SOURCE_DIR}/libraries)
 #add_subdirectory(arduino/exmaple)
 #add_subdirectory(arduino/cold-chamber)
 #add_subdirectory(arduino/bathroom)
+#add_subdirectory(arduino/main-display)
 #add_subdirectory(arduino/outside-temp)
 #add_subdirectory(arduino/greenhouse)
 #add_subdirectory(arduino/gateway)

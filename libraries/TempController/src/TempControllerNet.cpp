@@ -16,24 +16,24 @@ void TempControllerNet::sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp
     }
 }
 
-void TempControllerNet::receiveCommandData(uint8_t cmd, long data) {
-    IF_SERIAL_DEBUG(printf_P(PSTR("[TempControllerNet::receiveCommandData] Cmd: %i, Data: %ld\n"), cmd, data));
+void TempControllerNet::receiveCommandData(Packet *p) {
+    IF_SERIAL_DEBUG(printf_P(PSTR("[TempControllerNet::receiveCommandData] Cmd: %i, Data: %ld\n"), p->getCommand(), p->getData()));
 
-    if (cmd == CMD_INFO) {
-        if (data == CMD_GET_VALUES) {
+    if (p->getCommand() == CMD_INFO) {
+        if (p->getData() == CMD_GET_VALUES) {
             tempCtrl->sendValues();
         }
-    } else if (cmd >= CMD_RELAY_00 && cmd <= CMD_RELAY_09) {
-        tempCtrl->setRelayState(cmd - CMD_RELAY_00, data);
-    } else if (cmd >= CMD_SERVO_00 && cmd <= CMD_SERVO_09) {
-        tempCtrl->setServoState(cmd - CMD_SERVO_00, data);
-    } else if (cmd == CMD_MODE) {
-        tempCtrl->setMode(data);
-    } else if (cmd == CMD_DOWN_LIMIT) {
-        tempCtrl->setDownLimit(float(data) / 100);
-    } else if (cmd == CMD_UP_LIMIT) {
-        tempCtrl->setUpLimit(float(data) / 100);
-    } else if (cmd == CMD_TIMEOUT) {
-        tempCtrl->setTimeout(data);
+    } else if (p->getCommand() >= CMD_RELAY_00 && p->getCommand() <= CMD_RELAY_09) {
+        tempCtrl->setRelayState(p->getCommand() - CMD_RELAY_00, p->getData());
+    } else if (p->getCommand() >= CMD_SERVO_00 && p->getCommand() <= CMD_SERVO_09) {
+        tempCtrl->setServoState(p->getCommand() - CMD_SERVO_00, p->getData());
+    } else if (p->getCommand() == CMD_MODE) {
+        tempCtrl->setMode(p->getData());
+    } else if (p->getCommand() == CMD_DOWN_LIMIT) {
+        tempCtrl->setDownLimit(float(p->getData()) / 100);
+    } else if (p->getCommand() == CMD_UP_LIMIT) {
+        tempCtrl->setUpLimit(float(p->getData()) / 100);
+    } else if (p->getCommand() == CMD_TIMEOUT) {
+        tempCtrl->setTimeout(p->getData());
     }
 }

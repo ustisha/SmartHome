@@ -15,7 +15,7 @@ void SmartNet::addNetComponent(NetComponent *nc) {
 void SmartNet::commandReceived(Packet *p) {
     for (int i = 0; i < maxCmp; i++) {
         if (components[i].netComponent != nullptr) {
-            components[i].netComponent->receiveHandle(p->getReceiverPort(), p->getCommand(), p->getData());
+            components[i].netComponent->receiveHandle(p);
         }
     }
 }

@@ -22,30 +22,30 @@ void LightControllerNet::sendCommandData(RadioInterface *n, uint8_t r, uint8_t r
     }
 }
 
-void LightControllerNet::receiveCommandData(uint8_t cmd, long data) {
-    IF_SERIAL_DEBUG(printf_P(PSTR("[LightControllerNet::receiveCommandData] Cmd: %i, Data: %ld\n"), cmd, data));
+void LightControllerNet::receiveCommandData(Packet *p) {
+    IF_SERIAL_DEBUG(printf_P(PSTR("[LightControllerNet::receiveCommandData] Cmd: %i, Data: %ld\n"), p->getCommand(), p->getData()));
 
-    if (cmd == CMD_INFO) {
-        if (data == CMD_GET_VALUES) {
+    if (p->getCommand() == CMD_INFO) {
+        if (p->getData() == CMD_GET_VALUES) {
             lightCtrl->sendValues();
         }
-    } else if (cmd >= CMD_RELAY_00 && cmd <= CMD_RELAY_09) {
-        lightCtrl->setState(data);
-    } else if (cmd == CMD_MODE) {
-        lightCtrl->setMode(data);
-    } else if (cmd == CMD_TIMEOUT) {
-        lightCtrl->setTimeout(data);
-    } else if (cmd == CMD_ACTIVITY_RATIO) {
-        lightCtrl->setActivityRatio(float(data) / 100);
-    } else if (cmd == CMD_ACTIVITY_LIMIT) {
-        lightCtrl->setActivityLimit(data);
-    } else if (cmd == CMD_RECALL_RATIO) {
-        lightCtrl->setRecallRatio(float(data) / 100);
-    } else if (cmd == CMD_RECALL_TIMEOUT) {
-        lightCtrl->setRecallTimeout(data);
-    } else if (cmd == CMD_CALL) {
-        lightCtrl->call(data, 0);
-    } else if (cmd == CMD_ENERGY_LEVEL) {
-        lightCtrl->setEnergyLevel(data);
+    } else if (p->getCommand() >= CMD_RELAY_00 && p->getCommand() <= CMD_RELAY_09) {
+        lightCtrl->setState(p->getData());
+    } else if (p->getCommand() == CMD_MODE) {
+        lightCtrl->setMode(p->getData());
+    } else if (p->getCommand() == CMD_TIMEOUT) {
+        lightCtrl->setTimeout(p->getData());
+    } else if (p->getCommand() == CMD_ACTIVITY_RATIO) {
+        lightCtrl->setActivityRatio(float(p->getData()) / 100);
+    } else if (p->getCommand() == CMD_ACTIVITY_LIMIT) {
+        lightCtrl->setActivityLimit(p->getData());
+    } else if (p->getCommand() == CMD_RECALL_RATIO) {
+        lightCtrl->setRecallRatio(float(p->getData()) / 100);
+    } else if (p->getCommand() == CMD_RECALL_TIMEOUT) {
+        lightCtrl->setRecallTimeout(p->getData());
+    } else if (p->getCommand() == CMD_CALL) {
+        lightCtrl->call(p->getData(), 0);
+    } else if (p->getCommand() == CMD_ENERGY_LEVEL) {
+        lightCtrl->setEnergyLevel(p->getData());
     }
 }

@@ -1,7 +1,7 @@
 #ifndef NETCOMPONENT_H
 #define NETCOMPONENT_H
 
-//#define SERIAL_DEBUG
+#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <SmartNet.h>
@@ -36,9 +36,9 @@ public:
 
     virtual void sendCommandData(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd) = 0;
 
-    void receiveHandle(uint16_t rp, uint8_t cmd, long data);
+    void receiveHandle(Packet *p);
 
-    void sendPacket(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd, long data);
+    void sendPacket(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd, long data) const;
 
     void tick(uint16_t sleep = 0);
 
@@ -50,7 +50,7 @@ protected:
     uint32_t sleepTime;
     R *rcvr;
 
-    virtual void receiveCommandData(uint8_t cmd, long data) = 0;
+    virtual void receiveCommandData(Packet *p) = 0;
 };
 
 #endif //NETCOMPONENT_H

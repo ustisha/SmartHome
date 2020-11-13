@@ -49,13 +49,13 @@ void NetComponent::tick(uint16_t sleep) {
     }
 }
 
-void NetComponent::receiveHandle(uint16_t rp, uint8_t cmd, long data) {
-    if (rp == this->sport) {
-        receiveCommandData(cmd, data);
+void NetComponent::receiveHandle(Packet *p) {
+    if (p->getReceiverPort() == this->sport) {
+        receiveCommandData(p);
     }
 }
 
-void NetComponent::sendPacket(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd, long data) {
+void NetComponent::sendPacket(RadioInterface *n, uint8_t r, uint8_t rp, uint8_t cmd, long data) const {
     Packet p{};
     p.setSender(sender);
     p.setSenderPort(sport);

@@ -63,11 +63,13 @@ struct Packet {
 
 // Components
 const uint16_t BROADCAST = 255;
+const uint16_t WWW = 254;
 const uint16_t GATEWAY = 00;
 const uint16_t BATHROOM = 01;
 const uint16_t OUTSIDE_TEMP = 02;
 const uint16_t GREENHOUSE = 03;
 const uint16_t COLD_CHAMBER = 04;
+const uint16_t MAIN_DISPLAY = 05;
 
 // Component ports
 const uint8_t PORT_HTTP_HANDLER = 255;
@@ -78,12 +80,14 @@ const uint8_t PORT_BH1750 = 4;
 const uint8_t PORT_VCC = 5;
 const uint8_t PORT_VALUE = 6;
 const uint8_t PORT_TEMP_CTRL = 7;
+const uint8_t PORT_DISPLAY = 8;
 const uint8_t PORT_DHT22 = 9;
 const uint8_t PORT_LIGHT_CTRL_00 = 10;
 const uint8_t PORT_LIGHT_CTRL_01 = 11;
 const uint8_t PORT_LIGHT_CTRL_02 = 12;
 const uint8_t PORT_LIGHT_CTRL_03 = 13;
 const uint8_t PORT_LIGHT_CTRL_04 = 14;
+const uint8_t PORT_RTC_CLOCK = 15;
 
 // Commands
 const uint8_t CMD_TEMPERATURE = 1;
@@ -120,6 +124,12 @@ const uint8_t CMD_SERVO_09 = 59;
 // Temp controller commands
 const uint8_t CMD_UP_LIMIT = 10;
 const uint8_t CMD_DOWN_LIMIT = 11;
+// RTC set time
+const uint8_t CMD_RTC_DATE = 12;
+const uint8_t CMD_RTC_TIME = 13;
+// Free commands
+// 18
+// 19
 // Light controller commands
 const uint8_t CMD_ACTIVITY_RATIO = 20;
 const uint8_t CMD_ACTIVITY_LIMIT = 21;
