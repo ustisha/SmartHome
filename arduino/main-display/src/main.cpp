@@ -1,4 +1,4 @@
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <DebugLog.h>
@@ -70,7 +70,10 @@ void setup() {
 
     display = new DisplaySSD1289(38, 39, 40, 41);
     displaySsd1289Net = new DisplaySSD1289Net(net, PORT_DISPLAY, 1, display);
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Display started\n")));
+
     clockNet = new ClockNet(net, PORT_RTC_CLOCK, 1, display->clock);
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Clock started\n")));
 
     dht22 = new DHTAdapter(A3, DHT_TYPE_22);
     dht22->setPollInterval(SENSOR_INTERVAL);
@@ -78,6 +81,7 @@ void setup() {
     thNet = new THNet(net, PORT_DHT22, 2, dht22);
     thNet->addReceiver(rf24Net, GATEWAY, PORT_HTTP_HANDLER, CMD_TEMPERATURE, SENSOR_INTERVAL);
     thNet->addReceiver(rf24Net, GATEWAY, PORT_HTTP_HANDLER, CMD_HUMIDITY, SENSOR_INTERVAL);
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Main] DHT22 started\n")));
 
     task = new Task(1);
     task->each(onTimeRender, 1000);

@@ -1,7 +1,7 @@
 #ifndef CLOCKNET_H
 #define CLOCKNET_H
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <DebugLog.h>

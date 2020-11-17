@@ -1,7 +1,7 @@
 #ifndef NETCOMPONENT_H
 #define NETCOMPONENT_H
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <SmartNet.h>

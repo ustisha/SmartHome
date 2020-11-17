@@ -1,7 +1,7 @@
 #ifndef CLOCKSTRING_H
 #define CLOCKSTRING_H
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <DebugLog.h>

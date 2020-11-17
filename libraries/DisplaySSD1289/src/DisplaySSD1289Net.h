@@ -1,7 +1,7 @@
 #ifndef DISPLAYNET_H
 #define DISPLAYNET_H
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <DebugLog.h>

@@ -1,7 +1,7 @@
 #ifndef DISPLAYWINDOW_H
 #define DISPLAYWINDOW_H
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <UTFT.h>
 #include <DebugLog.h>

@@ -1,7 +1,7 @@
 #ifndef FORMAT_H
 #define FORMAT_H
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Arduino.h>
 #include <IPAddress.h>

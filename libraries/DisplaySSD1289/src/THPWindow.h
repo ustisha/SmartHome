@@ -1,7 +1,7 @@
 #ifndef THPWINDOW_H
 #define THPWINDOW_H
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #include <Format.h>
 #include <DisplayWindow.h>
