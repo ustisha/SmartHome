@@ -79,3 +79,6 @@
 [submodule "libraries/RtcDS1307"]
 	path = libraries/RtcDS1307
 	url = https://github.com/Makuna/Rtc
+[submodule "libraries/FastLED"]
+	path = libraries/FastLED
+	url = https://github.com/FastLED/FastLED
