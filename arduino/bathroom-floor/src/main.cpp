@@ -19,12 +19,12 @@
 #define RELAY1 A1
 #define RELAY2 A2
 
-#define ONE_WIRE_BUS 2
+#define ONE_WIRE_BUS 4
 #define RADIO_RESET_CE 9
 #define RADIO_SS_CSN 10
 
-#define SENSOR_INTERVAL 120
-#define POLL_INTERVAL 110
+#define SENSOR_INTERVAL 60
+#define POLL_INTERVAL 60
 
 const int memBase = 20;
 
@@ -54,8 +54,8 @@ void setup()
     EEPROM.setMemPool(memBase, EEPROMSizeATmega328);
 
     SPI.begin();
-    net = new SmartNet(BATHROOM_TEMP, 4);
-    rf24Net = new RF24Net(net, BATHROOM_TEMP, radio);
+    net = new SmartNet(BATHROOM_FLOOR, 4);
+    rf24Net = new RF24Net(net, BATHROOM_FLOOR, radio);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Radio initialized\n")));
 
     // Info network started
@@ -90,7 +90,6 @@ void setup()
     tempControllerT = new TempController(dsTempT, 1, 0, 27.0, 28.0);
     tempControllerT->addRelay(r1, 0, TempController::TYPE_TEMPERATURE
                                      | TempController::TYPE_BELOW_DOWN_LIMIT, 0, 0);
-    tempControllerT->setTimeout(5000);
     tempControllerNetT = new TempControllerNet(net, PORT_TEMP_CTRL, 1, tempControllerT);
     tempControllerT->addNet(rf24Net, tempControllerNetT, GATEWAY, PORT_HTTP_HANDLER);
 
@@ -98,8 +97,7 @@ void setup()
     tempControllerB = new TempController(dsTempB, 1, 0, 27.0, 28.0);
     tempControllerB->addRelay(r2, 0, TempController::TYPE_TEMPERATURE
                                      | TempController::TYPE_BELOW_DOWN_LIMIT, 0, 0);
-    tempControllerB->setTimeout(5000);
-    tempControllerNetB = new TempControllerNet(net, PORT_TEMP_CTRL, 1, tempControllerB);
+    tempControllerNetB = new TempControllerNet(net, PORT_TEMP_CTRL_2, 1, tempControllerB);
     tempControllerB->addNet(rf24Net, tempControllerNetB, GATEWAY, PORT_HTTP_HANDLER);
 
 
