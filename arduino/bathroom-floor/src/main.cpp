@@ -108,6 +108,8 @@ void setup()
 
 void loop()
 {
+    rf24Net->tick();
+
     dsTempT->tick();
     dsTempB->tick();
     tempNetT->tick();
