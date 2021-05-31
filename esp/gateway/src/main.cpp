@@ -46,18 +46,31 @@ void callback(char *topic, byte *payload, unsigned int length)
     packet.setSenderPort(PORT_HTTP_HANDLER);
     char *p = strtok(topic, "/");
     uint8_t i = 0;
+    int32_t r = -1, port = -1, cmd = -1;
     while (p != nullptr) {
         if (i == 1) {
-            packet.setReceiver(MqttUtils::getCode(p, components, COMPONENTS_LEN));
+            r = MqttUtils::getCode(p, components, COMPONENTS_LEN);
         } else if (i == 2) {
-            packet.setReceiverPort(MqttUtils::getCode(p, ports, PORTS_LEN));
+            port = MqttUtils::getCode(p, ports, PORTS_LEN);
         } else if (i == 3) {
-            packet.setCommand(MqttUtils::getCode(p, commands, COMMANDS_LEN));
+            cmd = MqttUtils::getCode(p, commands, COMMANDS_LEN);
         }
         i++;
         p = strtok(nullptr, "/");
     }
-    packet.setData(atol(payloadBuf));
+    if (r == -1 || port == -1 || cmd == -1) {
+        IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Can not translate topic\n")));
+        return;
+    }
+    packet.setReceiver(r);
+    packet.setReceiverPort(port);
+    packet.setCommand(cmd);
+    if (MqttUtils::isFloat(cmd, floatCommands, FLOAT_COMMANDS_LEN)) {
+        float fVar = atof(payloadBuf);
+        packet.setData(lroundf(fVar * 100));
+    } else {
+        packet.setData(atol(payloadBuf));
+    }
     rf24Net->sendData(&packet);
 }
 
@@ -67,8 +80,7 @@ void reconnect()
         return;
     }
     IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Connecting to MQTT\n")));
-    String clientId = "MQTT-Gateway-";
-    clientId += String(random(0xffff), HEX);
+    String clientId = "MQTT-Gateway";
     if (client.connect(clientId.c_str(), mqttUser, mqttPassword)) {
         IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Connected to MQTT: %s\n"), mqttServer));
         client.publish("gateway/state", "ready");
@@ -80,16 +92,29 @@ void reconnect()
 
 void onReceiveNRF(Packet *p)
 {
-    char topic[64];
-    char sender[16];
-    char senderPort[16];
-    char command[16];
-    char payload[8];
-    MqttUtils::getName(sender, p->getSender(), components, COMPONENTS_LEN);
-    MqttUtils::getName(senderPort, p->getSenderPort(), ports, PORTS_LEN);
-    MqttUtils::getName(command, p->getCommand(), commands, COMMANDS_LEN);
+    if (!client.connected()) {
+        return;
+    }
+    char topic[64] = {};
+    char sender[16] = {};
+    char senderPort[16] = {};
+    char command[22] = {};
+    char payload[16] = {};
+    bool cmp = MqttUtils::getName(sender, p->getSender(), components, COMPONENTS_LEN);
+    bool port = MqttUtils::getName(senderPort, p->getSenderPort(), ports, PORTS_LEN);
+    bool cmd = MqttUtils::getName(command, p->getCommand(), commands, COMMANDS_LEN);
+    if (!cmp || !port || !cmd) {
+        IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Can not translate packet\n")));
+        return;
+    }
     sprintf(topic, "gateway/%s/%s/%s", sender, senderPort, command);
-    itoa(p->getData(), payload, 10);
+    if (MqttUtils::isFloat(p->getCommand(), floatCommands, FLOAT_COMMANDS_LEN)) {
+        double fVar = float(p->getData()) / 100;
+        String fStr(fVar);
+        fStr.toCharArray(payload, 16);
+    } else {
+        itoa(p->getData(), payload, 10);
+    }
     IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Publish: %s, %s\n"), topic, payload));
     client.publish(topic, payload, true);
 }
