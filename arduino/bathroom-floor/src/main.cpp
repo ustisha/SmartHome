@@ -88,18 +88,31 @@ void setup()
 
     r1 = new Relay(RELAY1, false);
     tempControllerT = new TempController(dsTempT, 1, 0, 27.0, 28.0);
-    tempControllerT->addRelay(r1, 0, TempController::TYPE_TEMPERATURE
-                                     | TempController::TYPE_BELOW_DOWN_LIMIT, 0, 0);
+    tempControllerT->addRelay(r1,
+                              0,
+                              TempController::TYPE_TEMPERATURE
+                              | TempController::TYPE_BELOW_DOWN_LIMIT
+                              | TempController::TYPE_ABOVE_UP_LIMIT,
+                              0,
+                              0);
     tempControllerNetT = new TempControllerNet(net, PORT_TEMP_CTRL, 1, tempControllerT);
     tempControllerT->addNet(rf24Net, tempControllerNetT, GATEWAY, PORT_HTTP_HANDLER);
+    tempControllerT->initDone();
+    tempControllerT->sendValues();
 
     r2 = new Relay(RELAY2, false);
     tempControllerB = new TempController(dsTempB, 1, 0, 27.0, 28.0);
-    tempControllerB->addRelay(r2, 0, TempController::TYPE_TEMPERATURE
-                                     | TempController::TYPE_BELOW_DOWN_LIMIT, 0, 0);
+    tempControllerB->addRelay(r2,
+                              0,
+                              TempController::TYPE_TEMPERATURE
+                              | TempController::TYPE_BELOW_DOWN_LIMIT
+                              | TempController::TYPE_ABOVE_UP_LIMIT,
+                              0,
+                              0);
     tempControllerNetB = new TempControllerNet(net, PORT_TEMP_CTRL_2, 1, tempControllerB);
     tempControllerB->addNet(rf24Net, tempControllerNetB, GATEWAY, PORT_HTTP_HANDLER);
-
+    tempControllerB->initDone();
+    tempControllerB->sendValues();
 
     net->sendInfo(rf24Net, INFO_SETUP_COMPLETED);
     IF_SERIAL_DEBUG(
