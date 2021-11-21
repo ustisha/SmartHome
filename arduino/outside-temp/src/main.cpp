@@ -34,7 +34,7 @@ void printf_begin(void) {
 #define ONE_WIRE_BUS 2
 
 #define SENSOR_INTERVAL 120
-#define POLL_INTERVAL 110
+#define POLL_INTERVAL 60
 
 const uint16_t SLEEP = 4000;
 const float vccCorrection = 1.0/1.0;
