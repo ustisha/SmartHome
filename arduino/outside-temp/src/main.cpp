@@ -96,7 +96,7 @@ void setup(void) {
         thpNet->addReceiver(rf24NetSleep, GATEWAY, PORT_HTTP_HANDLER, CMD_PRESSURE, SENSOR_INTERVAL);
     }
 
-    bhLight = new BH1750Adapter(BH1750::ONE_TIME_HIGH_RES_MODE);
+    bhLight = new BH1750Adapter(BH1750_TO_GROUND);
     lightNet = new LightSensorNet(net, PORT_BH1750, 1, bhLight);
     if (!bhLight->getStatus()) {
         // BH1750 error
