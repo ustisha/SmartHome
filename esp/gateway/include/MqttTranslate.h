@@ -5,17 +5,18 @@
 
 struct NetMap
 {
-    const char name[20];
+    const char name[32];
     uint16_t code;
 };
 
-const uint8_t COMPONENTS_LEN = 10;
+const uint8_t COMPONENTS_LEN = 11;
 NetMap const components[COMPONENTS_LEN] = {
         {"broadcast",      BROADCAST},
         {"www",            WWW},
         {"gateway",        GATEWAY},
         {"bathroom",       BATHROOM},
         {"bathroom_floor", BATHROOM_FLOOR},
+        {"bathroom_valve", BATHROOM_VALVE},
         {"outside_temp",   OUTSIDE_TEMP},
         {"outside_temp",   OUTSIDE_TEMP},
         {"greenhouse",     GREENHOUSE},
@@ -49,11 +50,11 @@ NetMap const ports[PORTS_LEN] = {
         {"18b20_2",       PORT_18B20_2},
         {"18b20_3",       PORT_18B20_3},
         {"18b20_4",       PORT_18B20_4},
-        {"relay_1",       PORT_RELAY_1},
-        {"relay_2",       PORT_RELAY_2},
-        {"relay_3",       PORT_RELAY_3},
-        {"relay_4",       PORT_RELAY_4},
-        {"relay_5",       PORT_RELAY_5},
+        {"washing_machine", PORT_WASHING_MACHINE},
+        {"tvirtual_1",      PORT_TVIRTUAL_1},
+        {"tvirtual_2",      PORT_TVIRTUAL_2},
+        {"tvirtual_3",      PORT_TVIRTUAL_3},
+        {"tvirtual_4",      PORT_TVIRTUAL_4},
         {"value2",        PORT_VALUE_2},
         {"value3",        PORT_VALUE_3},
         {"value4",        PORT_VALUE_4},
@@ -67,7 +68,7 @@ NetMap const ports[PORTS_LEN] = {
         {"temp_ctrl_4",   PORT_TEMP_CTRL_4},
 };
 
-const uint8_t COMMANDS_LEN = 58;
+const uint8_t COMMANDS_LEN = 61;
 NetMap const commands[COMMANDS_LEN] = {
         {"temperature",        CMD_TEMPERATURE},
         {"humidity",           CMD_HUMIDITY},
@@ -119,7 +120,10 @@ NetMap const commands[COMMANDS_LEN] = {
         {"rtc_time",           CMD_RTC_TIME},
         {"moisture",           CMD_MOISTURE},
         {"motion",             CMD_MOTION},
-        {"activity_ratio",     CMD_ACTIVITY_RATIO},
+        {"washing_state",         CMD_WASHING_STATE},
+        {"washing_remaining_sec", CMD_WASHING_REMAINING_SEC},
+        {"washing_door_opened",   CMD_WASHING_DOOR_OPENED},
+        {"activity_ratio",        CMD_ACTIVITY_RATIO},
         {"activity_limit",     CMD_ACTIVITY_LIMIT},
         {"recall_ratio",       CMD_RECALL_RATIO},
         {"recall_timeout",     CMD_RECALL_TIMEOUT},

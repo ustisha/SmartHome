@@ -33,13 +33,13 @@ Task *task;
 SmartNet *smartNet;
 RF24Net *rf24Net;
 
-void callback(char *topic, byte *payload, unsigned int length)
+void callback(char *topic, const byte *payload, unsigned int length)
 {
     char payloadBuf[8]{};
     for (int i = 0; i < length; i++) {
         payloadBuf[i] = (char) (payload[i] + 0);
     }
-    IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Message arrived: %s, %s\n"), topic, payloadBuf));
+    IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Message arrived: %s, '%s'\n"), topic, payloadBuf));
 
     Packet packet{};
     packet.setSender(GATEWAY);
@@ -48,6 +48,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     uint8_t i = 0;
     int32_t r = -1, port = -1, cmd = -1;
     while (p != nullptr) {
+        IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Message part: %s\n"), p));
         if (i == 1) {
             r = MqttUtils::getCode(p, components, COMPONENTS_LEN);
         } else if (i == 2) {
@@ -66,10 +67,10 @@ void callback(char *topic, byte *payload, unsigned int length)
     packet.setReceiverPort(port);
     packet.setCommand(cmd);
     if (MqttUtils::isFloat(cmd, floatCommands, FLOAT_COMMANDS_LEN)) {
-        float fVar = atof(payloadBuf);
-        packet.setData(lroundf(fVar * 100));
+        double dd = strtod(payloadBuf, nullptr);
+        packet.setData(lround(dd * 100));
     } else {
-        packet.setData(atol(payloadBuf));
+        packet.setData(strtol(payloadBuf, nullptr, 10));
     }
     rf24Net->sendData(&packet);
 }
