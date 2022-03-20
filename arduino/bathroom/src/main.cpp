@@ -162,6 +162,9 @@ void setup(void) {
 
     net->sendInfo(rf24Net, INFO_SETUP_COMPLETED);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Setup completed. Ram: %d\n"), freeRAM()));
+
+    lightController1->sendValues();
+    lightController2->sendValues();
 }
 
 void loop(void) {
