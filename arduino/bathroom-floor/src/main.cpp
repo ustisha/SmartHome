@@ -9,22 +9,22 @@
 
 #endif
 
+#include <NetInterface.h>
 #include <DS18B20Adapter.h>
 #include <RF24Net.h>
 #include <TNet.h>
-#include <TempController.h>
-#include <TempControllerNet.h>
 #include <Relay.h>
+#include <CtrlRelay.h>
+#include <TempCtrlRelay.h>
+#include <TempCtrlRelayNet.h>
 
-#define RELAY1 A1
-#define RELAY2 A2
+#define RELAY1 5
+#define RELAY2 6
 
-#define ONE_WIRE_BUS 4
-#define RADIO_RESET_CE 9
-#define RADIO_SS_CSN 10
+#define ONE_WIRE_BUS A5
 
 #define SENSOR_INTERVAL 60
-#define POLL_INTERVAL 60
+#define POLL_INTERVAL 20
 
 const int memBase = 20;
 
@@ -34,11 +34,12 @@ SmartNet *net;
 RF24Net *rf24Net;
 TNet *tempNetT, *tempNetB;
 DS18B20Adapter *dsTempT, *dsTempB;
-TempController *tempControllerT, *tempControllerB;
-TempControllerNet *tempControllerNetT, *tempControllerNetB;
 Relay *r1, *r2;
+CtrlRelay *ctrlRelay1, *ctrlRelay2;
+TempCtrlRelay *tempCtrlT, *tempCtrlB;
+TempCtrlRelayNet *tempCtrlNetT, *tempCtrlNetB;
 
-RF24 radio(RADIO_RESET_CE, RADIO_SS_CSN);
+RF24 radio(RF24_DEFAULT_CE, RF24_DEFAULT_CSN);
 
 void setup()
 {
@@ -55,14 +56,14 @@ void setup()
 
     SPI.begin();
     net = new SmartNet(BATHROOM_FLOOR, 4);
-    rf24Net = new RF24Net(net, BATHROOM_FLOOR, radio);
+    rf24Net = new RF24Net(net, BATHROOM_FLOOR, radio, RF24_PA_LOW);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Radio initialized\n")));
 
     // Info network started
     net->sendInfo(rf24Net, INFO_NETWORK_STARTED);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Network started\n")));
 
-    dsTempT = new DS18B20Adapter(&oneWire, 0);
+    dsTempT = new DS18B20Adapter(&oneWire, 1);
     dsTempT->setPollInterval(POLL_INTERVAL);
     tempNetT = new TNet(net, PORT_18B20, 1, dsTempT);
     if (!dsTempT->getStatus()) {
@@ -74,7 +75,7 @@ void setup()
         tempNetT->addReceiver(rf24Net, GATEWAY, PORT_HTTP_HANDLER, CMD_TEMPERATURE, SENSOR_INTERVAL);
     }
 
-    dsTempB = new DS18B20Adapter(&oneWire, 1);
+    dsTempB = new DS18B20Adapter(&oneWire, 0);
     dsTempB->setPollInterval(POLL_INTERVAL);
     tempNetB = new TNet(net, PORT_18B20_2, 1, dsTempB);
     if (!dsTempB->getStatus()) {
@@ -87,32 +88,29 @@ void setup()
     }
 
     r1 = new Relay(RELAY1, false);
-    tempControllerT = new TempController(dsTempT, 1, 0, 27.0, 28.0);
-    tempControllerT->addRelay(r1,
-                              0,
-                              TempController::TYPE_TEMPERATURE
-                              | TempController::TYPE_BELOW_DOWN_LIMIT
-                              | TempController::TYPE_ABOVE_UP_LIMIT,
-                              0,
-                              0);
-    tempControllerNetT = new TempControllerNet(net, PORT_TEMP_CTRL, 1, tempControllerT);
-    tempControllerT->addNet(rf24Net, tempControllerNetT, GATEWAY, PORT_HTTP_HANDLER);
-    tempControllerT->initDone();
-    tempControllerT->sendValues();
+    ctrlRelay1 = new CtrlRelay(r1);
+    tempCtrlT = new TempCtrlRelay(reinterpret_cast<THInterface *>(dsTempT),
+                                  ctrlRelay1,
+                                  27.0,
+
+                                  28.0,
+                                  TempCtrl::TYPE_TEMPERATURE
+                                  | TempCtrl::TYPE_BELOW_DOWN_LIMIT);
+    tempCtrlNetT = new TempCtrlRelayNet(net, PORT_TEMP_CTRL, 1, tempCtrlT);
+    tempCtrlT->addNet(rf24Net, tempCtrlNetT, GATEWAY, PORT_HTTP_HANDLER);
+    tempCtrlT->sendValues();
 
     r2 = new Relay(RELAY2, false);
-    tempControllerB = new TempController(dsTempB, 1, 0, 27.0, 28.0);
-    tempControllerB->addRelay(r2,
-                              0,
-                              TempController::TYPE_TEMPERATURE
-                              | TempController::TYPE_BELOW_DOWN_LIMIT
-                              | TempController::TYPE_ABOVE_UP_LIMIT,
-                              0,
-                              0);
-    tempControllerNetB = new TempControllerNet(net, PORT_TEMP_CTRL_2, 1, tempControllerB);
-    tempControllerB->addNet(rf24Net, tempControllerNetB, GATEWAY, PORT_HTTP_HANDLER);
-    tempControllerB->initDone();
-    tempControllerB->sendValues();
+    ctrlRelay2 = new CtrlRelay(r2);
+    tempCtrlB = new TempCtrlRelay(reinterpret_cast<THInterface *>(dsTempB),
+                                  ctrlRelay2,
+                                  27.0,
+                                  28.0,
+                                  TempCtrl::TYPE_TEMPERATURE
+                                  | TempCtrl::TYPE_BELOW_DOWN_LIMIT);
+    tempCtrlNetB = new TempCtrlRelayNet(net, PORT_TEMP_CTRL_2, 1, tempCtrlB);
+    tempCtrlB->addNet(rf24Net, tempCtrlNetB, GATEWAY, PORT_HTTP_HANDLER);
+    tempCtrlB->sendValues();
 
     net->sendInfo(rf24Net, INFO_SETUP_COMPLETED);
     IF_SERIAL_DEBUG(
@@ -127,8 +125,8 @@ void loop()
     dsTempB->tick();
     tempNetT->tick();
     tempNetB->tick();
-    tempControllerT->tick();
-    tempControllerB->tick();
-    tempControllerNetT->tick();
-    tempControllerNetB->tick();
+    tempCtrlT->tick(0);
+    tempCtrlB->tick(0);
+    tempCtrlNetT->tick();
+    tempCtrlNetB->tick();
 }
