@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <DebugLog.h>
+#include <Config.h>
 
 #ifdef SERIAL_DEBUG
 
@@ -15,9 +16,10 @@
 #include <DS18B20Adapter.h>
 #include <AnalogReader.h>
 #include <Relay.h>
-#include <RelayNet.h>
+#include <CtrlRelay.h>
+#include <CtrlRelayNet.h>
 #include <TksM8.h>
-#include <Motion.h>
+#include <MotionCtrl.h>
 #include <TempCtrlRelay.h>
 #include <LightController.h>
 #include <SmartNet.h>
@@ -27,9 +29,11 @@
 #include <MotionNet.h>
 #include <TempCtrlRelayNet.h>
 #include <LightControllerNet.h>
+#include <TempCtrlGroup.h>
+#include <TempCtrlGroupNet.h>
 
 #define ONE_WIRE_BUS 3
-#define DHT22 5
+#define DHT22_PIN 5
 #define RADIO_RESET_CE 48
 #define RADIO_SS_CSN 49
 
@@ -51,9 +55,9 @@
 #define TKS2_SW2 30
 
 // @todo 10 is debug value
-#define SENSOR_INTERVAL 30
-#define MOISTURE_INTERVAL 10
-#define POLL_INTERVAL 30
+#define SENSOR_INTERVAL 60
+#define MOISTURE_INTERVAL 60
+#define POLL_INTERVAL 60
 
 const int memBase = 20;
 
@@ -63,15 +67,18 @@ THNet *thNet;
 TNet *tempNetT;
 DHTAdapter *dht22;
 DS18B20Adapter *dsTempT;
-Motion *m1;
+MotionCtrl *m1;
 MotionNet *mNet1;
 Relay *r1, *r2, *r3, *r4;
-RelayNet *relayNet1;
+CtrlRelay *ctrlRelay1, *ctrlRelay2, *ctrlRelay4, *ctrlActuator1, *ctrlActuator2;
+CtrlRelayNet *ctrlRelayNet1;
 TksM8 *actuator1, *actuator2;
 LightController *lightController;
 LightControllerNet *lightControllerNet;
-TempCtrlRelay *tempController;
-TempCtrlRelayNet *tempControllerNet;
+TempCtrlRelay *tempControllerRelay2, *tempControllerRelay4, *tempControllerActuator1, *tempControllerActuator2;
+TempCtrlRelayNet *tempControllerNet2, *tempControllerNet4, *tempControllerNetActuator1, *tempControllerNetActuator2;
+TempCtrlGroup *tempCtrlGroup;
+TempCtrlGroupNet *tempCtrlGroupNet;
 AnalogReader *moisture1, *moisture2, *moisture3;
 ValueIntNet *moistureNet1, *moistureNet2, *moistureNet3;
 
@@ -79,7 +86,8 @@ OneWire oneWire(ONE_WIRE_BUS);
 RF24 radio(RADIO_RESET_CE, RADIO_SS_CSN);
 
 
-void setup(void) {
+void setup(void)
+{
 #ifdef SERIAL_DEBUG
     Serial.begin(57600);
     printf_begin();
@@ -91,8 +99,8 @@ void setup(void) {
 
     EEPROM.setMemPool(memBase, EEPROMSizeATmega1280);
 
-    net = new SmartNet(GREENHOUSE, 9);
-    rf24Net = new RF24Net(net, GREENHOUSE, radio);
+    net = new SmartNet(GREENHOUSE, 13);
+    rf24Net = new RF24Net(net, GREENHOUSE, radio, RF24_PA_MAX);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Radio initialized\n")));
 
     // Info network started
@@ -111,102 +119,119 @@ void setup(void) {
         tempNetT->addReceiver(rf24Net, GATEWAY, PORT_HTTP_HANDLER, CMD_TEMPERATURE, SENSOR_INTERVAL);
     }
 
-    dht22 = new DHTAdapter(DHT22, DHT_TYPE_22);
+    dht22 = new DHTAdapter(DHT22_PIN, DHT22);
     dht22->setPollInterval(POLL_INTERVAL);
     thNet = new THNet(net, PORT_DHT22, 2, dht22);
     thNet->addReceiver(rf24Net, GATEWAY, PORT_HTTP_HANDLER, CMD_TEMPERATURE, SENSOR_INTERVAL);
     thNet->addReceiver(rf24Net, GATEWAY, PORT_HTTP_HANDLER, CMD_HUMIDITY, SENSOR_INTERVAL);
 
     moisture1 = new AnalogReader(MOISTURE_1);
-    // max 637 min 310
-    moisture1->setMapValues(310, 640, 100, 0);
-    moisture1->enableFilter();
+    moisture1->setOutputValues(100, 0);
     moistureNet1 = new ValueIntNet(net, PORT_VALUE, 1, moisture1);
     moistureNet1->addReceiver(rf24Net, GATEWAY, PORT_HTTP_HANDLER, CMD_MOISTURE, MOISTURE_INTERVAL);
+    moisture1->addNet(rf24Net, moistureNet1, GATEWAY, PORT_HTTP_HANDLER);
+    moisture1->sendValues();
 
     moisture2 = new AnalogReader(MOISTURE_2);
-    // max 630 min 300
-    moisture2->setMapValues(300, 630, 100, 0);
-    moisture2->enableFilter();
+    moisture2->setOutputValues(100, 0);
     moistureNet2 = new ValueIntNet(net, PORT_VALUE_2, 1, moisture2);
     moistureNet2->addReceiver(rf24Net, GATEWAY, PORT_HTTP_HANDLER, CMD_MOISTURE, MOISTURE_INTERVAL);
+    moisture2->addNet(rf24Net, moistureNet2, GATEWAY, PORT_HTTP_HANDLER);
+    moisture2->sendValues();
 
     moisture3 = new AnalogReader(MOISTURE_3);
-    // max 630 min 305
-    moisture3->setMapValues(305, 630, 100, 0);
-    moisture3->enableFilter();
+    moisture3->setOutputValues(100, 0);
     moistureNet3 = new ValueIntNet(net, PORT_VALUE_3, 1, moisture3);
     moistureNet3->addReceiver(rf24Net, GATEWAY, PORT_HTTP_HANDLER, CMD_MOISTURE, MOISTURE_INTERVAL);
+    moisture3->addNet(rf24Net, moistureNet3, GATEWAY, PORT_HTTP_HANDLER);
+    moisture3->sendValues();
 
     r1 = new Relay(R1);
     r2 = new Relay(R2);
     r3 = new Relay(R3);
     r4 = new Relay(R4);
-    r1->off();
-    r2->off();
-    r3->off();
-    r4->off();
+    ctrlRelay1 = new CtrlRelay(r1);
+    ctrlRelay2 = new CtrlRelay(r2);
+    ctrlRelay4 = new CtrlRelay(r4);
 
-    relayNet1 = new RelayNet(net, PORT_RELAY_1, 1, r1);
-    r1->addNet(rf24Net, relayNet1, GATEWAY, PORT_HTTP_HANDLER);
+    ctrlRelayNet1 = new CtrlRelayNet(net, PORT_RELAY_00, 1, ctrlRelay1);
+    ctrlRelay1->addNet(rf24Net, ctrlRelayNet1, GATEWAY, PORT_HTTP_HANDLER);
 
     actuator1 = new TksM8(TKS1_K1, TKS1_K2, TKS1_SW1, TKS1_SW2, 15);
     actuator2 = new TksM8(TKS2_K1, TKS2_K2, TKS2_SW1, TKS2_SW2, 15);
     actuator1->off();
     actuator2->off();
+    ctrlActuator1 = new CtrlRelay(actuator1);
+    ctrlActuator2 = new CtrlRelay(actuator2);
 
-    m1 = new Motion(MOTION1, 5, 1);
+    m1 = new MotionCtrl(MOTION1, 5, 1);
     mNet1 = new MotionNet(net, PORT_MOTION_1, 1, m1);
     m1->addNet(rf24Net, mNet1, GATEWAY, PORT_HTTP_HANDLER);
+    m1->sendValues();
+
     lightController = new LightController();
-    lightController->setTimeout(30 * 1000);
     lightController->addRelay(r3);
     lightController->addMotion(m1);
     lightControllerNet = new LightControllerNet(net, PORT_LIGHT_CTRL_00, 1, lightController);
     lightController->addNet(rf24Net, lightControllerNet, GATEWAY, PORT_HTTP_HANDLER);
     lightController->sendValues();
 
-    tempController = new TempCtrlRelay(dht22, 4, 28.0, 30.0);
-    tempController->addRelay(r2,
-                             0,
-                             TempCtrlRelay::TYPE_TEMPERATURE
-                             | TempCtrlRelay::TYPE_BELOW_DOWN_LIMIT
-                             | TempCtrlRelay::TYPE_ABOVE_DOWN_LIMIT,
-                             1,
-                             1);
-    tempController->addRelay(r4,
-                             1,
-                             TempCtrlRelay::TYPE_TEMPERATURE
-                             | TempCtrlRelay::TYPE_BELOW_DOWN_LIMIT
-                             | TempCtrlRelay::TYPE_ABOVE_DOWN_LIMIT,
-                             3,
-                             2);
-    tempController->addRelay(actuator1,
-                             2,
-                             TempCtrlRelay::TYPE_TEMPERATURE
-                             | TempCtrlRelay::TYPE_ABOVE_UP_LIMIT
-                             | TempCtrlRelay::TYPE_BELOW_UP_LIMIT,
-                             5,
-                             5);
-    tempController->addRelay(actuator2,
-                             3,
-                             TempCtrlRelay::TYPE_TEMPERATURE
-                             | TempCtrlRelay::TYPE_ABOVE_UP_LIMIT
-                             | TempCtrlRelay::TYPE_BELOW_UP_LIMIT,
-                             0,
-                             5);
+    tempControllerRelay2 = new TempCtrlRelay(
+            dht22,
+            ctrlRelay2,
+            8.0,
+            10.0,
+            TempCtrlRelay::TYPE_TEMPERATURE | TempCtrl::TYPE_BELOW_DOWN_LIMIT);
+    tempControllerRelay4 = new TempCtrlRelay(
+            dht22,
+            ctrlRelay4,
+            6.0,
+            8.0,
+            TempCtrlRelay::TYPE_TEMPERATURE | TempCtrl::TYPE_BELOW_DOWN_LIMIT);
+    tempControllerActuator1 = new TempCtrlRelay(
+            dht22,
+            ctrlActuator1,
+            18.0,
+            20.0,
+            TempCtrlRelay::TYPE_TEMPERATURE | TempCtrl::TYPE_ABOVE_UP_LIMIT);
+    tempControllerActuator2 = new TempCtrlRelay(
+            dht22,
+            ctrlActuator2,
+            26.0,
+            24.0,
+            TempCtrlRelay::TYPE_TEMPERATURE | TempCtrl::TYPE_ABOVE_UP_LIMIT);
 
-    tempController->initDone();
-    tempControllerNet = new TempCtrlRelayNet(net, PORT_TEMP_CTRL, 1, tempController);
-    tempController->addNet(rf24Net, tempControllerNet, GATEWAY, PORT_HTTP_HANDLER);
-    tempController->sendValues();
+    tempControllerNet2 = new TempCtrlRelayNet(net, PORT_TEMP_CTRL, 1, tempControllerRelay2);
+    tempControllerRelay2->addNet(rf24Net, tempControllerNet2, GATEWAY, PORT_HTTP_HANDLER);
+    tempControllerNet4 = new TempCtrlRelayNet(net, PORT_TEMP_CTRL_2, 1, tempControllerRelay4);
+    tempControllerRelay4->addNet(rf24Net, tempControllerNet4, GATEWAY, PORT_HTTP_HANDLER);
+    tempControllerNetActuator1 = new TempCtrlRelayNet(net, PORT_TEMP_CTRL_3, 1, tempControllerActuator1);
+    tempControllerActuator1->addNet(rf24Net, tempControllerNetActuator1, GATEWAY, PORT_HTTP_HANDLER);
+    tempControllerNetActuator2 = new TempCtrlRelayNet(net, PORT_TEMP_CTRL_4, 1, tempControllerActuator2);
+    tempControllerActuator2->addNet(rf24Net, tempControllerNetActuator2, GATEWAY, PORT_HTTP_HANDLER);
+
+    tempCtrlGroup = new TempCtrlGroup(4);
+    tempCtrlGroup->addTempCtrl(tempControllerRelay2, 0);
+    tempCtrlGroup->addTempCtrl(tempControllerRelay4, 1);
+    tempCtrlGroup->addTempCtrl(tempControllerActuator1, 2);
+    tempCtrlGroup->addTempCtrl(tempControllerActuator2, 3);
+
+    tempCtrlGroupNet = new TempCtrlGroupNet(net, PORT_TEMP_CTRL_GROUP_1, 1, tempCtrlGroup);
+    tempCtrlGroup->addNet(rf24Net, tempCtrlGroupNet, GATEWAY, PORT_HTTP_HANDLER);
+    tempCtrlGroup->sendValues();
+
+    tempControllerRelay2->sendValues();
+    tempControllerRelay4->sendValues();
+    tempControllerActuator1->sendValues();
+    tempControllerActuator2->sendValues();
 
     net->sendInfo(rf24Net, INFO_SETUP_COMPLETED);
     IF_SERIAL_DEBUG(
             printf_P(PSTR("[Main] Setup completed. Ram: %d\n"), freeRAM()));
 }
 
-void loop(void) {
+void loop(void)
+{
     rf24Net->tick();
 
     dsTempT->tick();
@@ -214,7 +239,6 @@ void loop(void) {
     dht22->tick();
     thNet->tick();
 
-    relayNet1->tick();
     moistureNet1->tick();
     moistureNet2->tick();
     moistureNet3->tick();
@@ -226,6 +250,16 @@ void loop(void) {
 
     actuator1->tick();
     actuator2->tick();
-    tempController->tick(0);
-    tempControllerNet->tick();
+    tempControllerRelay2->tick(0);
+    tempControllerRelay4->tick(0);
+    tempControllerActuator1->tick(0);
+    tempControllerActuator2->tick(0);
+
+    tempControllerNet2->tick();
+    tempControllerNet4->tick();
+    tempControllerNetActuator1->tick();
+    tempControllerNetActuator2->tick();
+    tempCtrlGroupNet->tick();
+
+    ctrlRelayNet1->tick(0);
 }
