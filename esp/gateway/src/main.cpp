@@ -96,10 +96,10 @@ void onReceiveNRF(Packet *p)
     if (!client.connected()) {
         return;
     }
-    char topic[64] = {};
-    char sender[16] = {};
-    char senderPort[16] = {};
-    char command[22] = {};
+    char topic[128] = {};
+    char sender[32] = {};
+    char senderPort[32] = {};
+    char command[32] = {};
     char payload[16] = {};
     bool cmp = MqttUtils::getName(sender, p->getSender(), components, COMPONENTS_LEN);
     bool port = MqttUtils::getName(senderPort, p->getSenderPort(), ports, PORTS_LEN);
@@ -156,7 +156,7 @@ void setup()
     client.setCallback(callback);
 
     smartNet = new SmartNet(GATEWAY, 0);
-    rf24Net = new RF24Net(smartNet, GATEWAY, radio);
+    rf24Net = new RF24Net(smartNet, GATEWAY, radio, RF24_PA_MAX);
     rf24Net->onReceiveFunc(onReceiveNRF);
 
     task = new Task(2);
