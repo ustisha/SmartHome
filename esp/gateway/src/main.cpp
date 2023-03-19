@@ -2,6 +2,8 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 #include <PubSubClient.h>
 #include <DebugLog.h>
 #include <DebugFunc.h>
@@ -11,6 +13,7 @@
 #include <MqttTranslate.h>
 #include <SmartNet.h>
 #include <Task.h>
+#include <DHT.h>
 
 const char *ssid = "";
 const char *password = "";
@@ -18,20 +21,24 @@ const char *mqttServer = "";
 const char *mqttUser = "";
 const char *mqttPassword = "";
 
-#define RF24_CE 2
-#define RF24_CSN 4
+#define RF24_CE D2
+#define RF24_CSN D4
+#define DHT22_PIN D3
+#define PIR D1
+
+#define DHTTYPE DHT22
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-unsigned long lastMsg = 0;
-#define MSG_BUFFER_SIZE    (50)
-char msg[MSG_BUFFER_SIZE];
-int value = 0;
+uint16_t countOk = 0;
+uint16_t countFail = 0;
 
 RF24 radio(RF24_CE, RF24_CSN);
 Task *task;
 SmartNet *smartNet;
 RF24Net *rf24Net;
+DHT *dht;
+bool pirState;
 
 void callback(char *topic, const byte *payload, unsigned int length)
 {
@@ -72,7 +79,18 @@ void callback(char *topic, const byte *payload, unsigned int length)
     } else {
         packet.setData(strtol(payloadBuf, nullptr, 10));
     }
-    rf24Net->sendData(&packet);
+    bool status = rf24Net->sendData(&packet);
+    rf24Net->tick();
+    delay(2);
+
+    char countMessagesBuff[16] = {};
+    if (status) {
+        itoa(++countOk, countMessagesBuff, 10);
+        client.publish("gateway/state/rf24net/ok", countMessagesBuff);
+    } else {
+        itoa(++countFail, countMessagesBuff, 10);
+        client.publish("gateway/state/rf24net/fail", countMessagesBuff);
+    }
 }
 
 void reconnect()
@@ -84,7 +102,9 @@ void reconnect()
     String clientId = "MQTT-Gateway";
     if (client.connect(clientId.c_str(), mqttUser, mqttPassword)) {
         IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Connected to MQTT: %s\n"), mqttServer));
-        client.publish("gateway/state", "ready");
+        client.publish("gateway/state/status", "ready");
+        client.publish("gateway/state/rf24net/ok", "0");
+        client.publish("gateway/state/rf24net/fail", "0");
         client.subscribe("command/#");
     } else {
         IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Connecting to MQTT failed: %d\n"), client.state()));
@@ -118,6 +138,46 @@ void onReceiveNRF(Packet *p)
     }
     IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Publish: %s, %s\n"), topic, payload));
     client.publish(topic, payload, true);
+    yield();
+}
+
+void sendTemp() {
+    Packet *v;
+    float h = dht->readHumidity();
+    float t = dht->readTemperature();
+    if (isnan(h) || isnan(t)) {
+        IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Failed to read from DHT sensor!\n")));
+        return;
+    }
+
+    v = new Packet();
+    v->setSender(WWW);
+    v->setSenderPort(PORT_DHT22);
+    v->setCommand(CMD_TEMPERATURE);
+    v->setData((long) (t * 100));
+    onReceiveNRF(v);
+
+    v = new Packet();
+    v->setSender(WWW);
+    v->setSenderPort(PORT_DHT22);
+    v->setCommand(CMD_HUMIDITY);
+    v->setData((long) (h * 100));
+    onReceiveNRF(v);
+}
+
+void pirDetection() {
+    Packet *v;
+    bool currentState = (bool) digitalRead(PIR);
+    if (currentState != pirState) {
+        pirState = currentState;
+        IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] PIR state: %d\n"), pirState));
+        v = new Packet();
+        v->setSender(WWW);
+        v->setSenderPort(PORT_MOTION_1);
+        v->setCommand(CMD_MOTION);
+        v->setData((long) pirState);
+        onReceiveNRF(v);
+    }
 }
 
 void setup()
@@ -145,6 +205,38 @@ void setup()
     }
     randomSeed(micros());
 
+    ArduinoOTA.onStart([]() {
+        char type[12] = {};
+        if (ArduinoOTA.getCommand() == U_FLASH) {
+            strcat(type, "sketch");
+        } else {  // U_FS
+            strcat(type, "filesystem");
+        }
+        // NOTE: if updating FS this would be the place to unmount FS using FS.end()
+        IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Start updating: %s\n"), type));
+    });
+    ArduinoOTA.onEnd([]() {
+        IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] End\n")));
+    });
+    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+        IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Progress: %u%%\n"), (progress / (total / 100))));
+    });
+    ArduinoOTA.onError([](ota_error_t error) {
+        IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Error: %u\n"), error));
+        if (error == OTA_AUTH_ERROR) {
+            IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Auth Failed\n")));
+        } else if (error == OTA_BEGIN_ERROR) {
+            IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Begin Failed\n")));
+        } else if (error == OTA_CONNECT_ERROR) {
+            IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Connect Failed\n")));
+        } else if (error == OTA_RECEIVE_ERROR) {
+            IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Receive Failed\n")));
+        } else if (error == OTA_END_ERROR) {
+            IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] End Failed\n")));
+        }
+    });
+    ArduinoOTA.begin();
+
 #ifdef SERIAL_DEBUG
     IPAddress localIp = WiFi.localIP();
     char ipStr[16];
@@ -159,8 +251,17 @@ void setup()
     rf24Net = new RF24Net(smartNet, GATEWAY, radio, RF24_PA_MAX);
     rf24Net->onReceiveFunc(onReceiveNRF);
 
-    task = new Task(2);
+    pinMode(DHT22_PIN, INPUT);
+    dht = new DHT(DHT22_PIN, DHTTYPE);
+    dht->begin();
+
+    pinMode(PIR, INPUT);
+    pirState = digitalRead(PIR);
+
+    task = new Task(4);
     task->each(reconnect, 5000);
+    task->each(sendTemp, 10000);
+    task->each(pirDetection, 500);
     task->one(reconnect, 500);
 
     IF_SERIAL_DEBUG(printf_P(PSTR("[Gateway] Setup completed. Ram: %d\n"), freeRAM()));
@@ -168,9 +269,8 @@ void setup()
 
 void loop()
 {
-    task->tick();
-    if (client.connected()) {
-        client.loop();
-    }
+    ArduinoOTA.handle();
+    client.loop();
     rf24Net->tick();
+    task->tick();
 }

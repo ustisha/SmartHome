@@ -9,7 +9,7 @@ struct NetMap
     uint16_t code;
 };
 
-const uint8_t COMPONENTS_LEN = 12;
+const uint8_t COMPONENTS_LEN = 10;
 NetMap const components[COMPONENTS_LEN] = {
         {"broadcast",      BROADCAST},
         {"www",            WWW},
@@ -18,10 +18,8 @@ NetMap const components[COMPONENTS_LEN] = {
         {"bathroom_floor", BATHROOM_FLOOR},
         {"bathroom_valve", BATHROOM_VALVE},
         {"cold_chamber",   COLD_CHAMBER},
-        {"terrace_drain",  TERRACE_DRAIN},
         {"outside_temp",   OUTSIDE_TEMP},
         {"greenhouse",     GREENHOUSE},
-        {"garage_gates",   GARAGE_GATES},
         {"garage",         GARAGE},
 };
 
