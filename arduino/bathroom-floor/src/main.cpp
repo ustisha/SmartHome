@@ -54,7 +54,6 @@ void setup()
 
     EEPROM.setMemPool(memBase, EEPROMSizeATmega328);
 
-    SPI.begin();
     net = new SmartNet(BATHROOM_FLOOR, 4);
     rf24Net = new RF24Net(net, BATHROOM_FLOOR, radio, RF24_PA_LOW);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Radio initialized\n")));
@@ -92,7 +91,6 @@ void setup()
     tempCtrlT = new TempCtrlRelay(reinterpret_cast<THInterface *>(dsTempT),
                                   ctrlRelay1,
                                   27.0,
-
                                   28.0,
                                   TempCtrl::TYPE_TEMPERATURE
                                   | TempCtrl::TYPE_BELOW_DOWN_LIMIT);
@@ -125,6 +123,8 @@ void loop()
     dsTempB->tick();
     tempNetT->tick();
     tempNetB->tick();
+    rf24Net->tick();
+
     tempCtrlT->tick(0);
     tempCtrlB->tick(0);
     tempCtrlNetT->tick();
