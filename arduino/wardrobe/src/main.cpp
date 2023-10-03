@@ -70,8 +70,6 @@ void setup()
     lightController1 = new LightController();
     lightController1->addRelay(r1);
     lightController1->addMotion(m1);
-
-
     lightControllerNet1 = new LightControllerNet(net, PORT_LIGHT_CTRL_00, 1, lightController1);
     lightController1->addNet(rf24Net, lightControllerNet1, GATEWAY, PORT_HTTP_HANDLER);
 
@@ -105,10 +103,6 @@ void loop()
 #endif
     rf24Net->tick();
     door1->tick();
-    m1->tick();
-    m2->tick();
-    motionNet1->tick();
-    motionNet2->tick();
     lightController1->tick();
     lightControllerNet1->tick();
     lightController2->tick();
