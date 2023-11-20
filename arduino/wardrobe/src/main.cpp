@@ -24,7 +24,6 @@
 #define DOOR 4
 #define RELAY1 5
 #define RELAY2 6
-#define DETECT_DELAY 5 //30
 
 SmartNet *net;
 RF24Net *rf24Net;
@@ -37,7 +36,7 @@ Relay *r1, *r2;
 MotionCtrl *m1, *m2;
 MotionNet *motionNet1, *motionNet2;
 
-RF24 radio(RF24_DEFAULT_CE, RF24_DEFAULT_CSN);
+RF24 radio(RF24_DEFAULT_CE, RF24_DEFAULT_CSN, RF24_SPI_SPEED_8);
 
 void setup()
 {
@@ -51,7 +50,7 @@ void setup()
             printf_P(PSTR("[Main] System started. Ram: %d\n"), freeRAM()));
 
     net = new SmartNet(WARDROBE, 5);
-    rf24Net = new RF24Net(net, WARDROBE, radio, RF24_PA_MAX);
+    rf24Net = new RF24Net(net, WARDROBE, radio, RF24_PA_HIGH);
     IF_SERIAL_DEBUG(printf_P(PSTR("[Main] Radio initialized\n")));
 
     // Info network started
@@ -62,7 +61,7 @@ void setup()
     doorNet1 = new ValueIntNet(net, PORT_VALUE_2, 1, door1);
     door1->addNet(rf24Net, doorNet1, GATEWAY, PORT_HTTP_HANDLER);
 
-    m1 = new MotionCtrl(MOTION1, DETECT_DELAY, 1, false);
+    m1 = new MotionCtrl(MOTION1, 1, false);
     motionNet1 = new MotionNet(net, PORT_MOTION_1, 1, m1);
     m1->addNet(rf24Net, motionNet1, GATEWAY, PORT_HTTP_HANDLER);
 
@@ -73,7 +72,7 @@ void setup()
     lightControllerNet1 = new LightControllerNet(net, PORT_LIGHT_CTRL_00, 1, lightController1);
     lightController1->addNet(rf24Net, lightControllerNet1, GATEWAY, PORT_HTTP_HANDLER);
 
-    m2 = new MotionCtrl(MOTION2, DETECT_DELAY, 1, false);
+    m2 = new MotionCtrl(MOTION2, 1, false);
     motionNet2 = new MotionNet(net, PORT_MOTION_2, 1, m2);
     m2->addNet(rf24Net, motionNet2, GATEWAY, PORT_HTTP_HANDLER);
 
